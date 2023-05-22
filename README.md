@@ -1,3 +1,7 @@
+# NostrSDK
+
+A description of this package.
+
 # libp2p-app-template
 
 > Clone this repo to get a swift-libp2p template app that makes getting started writing a new app quick and easy!
@@ -28,4 +32,3 @@ swift package test    # executes the packages tests
 swift run Run routes  # prints the protocols your app supports
 swift run Run serve --hostname 127.0.0.1 --port 10333  # specify the host and port to listen on
 ```
-
