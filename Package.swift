@@ -43,6 +43,7 @@ let package = Package(
                 .target(name: "App"),
                 //.target(name: "NostrSDK"),
             ],
+            resources: [.copy("Fixtures")],
             plugins: [.plugin(name: "SwiftLintPlugin", package: "SwiftLint")]
             ),
     ]
