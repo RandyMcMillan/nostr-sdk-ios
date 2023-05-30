@@ -21,7 +21,8 @@ let package = Package(
         .package(url: "https://github.com/swift-libp2p/swift-libp2p-mplex", .upToNextMinor(from: "0.1.0")),
         //.package(url: "https://github.com/nostr-sdk/nostr-sdk-ios.git", .upToNextMajor(from: "0.1.0")),
         .package(url: "https://github.com/realm/SwiftLint.git", .upToNextMinor(from: "0.52.2")),
-        .package(url: "https://github.com/apple/swift-docc-plugin.git", from: "1.0.0")
+        .package(url: "https://github.com/apple/swift-docc-plugin.git", from: "1.0.0"),
+        //.package(url: "https://github.com/GigaBitcoin/secp256k1.swift", from: "0.12.2")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -36,7 +37,11 @@ let package = Package(
             plugins: [.plugin(name: "SwiftLintPlugin", package: "SwiftLint")]),
         .executableTarget(
             name: "Run",
-            dependencies: [.target(name: "App")]),
+            dependencies: [
+            .target(name: "App"),
+            //.product(name: "secp256k1", package: "secp256k1.swift")
+            ]
+            ),
         .testTarget(
             name: "AppTests",
             dependencies: [
