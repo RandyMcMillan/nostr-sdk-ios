@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "libp2p-nostr",
-    platforms: [.macOS(.v12)],
+    platforms: [.macOS(.v12), .iOS(.v15)],
     products: [
         .library(
             name: "App",
