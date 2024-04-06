@@ -37,8 +37,6 @@ swift run Run serve --hostname 127.0.0.1 --port 10333  # specify the host and po
 
 [Nostr](https://github.com/nostr-protocol/nostr) SDK library for Apple Platforms.
 
-**Warning: The API is not currently stable and not guaranteed to be backwards compatible yet.**
-
 ## Minimum Requirements
 
 - Swift 5.7.1
