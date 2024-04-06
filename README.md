@@ -4,7 +4,7 @@
 
 A description of this package.
 
-# libp2p-app-template
+# libp2p-nostr
 
 > Clone this repo to get a swift-libp2p template app that makes getting started writing a new app quick and easy!
 
@@ -35,7 +35,7 @@ swift run Run routes  # prints the protocols your app supports
 swift run Run serve --hostname 127.0.0.1 --port 10333  # specify the host and port to listen on
 ```
 
-[Nostr](https://github.com/nostr-protocol/nostr) SDK library for Apple Platforms.
+Nostr SDK for Apple Platforms is a native Swift library that enables developers to quickly and easily build [Nostr](https://github.com/nostr-protocol/nostr)-based apps for Apple platforms.
 
 ## Minimum Requirements
 
@@ -43,13 +43,9 @@ swift run Run serve --hostname 127.0.0.1 --port 10333  # specify the host and po
 - iOS 15
 - macOS 12
 
-## Features
-
-TBD
-
 ## Spec Compliance
 
-Nostr SDK iOS implements the following NIPs:
+The following [NIPs](https://github.com/nostr-protocol/nips) are implemented:
 
 - [x] [NIP-01: Basic protocol flow description](https://github.com/nostr-protocol/nips/blob/master/01.md)
 - [x] [NIP-02: Follow List](https://github.com/nostr-protocol/nips/blob/master/02.md)
@@ -115,12 +111,17 @@ Nostr SDK iOS implements the following NIPs:
 
 Nostr SDK can be integrated as an Xcode project target or a Swift package target.
 
+[Releases](https://github.com/nostr-sdk/nostr-sdk-ios/releases) follow [semantic versioning](https://semver.org/).
+
 ### Xcode Project Target
 
 1. Go to `File` -> `Add Package Dependencies`.
 2. Type https://github.com/nostr-sdk/nostr-sdk-ios.git into the search field.
 3. Select `nostr-sdk-ios` from the search results.
-4. Click `Add Package`.
+4. Select `Up to Next Major Version` starting from the latest release as the dependency rule.
+5. Ensure your project is selected next to `Add to Project`.
+6. Click `Add Package`.
+7. On the package product dialog, add `NostrSDK` to your target and click `Add Package`.
 
 ### Swift Package Target
 
@@ -133,7 +134,7 @@ let package = Package(
 	// ...
     dependencies: [
         // ...
-        .package(url: "https://github.com/nostr-sdk/nostr-sdk-ios.git", branch: "master")
+        .package(url: "https://github.com/nostr-sdk/nostr-sdk-ios.git", .upToNextMajor(from: "0.1.0"))
     ],
     targets: [
         .target(
@@ -159,3 +160,12 @@ These are the core maintainers of this library and their Nostr public keys.
 - [Bryan Montz](https://github.com/bryanmontz) ([npub1qlk0nqupxmlyxravg0aqscxmcc4q4tq898z6x003rykwwh3npj0syvyayc](https://njump.me/npub1qlk0nqupxmlyxravg0aqscxmcc4q4tq898z6x003rykwwh3npj0syvyayc))
 - [Joel Klabo](https://github.com/joelklabo) ([npub19a86gzxctwtz68l8zld2u9y2fjvyyj4juyx8m5geylssrmfj27eqs22ckt](https://njump.me/npub19a86gzxctwtz68l8zld2u9y2fjvyyj4juyx8m5geylssrmfj27eqs22ckt))
 - [Terry Yiu](https://github.com/tyiu) ([npub1yaul8k059377u9lsu67de7y637w4jtgeuwcmh5n7788l6xnlnrgs3tvjmf](https://njump.me/npub1yaul8k059377u9lsu67de7y637w4jtgeuwcmh5n7788l6xnlnrgs3tvjmf))
+
+## Acknowledgements
+
+- [Swift-DocC Plugin](https://github.com/apple/swift-docc-plugin) - [Apache License 2.0, Apple Inc.](https://github.com/apple/swift-docc-plugin/blob/main/LICENSE.txt)
+- [SymbolKit](https://github.com/apple/swift-docc-symbolkit) - [Apache License 2.0, Apple Inc.](https://github.com/apple/swift-docc-symbolkit/blob/main/LICENSE.txt)
+- [secp256k1.swift](https://github.com/GigaBitcoin/secp256k1.swift) - [MIT License, Copyright (c) 2020 GigaBitcoin LLC](https://github.com/GigaBitcoin/secp256k1.swift/blob/main/LICENSE)
+- [CryptoSwift](https://github.com/krzyzanowskim/CryptoSwift) - [Copyright (C) 2014-3099 Marcin Krzyżanowski](https://github.com/krzyzanowskim/CryptoSwift/blob/main/LICENSE)
+- [Bech32](https://github.com/0xDEADP00L/Bech32/blob/master/Sources/Bech32.swift) - [MIT License, Copyright 2018 Evolution Group Limited](https://github.com/0xDEADP00L/Bech32/blob/master/LICENSE)
+- [Nos Data+Encoding.swift](https://github.com/planetary-social/nos/blob/main/Nos/Extensions/Data%2BEncoding.swift) - [MIT License, Copyright 2024 © Verse Communications](https://njump.me/note1q39598qkdc093sdq4enudjf0dall76s7n779k07nutgd9r2zt6vq96l8c2)
