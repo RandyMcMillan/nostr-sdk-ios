@@ -21,7 +21,7 @@ struct ContentView: View {
                                    labelText: "Configure Relays")
                     ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
                                    imageName: "list.bullet.rectangle.portrait",
-                                   labelText: "Query Relays")
+                                   labelText: "NIP-0034 Viewer")
                     ListOptionView(destinationView:
                                     AnyView(LegacyDirectMessageDemoView()),
                                    imageName: "list.bullet",
@@ -42,7 +42,7 @@ struct ContentView: View {
                                    labelText: "NIP-05")
                 }
             }
-            .navigationTitle("Nostr SDK Demo")
+            .navigationTitle("NIP-0034 Viewer")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
