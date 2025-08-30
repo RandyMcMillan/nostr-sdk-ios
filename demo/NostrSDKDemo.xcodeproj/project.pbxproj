@@ -11,6 +11,7 @@
 		1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */; };
 		3A114FB42B0178AB00ABDBB0 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 3A114FB32B0178AB00ABDBB0 /* NostrSDK */; };
 		3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */; };
+		4B03CFE82E6374FF0004AAC4 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 4B03CFE72E6374FF0004AAC4 /* NostrSDK */; };
 		50BB70A12B4302F300EDD3B5 /* RelaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50BB70A02B4302F300EDD3B5 /* RelaysView.swift */; };
 		F78221C12A87FB39008D5AE8 /* ConnectRelayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78221C02A87FB39008D5AE8 /* ConnectRelayView.swift */; };
 		F78221C42A8803F3008D5AE8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78221C32A8803F3008D5AE8 /* Helpers.swift */; };
@@ -29,6 +30,7 @@
 		1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptMessageDemoView.swift; sourceTree = "<group>"; };
 		1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptMessageDemoView.swift; sourceTree = "<group>"; };
 		3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyDirectMessageDemoView.swift; sourceTree = "<group>"; };
+		4B03CFE42E6370110004AAC4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50BB70A02B4302F300EDD3B5 /* RelaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaysView.swift; sourceTree = "<group>"; };
 		F78221C02A87FB39008D5AE8 /* ConnectRelayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectRelayView.swift; sourceTree = "<group>"; };
 		F78221C32A8803F3008D5AE8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
@@ -49,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B03CFE82E6374FF0004AAC4 /* NostrSDK in Frameworks */,
 				3A114FB42B0178AB00ABDBB0 /* NostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,6 +101,7 @@
 		F7CB361F2A35127B0098F35C = {
 			isa = PBXGroup;
 			children = (
+				4B03CFE42E6370110004AAC4 /* Info.plist */,
 				F7CB362A2A35127B0098F35C /* NostrSDKDemo */,
 				F7CB36292A35127B0098F35C /* Products */,
 				F7A81BDC2A66201800EBCB0C /* Frameworks */,
@@ -152,6 +156,7 @@
 			name = NostrSDKDemo;
 			packageProductDependencies = (
 				3A114FB32B0178AB00ABDBB0 /* NostrSDK */,
+				4B03CFE72E6374FF0004AAC4 /* NostrSDK */,
 			);
 			productName = NostrSDKDemo;
 			productReference = F7CB36282A35127B0098F35C /* NostrSDKDemo.app */;
@@ -182,7 +187,7 @@
 			);
 			mainGroup = F7CB361F2A35127B0098F35C;
 			packageReferences = (
-				3A114FB22B0178AB00ABDBB0 /* XCLocalSwiftPackageReference ".." */,
+				4B03CFE62E6374FF0004AAC4 /* XCLocalSwiftPackageReference "../../nostr-sdk-ios" */,
 			);
 			productRefGroup = F7CB36292A35127B0098F35C /* Products */;
 			projectDirPath = "";
@@ -279,7 +284,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -333,7 +339,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -353,18 +360,12 @@
 				DEVELOPMENT_ASSET_PATHS = "\"NostrSDKDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = M684FYCYG6;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.gnostr.NostrSDKDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = org.gnostr.NostrSDKDemo2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -382,18 +383,12 @@
 				DEVELOPMENT_ASSET_PATHS = "\"NostrSDKDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = M684FYCYG6;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = org.gnostr.NostrSDKDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = org.gnostr.NostrSDKDemo2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -425,14 +420,18 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		3A114FB22B0178AB00ABDBB0 /* XCLocalSwiftPackageReference ".." */ = {
+		4B03CFE62E6374FF0004AAC4 /* XCLocalSwiftPackageReference "../../nostr-sdk-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ..;
+			relativePath = "../../nostr-sdk-ios";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		3A114FB32B0178AB00ABDBB0 /* NostrSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NostrSDK;
+		};
+		4B03CFE72E6374FF0004AAC4 /* NostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NostrSDK;
 		};
