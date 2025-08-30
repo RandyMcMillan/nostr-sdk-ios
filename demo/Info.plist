@@ -2,83 +2,58 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BuildMachineOSBuild</key>
-	<string>23H723</string>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>bitchat</string>
 	<key>CFBundleExecutable</key>
-	<string>NostrSDKDemo</string>
+	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>NostrSDKDemo</string>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundleSupportedPlatforms</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
 	<array>
-		<string>iPhoneOS</string>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bitchat</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>DTCompiler</key>
-	<string>com.apple.compilers.llvm.clang.1_0</string>
-	<key>DTPlatformBuild</key>
-	<string>22C146</string>
-	<key>DTPlatformName</key>
-	<string>iphoneos</string>
-	<key>DTPlatformVersion</key>
-	<string>18.2</string>
-	<key>DTSDKBuild</key>
-	<string>22C146</string>
-	<key>DTSDKName</key>
-	<string>iphoneos18.2</string>
-	<key>DTXcode</key>
-	<string>1620</string>
-	<key>DTXcodeBuild</key>
-	<string>16C5032a</string>
-	<key>LSRequiresIPhoneOS</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>bitchat uses Bluetooth to create a secure mesh network for chatting with nearby users.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>bitchat uses Bluetooth to discover and connect with other bitchat users nearby.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>bitchat uses the camera to scan QR codes to verify peers.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>bitchat uses your approximate location to compute local geohash channels for optional public chats. Exact GPS is never shared.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIRequiresFullScreen</key>
 	<true/>
-	<key>MinimumOSVersion</key>
-	<string></string>
-	<key>UIApplicationSceneManifest</key>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
+		<key>NSAllowsLocalNetworking</key>
 		<true/>
-		<key>UISceneConfigurations</key>
-		<dict/>
 	</dict>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UIDeviceFamily</key>
-	<array>
-		<integer>1</integer>
-		<integer>2</integer>
-	</array>
-	<key>UILaunchScreen</key>
-	<dict>
-		<key>UILaunchScreen</key>
-		<dict/>
-	</dict>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>arm64</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~iphone</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
 </dict>
 </plist>
