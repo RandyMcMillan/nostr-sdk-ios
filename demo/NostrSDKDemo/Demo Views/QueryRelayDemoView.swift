@@ -20,27 +20,30 @@ struct QueryRelayDemoView: View {
     @State private var subscriptionId: String?
 //30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
-        0: "Set Metadata",
-        1: "Text Note",
-        3: "Follow List",
-        6: "Repost",
-        7: "Reaction",
-        1984: "Report",
-        10000: "Mute List",
-        10003: "Bookmarks List",
-        30023: "Longform Content",
-        30617: "Longform Content",
-        30618: "Longform Content",
-        1617: "Longform Content",
-        1621: "Longform Content",
-        1630: "Longform Content",
-        1631: "Longform Content",
-        1632: "Longform Content",
-        1633: "Longform Content"
+        //0: "Set Metadata",
+        //1: "Text Note",
+        //3: "Follow List",
+        //6: "Repost",
+        //7: "Reaction",
+        //1984: "Report",
+        //10000: "Mute List",
+        //10003: "Bookmarks List",
+        //30023: "Longform Content",
+        
+        //nip-0034
+        
+        30617: "Repository announcements",
+        30618: "Repository state announcements",
+        1617: "Patches",
+        1621: "Issues",
+        1630: "Status (Open)",
+        1631: "Status (Applied / Merged)",
+        1632: "Status (Closed)",
+        1633: "Status (Draft)"
 
     ]
 
-    @State private var selectedKind = 1
+    @State private var selectedKind = 30617
 
     var body: some View {
         Form {
@@ -76,6 +79,12 @@ struct QueryRelayDemoView: View {
                     }
                     List(events, id: \.id) { event in
                         if !event.content.isEmpty {
+                            Text("")
+                            Text("event.id \(event.id)")
+                            Text("event.kind \(event.kind)")
+                            Text("event.tags \(event.tags)")
+                            Text("event.pubkey \(event.pubkey)")
+                            Text("")
                             Text("\(event.content)")
                         } else {
                             Text("Empty content field for event \(event.id)")
@@ -106,7 +115,7 @@ struct QueryRelayDemoView: View {
         } else {
             authors = [authorPubkey]
         }
-        return Filter(authors: authors, kinds: [selectedKind])!
+        return Filter(authors: authors, kinds: [selectedKind])!//
     }
     
     private func updateSubscription() {
