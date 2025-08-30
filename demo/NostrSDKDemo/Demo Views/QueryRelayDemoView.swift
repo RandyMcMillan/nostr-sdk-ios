@@ -18,7 +18,7 @@ struct QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-
+//30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
         0: "Set Metadata",
         1: "Text Note",
@@ -28,7 +28,16 @@ struct QueryRelayDemoView: View {
         1984: "Report",
         10000: "Mute List",
         10003: "Bookmarks List",
-        30023: "Longform Content"
+        30023: "Longform Content",
+        30617: "Longform Content",
+        30618: "Longform Content",
+        1617: "Longform Content",
+        1621: "Longform Content",
+        1630: "Longform Content",
+        1631: "Longform Content",
+        1632: "Longform Content",
+        1633: "Longform Content"
+
     ]
 
     @State private var selectedKind = 1
