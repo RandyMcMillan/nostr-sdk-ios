@@ -46,6 +46,42 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
+        
+        NavigationView {
+            VStack {
+                List {
+                    ListOptionView(destinationView: AnyView(RelaysView()),
+                                   imageName: "network",
+                                   labelText: "Configure Relays")
+                    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
+                                   imageName: "list.bullet.rectangle.portrait",
+                                   labelText: "NIP-0034 Viewer")
+                    ListOptionView(destinationView:
+                                    AnyView(LegacyDirectMessageDemoView()),
+                                   imageName: "list.bullet",
+                                   labelText: "NIP-04 Direct Message")
+                    ListOptionView(destinationView:
+                                    AnyView(EncryptMessageDemoView()),
+                                   imageName: "list.bullet",
+                                   labelText: "NIP-44 Encrypt")
+                    ListOptionView(destinationView:
+                                    AnyView(DecryptMessageDemoView()),
+                                   imageName: "list.bullet",
+                                   labelText: "NIP-44 Decrypt")
+                    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
+                                   imageName: "key",
+                                   labelText: "Key Generation")
+                    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
+                                   imageName: "checkmark.seal",
+                                   labelText: "NIP-05")
+                }
+            }
+            .navigationTitle("NIP-0034 Viewer")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    //}
+
+        
         Form {
             Section("NIP-0034 Viewer") {
 
@@ -77,6 +113,41 @@ struct QueryRelayDemoView: View {
                             .foregroundColor(.gray)
                             .font(.footnote)
                     }
+                    //
+                    
+                    
+                    NavigationView {
+                        VStack {
+                            //List {
+                            //    ListOptionView(destinationView: AnyView(RelaysView()),
+                            //                   imageName: "network",
+                            //                   labelText: "Configure Relays")
+                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
+                            //                   imageName: "list.bullet.rectangle.portrait",
+                            //                   labelText: "NIP-0034 Viewer")
+                            //    ListOptionView(destinationView:
+                            //                    AnyView(LegacyDirectMessageDemoView()),
+                            //                   imageName: "list.bullet",
+                            //                   labelText: "NIP-04 Direct Message")
+                            //    ListOptionView(destinationView:
+                            //                    AnyView(EncryptMessageDemoView()),
+                            //                   imageName: "list.bullet",
+                            //                   labelText: "NIP-44 Encrypt")
+                            //    ListOptionView(destinationView:
+                            //                    AnyView(DecryptMessageDemoView()),
+                            //                   imageName: "list.bullet",
+                            //                   labelText: "NIP-44 Decrypt")
+                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
+                            //                   imageName: "key",
+                            //                   labelText: "Key Generation")
+                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
+                            //                   imageName: "checkmark.seal",
+                            //                   labelText: "NIP-05")
+                            //}
+                       // }
+                       // .navigationTitle("NIP-0034 Viewer")
+                       // .navigationBarTitleDisplayMode(.inline)
+                    //}
                     List(events, id: \.id) { event in
                         if !event.content.isEmpty {
                             Text("")
@@ -94,6 +165,8 @@ struct QueryRelayDemoView: View {
                             Text("event.tags \(event.tags)")
                             Text("event.pubkey \(event.pubkey)")
                             Text("")
+                        }
+                    }
                         }
                     }
                 }
