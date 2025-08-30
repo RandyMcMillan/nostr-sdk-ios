@@ -29,6 +29,7 @@
 		1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptMessageDemoView.swift; sourceTree = "<group>"; };
 		1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptMessageDemoView.swift; sourceTree = "<group>"; };
 		3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyDirectMessageDemoView.swift; sourceTree = "<group>"; };
+		4BF9CC562E639E9B009953D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		50BB70A02B4302F300EDD3B5 /* RelaysView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaysView.swift; sourceTree = "<group>"; };
 		F78221C02A87FB39008D5AE8 /* ConnectRelayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectRelayView.swift; sourceTree = "<group>"; };
 		F78221C32A8803F3008D5AE8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
@@ -115,6 +116,7 @@
 		F7CB362A2A35127B0098F35C /* NostrSDKDemo */ = {
 			isa = PBXGroup;
 			children = (
+				4BF9CC562E639E9B009953D7 /* Info.plist */,
 				F78221C22A8803E1008D5AE8 /* Helpers */,
 				F78221BD2A87EF99008D5AE8 /* Views */,
 				F78221BC2A87EF6C008D5AE8 /* Demo Views */,
@@ -354,6 +356,7 @@
 				DEVELOPMENT_TEAM = M684FYCYG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NostrSDKDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -383,6 +386,7 @@
 				DEVELOPMENT_TEAM = M684FYCYG6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = NostrSDKDemo/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
