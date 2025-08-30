@@ -47,7 +47,7 @@ struct QueryRelayDemoView: View {
 
     var body: some View {
         Form {
-            Section("Query Relays") {
+            Section("NIP-0034 Viewer") {
 
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
@@ -87,7 +87,13 @@ struct QueryRelayDemoView: View {
                             Text("")
                             Text("\(event.content)")
                         } else {
-                            Text("Empty content field for event \(event.id)")
+                            //Text("Empty content field for event \(event.id)")
+                            Text("")
+                            Text("event.id \(event.id)")
+                            Text("event.kind \(event.kind)")
+                            Text("event.tags \(event.tags)")
+                            Text("event.pubkey \(event.pubkey)")
+                            Text("")
                         }
                     }
                 }
