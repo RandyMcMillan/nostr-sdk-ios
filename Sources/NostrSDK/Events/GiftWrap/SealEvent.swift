@@ -23,12 +23,12 @@ public final class SealEvent: NostrEvent, NIP44v2Encrypting {
     }
 
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
-    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
+    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
 
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
-    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), pubkey: String) {
+    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), pubkey: String) {
         super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, pubkey: pubkey)
     }
 
@@ -37,7 +37,7 @@ public final class SealEvent: NostrEvent, NIP44v2Encrypting {
         super.init(id: id, pubkey: pubkey, createdAt: createdAt, kind: kind, tags: tags, content: content, signature: signature)
     }
 
-    public init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970 - TimeInterval.random(in: 0...172800)), signedBy keypair: Keypair) throws {
+    public init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64((NSDate().timeIntervalSince1970) - TimeInterval.random(in: 0...172800)), signedBy keypair: Keypair) throws {
         try super.init(kind: .seal, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
 
@@ -88,7 +88,7 @@ public extension EventCreating {
     func seal(
         withRumor rumor: NostrEvent,
         toRecipient recipient: PublicKey,
-        createdAt: Int64 = Int64(Date.now.timeIntervalSince1970 - TimeInterval.random(in: 0...172800)),
+        createdAt: Int64 = Int64((NSDate().timeIntervalSince1970) - TimeInterval.random(in: 0...172800)),
         signedBy keypair: Keypair
     ) throws -> SealEvent {
         guard rumor.isRumor else {

@@ -24,7 +24,7 @@ public extension ExpirationTagInterpreting {
     /// Whether the message SHOULD be considered expired (by relays and clients) and SHOULD be deleted by relays.
     var isExpired: Bool {
         if let expiration {
-            return Int64(Date.now.timeIntervalSince1970) >= expiration
+            return Int64(NSDate().timeIntervalSince1970) >= expiration
         } else {
             return false
         }

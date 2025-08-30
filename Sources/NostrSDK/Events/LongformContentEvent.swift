@@ -20,12 +20,12 @@ public final class LongformContentEvent: NostrEvent, AddressableEvent, HashtagIn
     }
     
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
-    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
+    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
 
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
-    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), pubkey: String) {
+    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), pubkey: String) {
         super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, pubkey: pubkey)
     }
 
@@ -34,7 +34,7 @@ public final class LongformContentEvent: NostrEvent, AddressableEvent, HashtagIn
         super.init(id: id, pubkey: pubkey, createdAt: createdAt, kind: kind, tags: tags, content: content, signature: signature)
     }
 
-    init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
+    init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .longformContent, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
     
@@ -80,7 +80,7 @@ public extension EventCreating {
                               summary: String? = nil,
                               imageURL: URL? = nil,
                               hashtags: [String]? = nil,
-                              publishedAt: Date = .now,
+                              publishedAt: Date = NSDate() as Date,
                               signedBy keypair: Keypair) throws -> LongformContentEvent {
         var tags = [Tag]()
 

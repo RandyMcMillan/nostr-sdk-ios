@@ -63,7 +63,7 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     }
 
     /// Creates a ``NostrEvent`` rumor, which is an event with a `nil` signature.
-    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), pubkey: String) {
+    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), pubkey: String) {
         self.kind = kind
         self.content = content
         self.tags = tags
@@ -78,7 +78,7 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     }
 
     /// Creates a signed ``NostrEvent``.
-    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
+    required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(NSDate().timeIntervalSince1970), signedBy keypair: Keypair) throws {
         self.kind = kind
         self.content = content
         self.tags = tags
@@ -375,7 +375,7 @@ public extension NostrEvent {
                 kind: kind,
                 content: content,
                 tags: tags,
-                createdAt: createdAt ?? Int64(Date.now.timeIntervalSince1970),
+                createdAt: createdAt ?? Int64(NSDate().timeIntervalSince1970),
                 signedBy: keypair
             )
         }
@@ -389,7 +389,7 @@ public extension NostrEvent {
                 kind: kind,
                 content: content,
                 tags: tags,
-                createdAt: createdAt ?? Int64(Date.now.timeIntervalSince1970),
+                createdAt: createdAt ?? Int64(NSDate().timeIntervalSince1970),
                 pubkey: pubkey
             )
         }
