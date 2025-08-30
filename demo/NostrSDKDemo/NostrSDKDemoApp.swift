@@ -14,7 +14,8 @@ struct NostrSDKDemoApp: App {
     @StateObject var relayPool = try! RelayPool(relayURLs: [
         URL(string: "wss://relay.damus.io")!,
         URL(string: "wss://relay.snort.social")!,
-        URL(string: "wss://nos.lol")!
+        URL(string: "wss://nos.lol")!,
+        URL(string: "ws://127.0.0.1")!
     ])
     
     var body: some Scene {
