@@ -21,7 +21,7 @@ public enum EventVerifyingError: Error, CustomStringConvertible {
 
 public protocol EventVerifying: SignatureVerifying {}
 public extension EventVerifying {
-    
+
     /// Verifies the identifier and the signature of a ``NostrEvent``
     func verifyEvent(_ event: NostrEvent) throws {
         guard event.id == event.calculatedId else {

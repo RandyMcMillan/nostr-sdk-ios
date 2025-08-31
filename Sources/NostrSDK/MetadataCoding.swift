@@ -18,7 +18,7 @@ public enum TLVCodingError: Error {
 /// The components of the TLV-encoded (Type-Length-Value) data.
 private enum TLVEncodingType: Int {
     case special, relay, author, kind
-    
+
     var typeByte: String {
         String(format: "%02x", rawValue)
     }
@@ -26,19 +26,19 @@ private enum TLVEncodingType: Int {
 
 /// A container for metadata about a user or event, for encoding and decoding to and from Bech32-encoded identifiers.
 public struct Metadata {
-    
+
     /// A 32-byte hexadecimal public key.
     public var pubkey: String?
-    
+
     /// One or more relays on which the user or event can be found.
     public var relays: [String]?
-    
+
     /// A 32-byte hexadecimal event identifier.
     public var eventId: String?
-    
+
     /// An identifier (d-tag) associated with an event, for use with addressable events.
     public var identifier: String?
-    
+
     /// The kind of the event, as an integer.
     public var kind: UInt32?
 
@@ -55,7 +55,7 @@ public struct Metadata {
 /// See [NIP-19](https://github.com/nostr-protocol/nips/blob/master/19.md) for the full specifications.
 public protocol MetadataCoding {}
 public extension MetadataCoding {
-    
+
     /// Decodes the metadata contained in a Bech32-encoded identifier (e.g. nprofile, nevent, nrelay, naddr).
     /// - Parameter identifier: The identifier to decode.
     /// - Returns: The metadata decoded from the identifier.
@@ -80,13 +80,13 @@ public extension MetadataCoding {
         guard let tlvString = checksum.base8FromBase5?.hexString else {
             throw TLVCodingError.missingExpectedData
         }
-        
+
         // At this point, the `tlvString` looks like the following:
         // "00203bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d010d7773733a2f2f722e782e636f6d01157773733a2f2f646a6261732e7361646b622e636f6d"
         // We'll pass that into the next function for TLV decoding.
         return try decodedTLVString(tlvString, identifierType: identifierType)
     }
-    
+
     /// Decodes the metadata contained in a TLV-encoded string.
     /// - Parameters:
     ///   - tlvString: The TLV-encoded string.
@@ -127,7 +127,7 @@ public extension MetadataCoding {
         var eventId: String?
         var identifier: String?
         var kind: UInt32?
-        
+
         var scanner = tlvString[...]
         while !scanner.isEmpty {
             let typeByte = scanner.readAndDropFirst(2)
@@ -135,15 +135,15 @@ public extension MetadataCoding {
             guard let lengthInBytes = Int(lengthByte, radix: 16) else {
                 throw TLVCodingError.malformedData
             }
-            
+
             let contentBytes = scanner.readAndDropFirst(lengthInBytes * 2)  // 2 chars per byte
-            
+
             guard let typeInt = Int(typeByte),
                   let contentType = TLVEncodingType(rawValue: typeInt) else {
                 // unrecognized type, NIP-19 says to ignore rather than fail here
                 continue
             }
-            
+
             let content = String(contentBytes)
             switch contentType {
             case .special:
@@ -175,14 +175,14 @@ public extension MetadataCoding {
                 }
             }
         }
-        
+
         return Metadata(pubkey: pubkey,
                         relays: relays,
                         eventId: eventId,
                         identifier: identifier,
                         kind: kind)
     }
-    
+
     /// The Bech32-encoded, TLV-encoded identifier based on the specified type and metadata.
     /// - Parameters:
     ///   - metadata: The metadata to encode.
@@ -195,7 +195,7 @@ public extension MetadataCoding {
         }
         return encoded
     }
-    
+
     /// The TLV-encoded (Type-Length-Value) string based on the specified type and metadata.
     /// - Parameters:
     ///   - metadata: The metadata to encode.
@@ -207,7 +207,7 @@ public extension MetadataCoding {
     /// > Note: This function is provided for debugging and testing, as it is an intermediate result and must be Bech32-encoded before transmitting.
     func tlvEncodedString(with metadata: Metadata, identifierType: Bech32IdentifierType) throws -> String {
         var contents = ""
-        
+
         let specialTypeValue: Data?
         switch identifierType {
         case .profile:
@@ -230,13 +230,13 @@ public extension MetadataCoding {
         default:
             throw TLVCodingError.unknownPrefix
         }
-        
+
         if let lengthByte = (specialTypeValue ?? Data()).byteLengthString {
             contents.append(TLVEncodingType.special.typeByte)
             contents.append(lengthByte)
             contents.append(specialTypeValue?.hexString ?? "")
         }
-        
+
         // relays
         if identifierType != .relay, let relays = metadata.relays {
             for relay in relays where !relay.isEmpty {
@@ -248,7 +248,7 @@ public extension MetadataCoding {
                 }
             }
         }
-        
+
         if identifierType == .address || identifierType == .event {
             // author
             if let pubkey = metadata.pubkey, let lengthByte = pubkey.hexadecimalData?.byteLengthString {
@@ -256,7 +256,7 @@ public extension MetadataCoding {
                 contents.append(lengthByte)
                 contents.append(pubkey)
             }
-            
+
             // kind
             if let kind = metadata.kind {
                 var bigEndianData = Data()
@@ -268,13 +268,13 @@ public extension MetadataCoding {
                 }
             }
         }
-        
+
         return contents
     }
 }
 
 fileprivate extension Data {
-    
+
     /// The length of the Data in a one-byte hexadecimal string.
     ///
     /// For example, for a Data with 32 bytes, the result will be "20".
@@ -290,7 +290,7 @@ fileprivate extension Data {
 }
 
 fileprivate extension Substring {
-    
+
     /// Extracts the leading characters in a String.
     /// - Parameter numberOfCharacters: The number of characters to read.
     /// - Returns: The extracted characters.

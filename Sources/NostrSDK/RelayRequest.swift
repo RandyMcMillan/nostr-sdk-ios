@@ -13,7 +13,7 @@ enum RelayRequest {
     case close(subscriptionId: String)
     case auth(AuthenticationEvent)
     case count(subscriptionId: String, filter: Filter)
-    
+
     var encoded: String? {
         let payload: [AnyEncodable]
         switch self {
@@ -28,7 +28,7 @@ enum RelayRequest {
         case .count(let subscriptionId, let filter):
             payload = [AnyEncodable("COUNT"), AnyEncodable(subscriptionId), AnyEncodable(filter)]
         }
-        
+
         guard let data = try? JSONEncoder().encode(payload),
               let decoded = String(data: data, encoding: .utf8) else {
             return nil

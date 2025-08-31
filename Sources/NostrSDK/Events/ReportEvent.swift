@@ -10,16 +10,16 @@ import Foundation
 public enum ReportType: String {
     /// depictions of nudity, porn, etc
     case nudity
-    
+
     /// profanity, hateful speech, etc
     case profanity
-    
+
     /// something which may be illegal in some jurisdiction
     case illegal
-    
+
     /// spam
     case spam
-    
+
     /// someone pretending to be someone else
     ///
     /// > Note: The `impersonation` ReportType only makes sense for profile reports.
@@ -33,7 +33,7 @@ public final class ReportEvent: NostrEvent {
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -52,7 +52,7 @@ public final class ReportEvent: NostrEvent {
     public init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .report, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// The reason that the event or user was reported.
     public var reportType: ReportType? {
         guard let tag = tags.first(where: { $0.name == TagName.event.rawValue }) ?? tags.first(where: { $0.name == TagName.pubkey.rawValue }),

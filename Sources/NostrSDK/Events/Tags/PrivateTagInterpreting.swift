@@ -9,7 +9,7 @@ import Foundation
 
 public protocol PrivateTagInterpreting: LegacyDirectMessageEncrypting {}
 public extension PrivateTagInterpreting {
-    
+
     /// The private tags encrypted in the content of the event.
     /// - Parameter content: The content from which to decrypt the content.
     /// - Parameter tagName: An optional ``TagName`` to filter the decrypted tags.
@@ -20,7 +20,7 @@ public extension PrivateTagInterpreting {
               let jsonData = decryptedContent.data(using: .utf8) else {
             return []
         }
-        
+
         let tags = try? JSONDecoder().decode([Tag].self, from: jsonData)
         if let tagName {
             return tags?.filter { $0.name == tagName.rawValue } ?? []
@@ -28,7 +28,7 @@ public extension PrivateTagInterpreting {
             return tags ?? []
         }
     }
-    
+
     /// The values for the private tags encrypted in the content of the event.
     /// - Parameter content: The content from which to decrypt the content.
     /// - Parameter tagName: An optional ``TagName`` to filter the decrypted tags.

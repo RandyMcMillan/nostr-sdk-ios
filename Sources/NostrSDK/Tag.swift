@@ -17,7 +17,7 @@ public enum TagName: String {
 
     /// a custom emoji that defines the shortcode name and image URL of the image file
     case emoji
-    
+
     /// points to the id of an event this event is quoting, replying to or referring to somehow
     case event = "e"
 
@@ -30,16 +30,16 @@ public enum TagName: String {
 
     /// a hashtag to categorize events for easy searching
     case hashtag = "t"
-    
+
     /// points to a pubkey of someone that is referred to in the event
     case pubkey = "p"
-    
+
     case publishedAt = "published_at"
-    
+
     case identifier = "d"
-    
+
     case image
-    
+
     /// a stringified kind number
     case kind = "k"
 
@@ -51,15 +51,15 @@ public enum TagName: String {
 
     /// a short subject for a text note, similar to subjects in emails
     case subject
-    
+
     case summary
-    
+
     /// a title for an event
     case title
-    
+
     /// a web URL the event is referring to in some way. See [NIP-24 - Extra metadata fields and tags](https://github.com/nostr-protocol/nips/blob/master/24.md#tags).
     case webURL = "r"
-    
+
     /// a keyword to mute
     case word
 }
@@ -75,7 +75,7 @@ public class Tag: Codable, Equatable, Hashable {
         lhs.value == rhs.value &&
         lhs.otherParameters == rhs.otherParameters
     }
-    
+
     /// The name of the tag.
     public let name: String
 
@@ -110,10 +110,10 @@ public class Tag: Codable, Equatable, Hashable {
 
     required public init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
-        
+
         name = try container.decode(String.self)
         value = try container.decode(String.self)
-        
+
         var otherParameters = [String]()
         while !container.isAtEnd {
             let value = try container.decode(String.self)
@@ -136,7 +136,7 @@ public class Tag: Codable, Equatable, Hashable {
             try container.encode(value)
         }
     }
-    
+
     /// The raw format of a tag, which can be serialized and transmitted.
     ///
     /// For example:
@@ -149,7 +149,7 @@ public class Tag: Codable, Equatable, Hashable {
 
 /// Shortcuts for creating common tags
 extension Tag {
-    
+
     /// An event ``Tag`` with the provided id and other parameters.
     /// - Parameters:
     ///   - eventId: The event id.
@@ -158,21 +158,21 @@ extension Tag {
     static func event(_ eventId: String, otherParameters: [String] = []) -> Tag {
         Tag(name: .event, value: eventId, otherParameters: otherParameters)
     }
-    
+
     /// A hashtag ``Tag`` with the provided value.
     /// - Parameter hashtag: The hashtag.
     /// - Returns: The hashtag ``Tag``.
     static func hashtag(_ hashtag: String) -> Tag {
         Tag(name: .hashtag, value: hashtag)
     }
-    
+
     /// A kind ``Tag`` with the provided value.
     /// - Parameter kind: The kind (``EventKind``).
     /// - Returns: The kind ``Tag``.
     static func kind(_ kind: EventKind) -> Tag {
         Tag(name: .kind, value: String(kind.rawValue))
     }
-    
+
     /// A pubkey ``Tag`` with the provided pubkey.
     /// - Parameters:
     ///   - pubkey: The pubkey.
@@ -181,7 +181,7 @@ extension Tag {
     static func pubkey(_ pubkey: String, otherParameters: [String] = []) -> Tag {
         Tag(name: .pubkey, value: pubkey, otherParameters: otherParameters)
     }
-    
+
     static func link(_ url: URL) -> Tag {
         Tag(name: .webURL, value: url.absoluteString)
     }

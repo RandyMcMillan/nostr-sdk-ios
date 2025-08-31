@@ -44,7 +44,7 @@ public final class CalendarListEvent: NostrEvent, AddressableEvent, TitleTagInte
 }
 
 public extension EventCreating {
-    
+
     /// Creates a ``CalendarListEvent`` (kind 31924), which is a collection of date-based and time-based calendar events.
     /// - Parameters:
     ///   - identifier: A unique identifier for the calendar. Can be reused in the future for replacing the calendar. If an identifier is not provided, a ``UUID`` string is used.
@@ -59,16 +59,16 @@ public extension EventCreating {
         guard calendarEventsCoordinates.allSatisfy({ $0.kind == .dateBasedCalendarEvent || $0.kind == .timeBasedCalendarEvent }) else {
             throw EventCreatingError.invalidInput
         }
-        
+
         var tags: [Tag] = [
             Tag(name: .identifier, value: identifier),
             Tag(name: .title, value: title)
         ]
-        
+
         calendarEventsCoordinates
             .filter { $0.kind == .dateBasedCalendarEvent || $0.kind == .timeBasedCalendarEvent }
             .forEach { tags.append($0.tag) }
-        
+
         return try CalendarListEvent(content: description, tags: tags, signedBy: keypair)
     }
 }

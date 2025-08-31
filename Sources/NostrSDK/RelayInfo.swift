@@ -46,7 +46,7 @@ public struct RelayInfo: Codable {
         case postingPolicyURL = "posting_policy"
         case retentionPolicies = "retention"
     }
-    
+
     public struct Limitations: Codable {
         public let maxMessageLength: Int?
         public let maxSubscriptions: Int?
@@ -82,35 +82,35 @@ public struct RelayInfo: Codable {
             case createdAtUpperLimit = "created_at_upper_limit"
         }
     }
-    
+
     public struct Fee: Codable {
         public let kinds: [Int]?
         public let amount: Int?
         public let unit: String?
         public let period: Int?
     }
-    
+
     public struct Fees: Codable {
         public let admission: [Fee]?
         public let subscription: [Fee]?
         public let publication: [Fee]?
     }
-    
+
     public struct EventRetentionPolicy: Codable {
         public let time: Int?
         public let count: Int?
         public let kindRanges: [ClosedRange<Int>]?
-        
+
         enum CodingKeys: String, CodingKey {
             case time, count
             case kindRanges = "kinds"
         }
-        
+
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             time = try container.decodeIfPresent(Int.self, forKey: .time)
             count = try container.decodeIfPresent(Int.self, forKey: .count)
-            
+
             if container.contains(.kindRanges) {
                 var kindRanges = [ClosedRange<Int>]()
                 var kindsContainer = try container.nestedUnkeyedContainer(forKey: .kindRanges)
@@ -132,12 +132,12 @@ public struct RelayInfo: Codable {
                 kindRanges = nil
             }
         }
-        
+
         public func governsKind(_ kind: Int) -> Bool {
             kindRanges?.contains(where: { $0.contains(kind) }) ?? false
         }
     }
-    
+
     public func retentionPolicy(forKind kind: Int) -> EventRetentionPolicy? {
         retentionPolicies?.first(where: { $0.governsKind(kind) }) ?? retentionPolicies?.first(where: { $0.kindRanges == nil })
     }

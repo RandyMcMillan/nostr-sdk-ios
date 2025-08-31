@@ -10,11 +10,11 @@ import Foundation
 /// A type used for decoding and mapping a kind number to a ``NostrEvent`` subclass.
 fileprivate struct EventKindMapper: Decodable {     // swiftlint:disable:this private_over_fileprivate
     let kind: EventKind
-    
+
     enum CodingKeys: CodingKey {
         case kind
     }
-    
+
     /// The ``NostrEvent`` subclass associated with the kind.
     var classForKind: NostrEvent.Type {
         kind.classForKind
@@ -36,7 +36,7 @@ public enum RelayResponse: Decodable {
         case auth = "AUTH"
         case count = "COUNT"
     }
-    
+
     public struct Message {
         public let prefix: MessagePrefix
         public let message: String
@@ -58,7 +58,7 @@ public enum RelayResponse: Decodable {
             }
         }
     }
-    
+
     public enum MessagePrefix: String, Codable {
         case unknown
         case duplicate
@@ -86,14 +86,14 @@ public enum RelayResponse: Decodable {
         case .event:
             let subscriptionId = try container.decode(String.self)
             let kindMapper = try container.decode(EventKindMapper.self)
-            
+
             // Since the decoding index in the container cannot be decremented, create a
             // new container so we can use the class from the mapper.
             var container2 = try decoder.unkeyedContainer()
             _ = try? container2.decode(MessageType.self)
             _ = try? container2.decode(String.self)
             let event = try container2.decode(kindMapper.classForKind.self)
-            
+
             self = .event(subscriptionId: subscriptionId, event: event)
         case .ok:
             let eventId = try container.decode(String.self)

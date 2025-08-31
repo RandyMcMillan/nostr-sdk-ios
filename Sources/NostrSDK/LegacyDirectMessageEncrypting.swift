@@ -34,7 +34,7 @@ public extension LegacyDirectMessageEncrypting {
     func legacyEncrypt(content: String, privateKey: PrivateKey, publicKey: PublicKey) throws -> String {
 
         let sharedSecret = try getSharedSecret(privateKey: privateKey, recipient: publicKey)
-        
+
         let iv = Data.randomBytes(count: 16).bytes
         let utf8Content = Data(content.utf8).bytes
         guard let encryptedMessage = AESEncrypt(data: utf8Content, iv: iv, sharedSecret: sharedSecret) else {

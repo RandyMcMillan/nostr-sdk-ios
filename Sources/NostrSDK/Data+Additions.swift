@@ -9,7 +9,7 @@ import CommonCrypto
 import Foundation
 
 extension Data {
-    
+
     /// The SHA256 hash of the data.
     var sha256: Data {
         var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
@@ -18,7 +18,7 @@ extension Data {
         }
         return Data(hash)
     }
-    
+
     /// Random data of a given size.
     static func randomBytes(count: Int) -> Data {
         var bytes = [Int8](repeating: 0, count: count)

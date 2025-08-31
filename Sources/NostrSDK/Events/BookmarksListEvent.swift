@@ -14,7 +14,7 @@ public final class BookmarksListEvent: NostrEvent, HashtagInterpreting, PrivateT
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -33,41 +33,41 @@ public final class BookmarksListEvent: NostrEvent, HashtagInterpreting, PrivateT
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .bookmarksList, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// Ids of bookmarked kind-1 notes.
     public var noteIds: [String] {
         allValues(forTagName: .event)
     }
-    
+
     /// Tags with bookmarked kind-1 notes. The returned ``Tag`` objects may contain relay information.
     public var noteTags: [Tag] {
         allTags(withTagName: .event)
     }
-    
+
     /// Coordinates of bookmarked articles.
     public var articlesCoordinates: [EventCoordinates] {
         referencedEventCoordinates
     }
-    
+
     /// Bookmarked links (web URLs).
     public var links: [URL] {
         references
     }
-    
+
     /// The privately bookmarked note ids.
     /// - Parameter keypair: The keypair with which to decrypt the content.
     /// - Returns: The note ids.
     public func privateNoteIds(using keypair: Keypair) -> [String] {
         valuesForPrivateTags(from: content, withName: .event, using: keypair)
     }
-    
+
     /// The privately bookmarked note tags. The returned ``Tag`` objects may contain relay information.
     /// - Parameter keypair: The keypair with which to decrypt the content.
     /// - Returns: The note tags.
     public func privateNoteTags(using keypair: Keypair) -> [Tag] {
         privateTags(from: content, withName: .event, using: keypair)
     }
-    
+
     /// The privately bookmarked articles coordinates.
     /// - Parameter keypair: The keypair with which to decrypt the content.
     /// - Returns: The articles coordinates.
@@ -75,14 +75,14 @@ public final class BookmarksListEvent: NostrEvent, HashtagInterpreting, PrivateT
         let coordinatesTags = privateTags(from: content, withName: .eventCoordinates, using: keypair)
         return coordinatesTags.compactMap { EventCoordinates(eventCoordinatesTag: $0) }
     }
-    
+
     /// The privately bookmarked hashtags.
     /// - Parameter keypair: The keypair with which to decrypt the content.
     /// - Returns: The hashtags.
     public func privateHashtags(using keypair: Keypair) -> [String] {
         valuesForPrivateTags(from: content, withName: .hashtag, using: keypair)
     }
-    
+
     /// The privately bookmarked links (web URLs).
     /// - Parameter keypair: The keypair with which to decrypt the content.
     /// - Returns: The links.

@@ -16,12 +16,12 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
     ///
     /// See [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md)
     case metadata
-    
+
     /// The content is set to the plaintext content of a note (anything the user wants to say). Content that must be parsed, such as Markdown and HTML, should not be used. Clients should also not parse content as those.
     ///
     /// See [NIP-01](https://github.com/nostr-protocol/nips/blob/master/01.md)
     case textNote
-    
+
     /// This kind of event should have a list of p tags, one for each of the followed/known profiles one is following.
     /// > Note: The `content` can be anything and should be ignored.
     ///
@@ -34,7 +34,7 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
     /// > Warning: Deprecated in favor of [NIP-17 - Private Direct Messages](https://github.com/nostr-protocol/nips/blob/master/17.md).
     @available(*, deprecated, message: "Deprecated in favor of NIP-17 - Private Direct Messages.")
     case legacyEncryptedDirectMessage
-    
+
     /// This kind of event indicates that the author requests that the events in the included
     /// tags should be deleted.
     /// > Note: This event can only *request* that the listed events be deleted. In reality, they
@@ -42,7 +42,7 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
     ///
     /// See [NIP-09 - Event Deletion](https://github.com/nostr-protocol/nips/blob/master/09.md)
     case deletion
-    
+
     /// This kind of note is used to signal to followers that another event is worth reading.
     ///
     /// > Note: The reposted event must be a kind 1 text note.
@@ -127,7 +127,7 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
     ///
     /// See [NIP-37 - Draft Events].
     case draftPrivateWrap
-    
+
     /// This kind of event represents an occurrence that spans between a start date and end date.
     /// See [NIP-52 - Date-Based Calendar Event](https://github.com/nostr-protocol/nips/blob/master/52.md#calendar-events-1).
     case dateBasedCalendarEvent
@@ -175,6 +175,7 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
         .timeBasedCalendarEvent,
         .calendar,
         .calendarEventRSVP
+        //
     ]
 
     public init(rawValue: Int) {
@@ -212,7 +213,8 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
         case .timeBasedCalendarEvent:       return 31923
         case .calendar:                     return 31924
         case .calendarEventRSVP:            return 31925
-        case let .unknown(value):           return value
+
+        case let .unknown(value):           return value//
         }
     }
 
@@ -243,13 +245,15 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
         case .timeBasedCalendarEvent:       return TimeBasedCalendarEvent.self
         case .calendar:                     return CalendarListEvent.self
         case .calendarEventRSVP:            return CalendarEventRSVP.self
-        case .unknown:                      return NostrEvent.self
+
+        case .unknown:                      return NostrEvent.self//
         }
     }
 
     /// For kind `n` such that `10000 <= n < 20000 || n == 0 || n == 3`, events are normal replaceable,
     /// which means that, for each combination of pubkey and kind,
     /// only the latest event MUST be stored by relays, older versions MAY be discarded.
+    ///
     ///
     /// See [NIP-01 - Kinds](https://github.com/nostr-protocol/nips/blob/master/01.md#kinds).
     public var isNormalReplaceable: Bool {

@@ -10,7 +10,7 @@ import secp256k1
 
 public protocol ContentSigning {}
 public extension ContentSigning {
-    
+
     /// Produces a Schnorr signature of the provided `content` using the `privateKey`.
     ///
     /// - Parameters:

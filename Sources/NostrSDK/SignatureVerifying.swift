@@ -18,7 +18,7 @@ public enum SignatureVerifyingError: Error, CustomStringConvertible {
     case invalidMessage
     /// The signature was not valid.
     case invalidSignature
-    
+
     public var description: String {
         switch self {
         case .unexpectedSignatureLength:    return "The signature was not the expected length."
@@ -32,7 +32,7 @@ public enum SignatureVerifyingError: Error, CustomStringConvertible {
 /// An interface for verifying Schnorr signatures of variable-length content
 public protocol SignatureVerifying {}
 public extension SignatureVerifying {
-    
+
     /// Verifies a Schnorr signature.
     /// - Parameters:
     ///   - signature: The signature, based on the message.
@@ -46,19 +46,19 @@ public extension SignatureVerifying {
         guard let signatureData = signature.hexadecimalData, signatureData.count == 64 else {
             throw SignatureVerifyingError.unexpectedSignatureLength
         }
-        
+
         guard let publicKeyData = publicKey.hexadecimalData, publicKeyData.count == 32 else {
             throw SignatureVerifyingError.unexpectedPublicKeyLength
         }
-        
+
         guard let messageData = message.hexadecimalData else {
             throw SignatureVerifyingError.invalidMessage
         }
-        
+
         var bytes = [UInt8](messageData)
         let xonly = secp256k1.Schnorr.XonlyKey(dataRepresentation: publicKeyData)
         let schnorr = try secp256k1.Schnorr.SchnorrSignature(dataRepresentation: signatureData)
-        
+
         if !xonly.isValid(schnorr, for: &bytes) {
             throw SignatureVerifyingError.invalidSignature
         }

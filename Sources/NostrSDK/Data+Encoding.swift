@@ -14,16 +14,16 @@ extension Data {
         let hexDigits = Array("0123456789abcdef".utf16)
         var hexChars = [UTF16.CodeUnit]()
         hexChars.reserveCapacity(bytes.count * 2)
-    
+
         for byte in self {
             let (index1, index2) = Int(byte).quotientAndRemainder(dividingBy: 16)
             hexChars.append(hexDigits[index1])
             hexChars.append(hexDigits[index2])
         }
-        
+
         return String(utf16CodeUnits: hexChars, count: hexChars.count)
     }
-    
+
     /// Converts base two bytes to base 5
     var base5: Data {
         var outputSize = (count * 8) / 5
@@ -36,17 +36,17 @@ extension Data {
             let remainder = (i * 5) % 8
             var element = self[quotient] << remainder
             element >>= 3
-            
+
             if (remainder > 3) && (i + 1 < outputSize) {
                 element = element | (self[quotient + 1] >> (8 - remainder + 3))
             }
-            
+
             outputArray.append(element)
         }
-        
+
         return Data(outputArray)
     }
-    
+
     var base8FromBase5: Data? {
         let destinationBase = 8
         let startingBase = 5
@@ -54,7 +54,7 @@ extension Data {
         var value: UInt32 = 0
         var bits: Int = 0
         var output = Data()
-        
+
         for i in (0..<count) {
             value = (value << startingBase) | UInt32(self[i])
             bits += startingBase
@@ -63,11 +63,11 @@ extension Data {
                 output.append(UInt8((value >> bits) & maxValueMask))
             }
         }
-        
+
         if ((value << (destinationBase - bits)) & maxValueMask) != 0 || bits >= startingBase {
             return nil
         }
-        
+
         return output
     }
 }

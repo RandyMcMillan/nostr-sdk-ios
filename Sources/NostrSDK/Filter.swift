@@ -13,10 +13,10 @@ import Foundation
 public struct Filter: Codable, Hashable, Equatable {
     /// a list of event ids
     public let ids: [String]?
-    
+
     /// a list of lowercase pubkeys, the pubkey of an event must be one of these
     public let authors: [String]?
-    
+
     /// a list of a kind numbers
     public let kinds: [Int]?
 
@@ -25,10 +25,10 @@ public struct Filter: Codable, Hashable, Equatable {
 
     /// an integer unix timestamp, `created_at` timestamps on events must be greater than or equal to this to pass
     public let since: Int?
-    
+
     /// an integer unix timestamp, `created_at` timestamps on events must be less than or equal to this to pass
     public let until: Int?
-    
+
     /// maximum number of events to be returned in the initial query
     public let limit: Int?
 

@@ -18,7 +18,7 @@ public final class LongformContentEvent: NostrEvent, AddressableEvent, HashtagIn
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -37,7 +37,7 @@ public final class LongformContentEvent: NostrEvent, AddressableEvent, HashtagIn
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .longformContent, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// The date of the first time the article was published.
     var publishedAt: Date? {
         guard let unixTimeString = firstValueForTagName(.publishedAt),
@@ -51,7 +51,7 @@ public final class LongformContentEvent: NostrEvent, AddressableEvent, HashtagIn
     var summary: String? {
         firstValueForTagName(.summary)
     }
-    
+
     /// A URL pointing to an image to be shown along with the title.
     var imageURL: URL? {
         guard let imageURLString = firstValueForTagName(.image) else {

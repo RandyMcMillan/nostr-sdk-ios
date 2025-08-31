@@ -11,29 +11,29 @@ import Foundation
 /// > Note: [NIP-01 Specification](https://github.com/nostr-protocol/nips/blob/master/01.md#kinds)
 @available(*, deprecated, message: "Deprecated in favor of individual tags on MetadataEvent.")
 public struct UserMetadata: Codable {
-    
+
     /// The user's name.
     public let name: String?
-    
+
     /// The user's display name.
     /// > Note: [NIP-24 Extra metadata fields and tags](https://github.com/nostr-protocol/nips/blob/master/24.md#kind-0)
     public let displayName: String?
 
     /// The user's description of themself.
     public let about: String?
-    
+
     /// The user's website address.
     /// > Note: [NIP-24 Extra metadata fields and tags](https://github.com/nostr-protocol/nips/blob/master/24.md#kind-0)
     public let website: URL?
-    
+
     /// The user's Nostr address.
     ///
     /// > Note: [NIP-05 Specification](https://github.com/nostr-protocol/nips/blob/master/05.md#finding-users-from-their-nip-05-identifier).
     public let nostrAddress: String?
-    
+
     /// A URL to retrieve the user's picture.
     public let pictureURL: URL?
-    
+
     /// A URL to retrieve the user's banner image.
     /// > Note: [NIP-24 Extra metadata fields and tags](https://github.com/nostr-protocol/nips/blob/master/24.md#kind-0)
     public let bannerPictureURL: URL?
@@ -60,7 +60,7 @@ public struct UserMetadata: Codable {
         case lightningURLString = "lud06"
         case lightningAddress = "lud16"
     }
-    
+
     public init(name: String? = nil, displayName: String? = nil, about: String? = nil, website: URL? = nil, nostrAddress: String? = nil, pictureURL: URL? = nil, bannerPictureURL: URL? = nil, isBot: Bool? = nil, lightningURLString: String? = nil, lightningAddress: String? = nil) {
         self.name = name
         self.displayName = displayName
@@ -97,7 +97,7 @@ public final class MetadataEvent: NostrEvent, CustomEmojiInterpreting, NormalRep
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -117,7 +117,7 @@ public final class MetadataEvent: NostrEvent, CustomEmojiInterpreting, NormalRep
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .metadata, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// A dictionary containing all of the properties in the `content` field of the ``NostrEvent``.
     @available(*, deprecated, message: "Deprecated in favor of tags on MetadataEvent.")
     public var rawUserMetadata: [String: Any] {
@@ -127,7 +127,7 @@ public final class MetadataEvent: NostrEvent, CustomEmojiInterpreting, NormalRep
         let dict = try? JSONSerialization.jsonObject(with: data)
         return dict as? [String: Any] ?? [:]
     }
-    
+
     /// An object that contains decoded user properties from the `content` field of the ``NostrEvent``.
     @available(*, deprecated, message: "Deprecated in favor of tags on MetadataEvent.")
     public var userMetadata: UserMetadata? {
@@ -217,7 +217,7 @@ public final class MetadataEvent: NostrEvent, CustomEmojiInterpreting, NormalRep
 }
 
 public extension EventCreating {
-    
+
     /// Creates a ``MetadataEvent`` (kind 0) and signs it with the provided ``Keypair``.
     ///
     /// - Parameters:

@@ -10,10 +10,10 @@
 import Foundation
 
 extension String {
-    
+
     var hexDecoded: Data? {
         guard self.count.isMultiple(of: 2) else { return nil }
-        
+
         // https://stackoverflow.com/a/62517446/982195
         let stringArray = Array(self)
         var data = Data()

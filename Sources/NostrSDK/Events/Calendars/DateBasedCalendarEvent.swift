@@ -58,7 +58,7 @@ public final class DateBasedCalendarEvent: NostrEvent, CalendarEventInterpreting
 }
 
 public extension EventCreating {
-    
+
     /// Creates a ``DateBasedCalendarEvent`` (kind 31922) which starts on a date and ends before a different date in the future.
     /// Its use is appropriate for all-day or multi-day events where time and time zone hold no significance. e.g., anniversary, public holidays, vacation days.
     /// - Parameters:
@@ -77,19 +77,19 @@ public extension EventCreating {
     ///
     /// See [NIP-52](https://github.com/nostr-protocol/nips/blob/master/52.md).
     func dateBasedCalendarEvent(withIdentifier identifier: String = UUID().uuidString, title: String, description: String = "", startDate: TimeOmittedDate, endDate: TimeOmittedDate? = nil, locations: [String]? = nil, geohash: String? = nil, participants: [CalendarEventParticipant]? = nil, hashtags: [String]? = nil, references: [URL]? = nil, signedBy keypair: Keypair) throws -> DateBasedCalendarEvent {
-        
+
         var tags: [Tag] = []
-        
+
         // If the end date is omitted, the calendar event ends on the same date as the start date.
         if let endDate {
             // The start date must occur before the end date, if it exists.
             guard startDate < endDate else {
                 throw EventCreatingError.invalidInput
             }
-            
+
             tags.append(Tag(name: "end", value: endDate.dateString))
         }
-        
+
         // Re-arrange tags so that it's easier to read with the identifier and name appearing first in the list of tags,
         // and the end date being placed next to the start date.
         tags = [
@@ -97,27 +97,27 @@ public extension EventCreating {
             Tag(name: .title, value: title),
             Tag(name: "start", value: startDate.dateString)
         ] + tags
-        
+
         if let locations, !locations.isEmpty {
             tags += locations.map { Tag(name: "location", value: $0) }
         }
-        
+
         if let geohash {
             tags.append(Tag(name: "g", value: geohash))
         }
-        
+
         if let participants, !participants.isEmpty {
             tags += participants.map { $0.tag }
         }
-        
+
         if let hashtags, !hashtags.isEmpty {
             tags += hashtags.map { .hashtag($0) }
         }
-        
+
         if let references, !references.isEmpty {
             tags += references.map { Tag(name: .webURL, value: $0.absoluteString) }
         }
-        
+
         return try DateBasedCalendarEvent(content: description, tags: tags, signedBy: keypair)
     }
 }

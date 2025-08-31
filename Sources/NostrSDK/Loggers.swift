@@ -10,7 +10,7 @@ import OSLog
 
 enum Loggers {
     private static let subsystem = "NostrSDK"
-    
+
     static let keypairs = Logger(subsystem: Loggers.subsystem, category: "Keypairs")
     static let relayDecoding = Logger(subsystem: Loggers.subsystem, category: "RelayDecoding")
 }

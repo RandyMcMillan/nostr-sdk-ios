@@ -14,7 +14,7 @@ public final class MuteListEvent: NostrEvent, HashtagInterpreting, NormalReplace
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -33,39 +33,39 @@ public final class MuteListEvent: NostrEvent, HashtagInterpreting, NormalReplace
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .muteList, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// The publicly muted public keys (authors).
     public var pubkeys: [String] {
         allValues(forTagName: .pubkey)
     }
-    
+
     /// The publicly muted event ids (threads).
     public var eventIds: [String] {
         allValues(forTagName: .event)
     }
-    
+
     /// The publicly muted keywords.
     public var keywords: [String] {
         allValues(forTagName: .word)
     }
-    
+
     /// The privately muted public keys (authors).
     public func privatePubkeys(using keypair: Keypair) -> [String] {
         valuesForPrivateTags(from: content, withName: .pubkey, using: keypair)
     }
-    
+
     /// The privately muted event ids (threads).
     /// - Parameter keypair: The keypair with which to decrypt the content.
     /// - Returns: The event ids.
     public func privateEventIds(using keypair: Keypair) -> [String] {
         valuesForPrivateTags(from: content, withName: .event, using: keypair)
     }
-    
+
     /// The privately muted hashtags.
     public func privateHashtags(using keypair: Keypair) -> [String] {
         valuesForPrivateTags(from: content, withName: .hashtag, using: keypair)
     }
-    
+
     /// The privately muted keywords.
     public func privateKeywords(using keypair: Keypair) -> [String] {
         valuesForPrivateTags(from: content, withName: .word, using: keypair)
@@ -73,7 +73,7 @@ public final class MuteListEvent: NostrEvent, HashtagInterpreting, NormalReplace
 }
 
 public extension EventCreating {
-    
+
     /// Creates a ``MuteListEvent`` (kind 10000) containing things the user doesn't want to see in their feeds. Mute list items be publicly visible or private.
     /// - Parameters:
     ///   - publiclyMutedPubkeys: Pubkeys to mute.
@@ -99,12 +99,12 @@ public extension EventCreating {
         publiclyMutedEventIds.map { .event($0) } +
         publiclyMutedHashtags.map { .hashtag($0) } +
         publiclyMutedKeywords.map { Tag(name: .word, value: $0) }
-        
+
         let privateTags: [Tag] = privatelyMutedPubkeys.map { .pubkey($0) } +
         privatelyMutedEventIds.map { .event($0) } +
         privatelyMutedHashtags.map { .hashtag($0) } +
         privatelyMutedKeywords.map { Tag(name: .word, value: $0) }
-        
+
         var encryptedContent: String?
         if !privateTags.isEmpty {
             let rawPrivateTags = privateTags.map { $0.raw }
@@ -115,7 +115,7 @@ public extension EventCreating {
                                                      publicKey: keypair.publicKey)
             }
         }
-        
+
         return try MuteListEvent(content: encryptedContent ?? "", tags: publicTags, signedBy: keypair)
     }
 }

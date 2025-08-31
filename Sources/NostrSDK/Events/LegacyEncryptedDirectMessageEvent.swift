@@ -17,7 +17,7 @@ public final class LegacyEncryptedDirectMessageEvent: NostrEvent, LegacyDirectMe
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -36,7 +36,7 @@ public final class LegacyEncryptedDirectMessageEvent: NostrEvent, LegacyDirectMe
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .legacyEncryptedDirectMessage, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// Returns decrypted content from Event given a `privateKey`
     public func decryptedContent(using privateKey: PrivateKey) throws -> String {
         let recipient = tags.first { tag in
@@ -67,7 +67,7 @@ public extension EventCreating {
         guard let encryptedMessage = try? legacyEncrypt(content: content, privateKey: keypair.privateKey, publicKey: pubkey) else {
             throw EventCreatingError.invalidInput
         }
-        
+
         let recipientTag = Tag.pubkey(pubkey.hex)
         return try LegacyEncryptedDirectMessageEvent(content: encryptedMessage, tags: [recipientTag], signedBy: keypair)
     }

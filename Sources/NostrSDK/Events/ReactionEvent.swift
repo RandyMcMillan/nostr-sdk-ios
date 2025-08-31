@@ -15,7 +15,7 @@ public class ReactionEvent: NostrEvent, CustomEmojiInterpreting {
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -34,7 +34,7 @@ public class ReactionEvent: NostrEvent, CustomEmojiInterpreting {
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .reaction, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     public var reactedEventId: String? {
         tags.last(where: { $0.name == TagName.event.rawValue })?.value
     }
@@ -45,7 +45,7 @@ public class ReactionEvent: NostrEvent, CustomEmojiInterpreting {
 }
 
 public extension EventCreating {
-    
+
     /// Creates a ``ReactionEvent`` (kind 7) in response to a different ``NostrEvent`` and signs it with the provided ``Keypair``.
     /// - Parameters:
     ///   - content: The content of the reaction.

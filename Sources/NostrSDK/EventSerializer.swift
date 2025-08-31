@@ -8,7 +8,7 @@
 import Foundation
 
 public enum EventSerializer {
-    
+
     /// Serializes properties of an event.
     ///
     /// The serialization is done over the UTF-8 JSON-serialized string (with no white space or line breaks) of the following structure:
@@ -28,14 +28,14 @@ public enum EventSerializer {
     public static func serializedEvent(withPubkey pubkey: String, createdAt: Int64, kind: Int, tags: [Tag], content: String) -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .withoutEscapingSlashes
-        
+
         let tagsString: String
         if let tagsData = try? encoder.encode(tags) {
             tagsString = String(data: tagsData, encoding: .utf8) ?? "[]"
         } else {
             tagsString = "[]"
         }
-        
+
         let contentString: String
         if let contentData = try? encoder.encode(content) {
             contentString = String(data: contentData, encoding: .utf8) ?? "\"\""
@@ -44,7 +44,7 @@ public enum EventSerializer {
         }
         return "[0,\"\(pubkey)\",\(createdAt),\(kind),\(tagsString),\(contentString)]"
     }
-    
+
     /// To obtain the event.id, we SHA256 the serialized event.
     public static func identifierForEvent(withPubkey pubkey: String, createdAt: Int64, kind: Int, tags: [Tag], content: String) -> String {
         serializedEvent(withPubkey: pubkey,

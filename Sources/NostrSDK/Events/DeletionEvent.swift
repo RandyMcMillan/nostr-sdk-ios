@@ -12,11 +12,11 @@ import Foundation
 ///
 /// > Note: [NIP-09 Specification](https://github.com/nostr-protocol/nips/blob/master/09.md)
 public final class DeletionEvent: NostrEvent, EventCoordinatesTagInterpreting {
-    
+
     public required init(from decoder: Decoder) throws {
         try super.init(from: decoder)
     }
-    
+
     @available(*, unavailable, message: "This initializer is unavailable for this class.")
     required init(kind: EventKind, content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: kind, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
@@ -35,12 +35,12 @@ public final class DeletionEvent: NostrEvent, EventCoordinatesTagInterpreting {
     init(content: String, tags: [Tag] = [], createdAt: Int64 = Int64(Date.now.timeIntervalSince1970), signedBy keypair: Keypair) throws {
         try super.init(kind: .deletion, content: content, tags: tags, createdAt: createdAt, signedBy: keypair)
     }
-    
+
     /// The reason the creator of the event gave for deleting the included events.
     public var reason: String {
         content
     }
-    
+
     /// The event ids that the creator requests deletion for.
     public var deletedEventIds: [String] {
         allValues(forTagName: .event)
@@ -48,7 +48,7 @@ public final class DeletionEvent: NostrEvent, EventCoordinatesTagInterpreting {
 }
 
 public extension EventCreating {
-    
+
     /// Creates a ``DeletionEvent`` (kind 5) and signs it with the provided ``Keypair``.
     /// - Parameters:
     ///   - events: The events the signer would like to request deletion for. Only events that match the `id` will be requested for deletion.
@@ -62,15 +62,15 @@ public extension EventCreating {
         guard !events.isEmpty || !replaceableEvents.isEmpty else {
             throw EventCreatingError.invalidInput
         }
-        
+
         // Verify that the events being deleted were created with the same keypair.
         let creatorValidatedEvents = events.filter { $0.pubkey == keypair.publicKey.hex }
         let creatorValidatedReplaceableEvents = replaceableEvents.filter { $0.pubkey == keypair.publicKey.hex }
-        
+
         guard !creatorValidatedEvents.isEmpty || !creatorValidatedReplaceableEvents.isEmpty else {
             throw EventCreatingError.invalidInput
         }
-        
+
         let tags: [Tag] = creatorValidatedEvents.map { .event($0.id) } + creatorValidatedReplaceableEvents.compactMap { $0.replaceableEventCoordinates(relayURL: nil)?.tag }
         return try DeletionEvent(content: reason ?? "", tags: tags, signedBy: keypair)
     }

@@ -12,44 +12,44 @@ import os.log
 /// An object that manages a set of relays.
 /// Send events and messages to all the relays in the pool.
 public final class RelayPool: ObservableObject, RelayOperating {
-    
+
     /// The set of relays.
     @Published public private(set) var relays = Set<Relay>()
-    
+
     /// A Publisher that publishes all events from all relays.
     @Published public private(set) var events = PassthroughSubject<RelayEvent, Never>()
-    
+
     /// A delegate to receive events and state changes.
     public weak var delegate: RelayDelegate? {
         didSet {
             relays.forEach { $0.delegate = delegate }
         }
     }
-    
+
     private let logger = Logger(subsystem: "NostrSDK", category: "RelayPool")
     private var cancellable: AnyCancellable?
-    
+
     public init(relays: Set<Relay> = [], delegate: RelayDelegate? = nil) {
         self.relays = relays
         self.delegate = delegate
         setUpRelays()
     }
-    
+
     public convenience init(relayURLs: Set<URL> = [], delegate: RelayDelegate? = nil) throws {
         try self.init(relays: Set(relayURLs.compactMap { try Relay(url: $0) }),
                       delegate: delegate)
     }
-    
+
     private func setUpRelays() {
         relays.forEach { setUpRelay($0) }
         updateEventsPublisher()
     }
-    
+
     private func setUpRelay(_ relay: Relay) {
         relay.delegate = delegate
         relay.connect()
     }
-    
+
     private func updateEventsPublisher() {
         let mergedEvents = Publishers.MergeMany(relays.map { $0.events })
         cancellable = mergedEvents
@@ -57,7 +57,7 @@ public final class RelayPool: ObservableObject, RelayOperating {
                 self?.events.send(event)
             }
     }
-    
+
     /// Adds a relay to the pool, if a matching one is not already there (based on relay URL).
     /// - Parameter relay: The relay to add to the pool.
     ///
@@ -67,12 +67,12 @@ public final class RelayPool: ObservableObject, RelayOperating {
             logger.warning("Could not add relay because it was already in the pool: \(relay.url)")
             return
         }
-        
+
         relays.insert(relay)
         setUpRelay(relay)
         updateEventsPublisher()
     }
-    
+
     /// Removes a relay from the pool, if a matching one is found (based on relay URL).
     /// - Parameter relay: The relay to remove from the pool.
     ///
@@ -81,7 +81,7 @@ public final class RelayPool: ObservableObject, RelayOperating {
         removeRelay(withURL: relay.url)
         updateEventsPublisher()
     }
-    
+
     /// Removes a relay from the pool, if one with a matching URL is found.
     /// - Parameter relayURL: The relay URL to remove.
     ///
@@ -93,25 +93,25 @@ public final class RelayPool: ObservableObject, RelayOperating {
             relays.remove($0)
         }
     }
-    
+
     // MARK: - RelayOperating
-    
+
     /// Attempts to connect to all of the relays.
     public func connect() {
         relays.forEach { $0.connect() }
     }
-    
+
     /// Attempts to disconnect from all of the relays.
     public func disconnect() {
         relays.forEach { $0.disconnect() }
     }
-    
+
     /// Sends a request to the relays.
     /// - Parameter request: The request to send
     public func send(request: String) {
         relays.forEach { $0.send(request: request) }
     }
-    
+
     /// Subscribes to all of the relays using the supplied ``Filter``.
     /// - Parameters:
     ///   - filter: The filter to subscribe to.
@@ -127,7 +127,7 @@ public final class RelayPool: ObservableObject, RelayOperating {
         }
         return subscriptionId
     }
-    
+
     /// Attempts to close subscriptions with all relays with the supplied subscription id.
     /// - Parameter subscriptionId: The subscription id to close subscriptions for.
     public func closeSubscription(with subscriptionId: String) {
@@ -139,7 +139,7 @@ public final class RelayPool: ObservableObject, RelayOperating {
             }
         }
     }
-    
+
     /// Publishes an event to the relays.
     /// - Parameter event: The ``NostrEvent`` to publish
     public func publishEvent(_ event: NostrEvent) {

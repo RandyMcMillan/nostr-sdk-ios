@@ -20,25 +20,25 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
         lhs.content == rhs.content &&
         lhs.signature == rhs.signature
     }
-    
+
     /// 32-byte, lowercase, hex-encoded sha256 of the serialized event data.
     public let id: String
-    
+
     /// 32-byte, lowercase, hex-encoded public key of the event creator.
     public let pubkey: String
-    
+
     /// Unix timestamp in seconds of when the event is created.
     public let createdAt: Int64
-    
+
     /// The event kind.
     public let kind: EventKind
-    
+
     /// List of ``Tag`` objects.
     public let tags: [Tag]
-    
+
     /// Arbitrary string.
     public let content: String
-    
+
     /// 64-byte hex of the signature of the sha256 hash of the serialized event data, which is the same as the `id` field.
     public let signature: String?
 
@@ -106,7 +106,7 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     public var createdDate: Date {
         Date(timeIntervalSince1970: TimeInterval(createdAt))
     }
-    
+
     /// The event serialized, so that it can be signed.
     public var serialized: String {
         EventSerializer.serializedEvent(withPubkey: pubkey,
@@ -115,7 +115,7 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
                                         tags: tags,
                                         content: content)
     }
-    
+
     /// The event.id calculated as a SHA256 of the serialized event. See ``EventSerializer``.
     public var calculatedId: String {
         EventSerializer.identifierForEvent(withPubkey: pubkey,
@@ -154,17 +154,17 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     public func allTags(withTagName tagName: TagName) -> [Tag] {
         tags.filter { $0.name == tagName.rawValue }
     }
-    
+
     /// The first String value for the provided ``TagName``, if it exists.
     public func firstValueForTagName(_ tag: TagName) -> String? {
         firstValueForRawTagName(tag.rawValue)
     }
-    
+
     /// The first String value for the provided raw tag name, if it exists.
     public func firstValueForRawTagName(_ tagName: String) -> String? {
         tags.first(where: { $0.name == tagName })?.value
     }
-    
+
     /// All values for tags with the provided name.
     /// - Parameter tag: The tag name to filter.
     /// - Returns: The values associated with the tags of the provided name.
