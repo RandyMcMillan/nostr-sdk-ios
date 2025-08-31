@@ -156,7 +156,7 @@ struct _30618QueryRelayDemoView: View {
 
     ]
 
-    @State private var selectedKind = 30617
+    @State private var selectedKind = 30618
 
     var body: some View {
 

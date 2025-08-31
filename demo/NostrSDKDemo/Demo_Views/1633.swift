@@ -156,7 +156,7 @@ struct _1633QueryRelayDemoView: View {
 
     ]
 
-    @State private var selectedKind = 1621
+    @State private var selectedKind = 1633
 
     var body: some View {
 
@@ -382,7 +382,7 @@ struct _1633QueryRelayDemoView: View {
 struct _1633QueryRelayView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            _1621QueryRelayDemoView()
+            _1633QueryRelayDemoView()
         }
     }
 }
