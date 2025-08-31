@@ -20,11 +20,11 @@ struct ContentView: View {
                     ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
                                    imageName: "list.bullet.rectangle.portrait",
                                    labelText: "NIP-0034 (30618)")
-                    
+
                     ListOptionView(destinationView: AnyView(_30617QueryRelayDemoView()),
                                    imageName: "list.bullet.rectangle.portrait",
                                    labelText: "NIP-0034 (30617)")
-                    
+
                     ListOptionView(destinationView: AnyView(_1633QueryRelayDemoView()),
                                    imageName: "list.bullet.rectangle.portrait",
                                    labelText: "NIP-0034 (1633)")
