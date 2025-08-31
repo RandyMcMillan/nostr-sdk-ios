@@ -18,19 +18,21 @@ struct QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-//30617 30618 1617 1621 1630 1631 1632 1633
+    @State private var tags: [String]?
+    
+// 30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
-        //0: "Set Metadata",
-        //1: "Text Note",
-        //3: "Follow List",
-        //6: "Repost",
-        //7: "Reaction",
-        //1984: "Report",
-        //10000: "Mute List",
-        //10003: "Bookmarks List",
-        //30023: "Longform Content",
+        // 0: "Set Metadata",
+        // 1: "Text Note",
+        // 3: "Follow List",
+        // 6: "Repost",
+        // 7: "Reaction",
+        // 1984: "Report",
+        // 10000: "Mute List",
+        // 10003: "Bookmarks List",
+        // 30023: "Longform Content",
         
-        //nip-0034
+        // nip-0034
         
         30617: "Repository announcements",
         30618: "Repository state announcements",
@@ -47,7 +49,7 @@ struct QueryRelayDemoView: View {
 
     var body: some View {
         
-        //NavigationView {
+        // NavigationView {
         //    VStack {
         //        List {
         //            ListOptionView(destinationView: AnyView(RelaysView()),
@@ -78,10 +80,9 @@ struct QueryRelayDemoView: View {
         //    }
         //    .navigationTitle("NIP-0034 Viewer")
         //    .navigationBarTitleDisplayMode(.inline)
-        //}
-    //}
+        // }
+    // }
 
-        
         Form {
             Section("NIP-0034 Viewer") {
 
@@ -106,8 +107,8 @@ struct QueryRelayDemoView: View {
                 Text("Query")
             }
 
-            NavigationView {
-                VStack {
+           // NavigationView {
+             //   VStack {
                     
             if !events.isEmpty {
                 Section("Results") {
@@ -118,8 +119,7 @@ struct QueryRelayDemoView: View {
                     }
                     //
                     
-                    
-                    //NavigationView {
+                    // NavigationView {
                       //  VStack {
 
                     List(events, id: \.id) { event in
@@ -132,7 +132,7 @@ struct QueryRelayDemoView: View {
                             Text("")
                             Text("\(event.content)")
                         } else {
-                            //Text("Empty content field for event \(event.id)")
+                            // Text("Empty content field for event \(event.id)")
                             Text("")
                             Text("event.id \(event.id)")
                             Text("event.kind \(event.kind)")
@@ -140,8 +140,8 @@ struct QueryRelayDemoView: View {
                             Text("event.pubkey \(event.pubkey)")
                             Text("")
                         }
-                    }
-                        }
+                    // }
+                      //  }
                     }
                 }
             }
