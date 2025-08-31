@@ -53,21 +53,21 @@ struct QueryRelayDemoView: View {
             VStack {
                 List {
                     //
-                    ListOptionView(destinationView: AnyView(
-                        RelaysView()
-                    ),
-                                   imageName: "network",
-                                   labelText: "Configure Relays")
-                    ListOptionView(destinationView: AnyView(
-                        Text("Text")
-                    ),
-                                   imageName: "network",
-                                   labelText: "TextView")
-                    ListOptionView(destinationView: AnyView(
-                        Text("Text")
-                    ),
-                                   imageName: "network",
-                                   labelText: "TextView")
+                    //ListOptionView(destinationView: AnyView(
+                    //    RelaysView()
+                    //),
+                    //               imageName: "network",
+                    //               labelText: "Configure Relays")
+                    //ListOptionView(destinationView: AnyView(
+                    //    Text("Text")
+                    //),
+                    //               imageName: "network",
+                    //               labelText: "TextView")
+                    //ListOptionView(destinationView: AnyView(
+                    //    Text("Text")
+                    //),
+                    //               imageName: "network",
+                    //               labelText: "TextView")
                     ListOptionView(destinationView: AnyView(
                         // Text("Text")
 
