@@ -67,7 +67,7 @@ struct EventDetailView: View {
                     VStack(alignment: .leading) {
                         Text("Tags:")
                             .font(.headline)
-                        
+
                         ForEach(event.tags, id: \.self) { tag in
                             Text("• \(tag.name): \(tag.value)")
                                 .font(.caption)
@@ -110,7 +110,7 @@ struct EventListView: View {
             .content("This is the first mock Nostr event. It's a test of the SwiftUI list view integration!")
             // .appendTags(contentsOf: .init(name: "p"/*, value: "abcdef123..."*/))
             .build(pubkey: "1234567890abcdef...")
-        
+
         let mockEvent2 = try? NostrEvent.Builder(kind: .textNote)
             .content("A second event to demonstrate the list view with more data.")
             // .appendTags(contentsOf: .init(name: "e"/*, value: "fedcba987..."*/))
@@ -142,9 +142,9 @@ struct QueryRelayDemoView: View {
         // 10000: "Mute List",
         // 10003: "Bookmarks List",
         // 30023: "Longform Content",
-        
+
         // nip-0034
-        
+
         30617: "Repository announcements",
         30618: "Repository state announcements",
         1617: "Patches",
@@ -159,7 +159,7 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        
+
         // NavigationView {
         //    VStack {
         //        List {
@@ -226,7 +226,7 @@ struct QueryRelayDemoView: View {
                         //    .font(.footnote)
                     // }
                     //
-                    
+
                     NavigationView {
                         VStack {
                             // List {
@@ -261,7 +261,7 @@ struct QueryRelayDemoView: View {
                     // }
                     List(events, id: \.id) { event in
                         if !event.content.isEmpty {
-                            
+
                             //    ListOptionView(destinationView: AnyView(RelaysView()),
                             //                   imageName: "network",
                             //                   labelText: "Configure Relays")
@@ -296,7 +296,7 @@ struct QueryRelayDemoView: View {
                             Text("\(event.content)")
                         } else {
                             // Text("Empty content field for event \(event.id)")
-                            
+
                                 // ListOptionView(destinationView: AnyView(RelaysView()),
                                 //               imageName: "network",
                                 //               labelText: "Configure Relays")
@@ -321,7 +321,7 @@ struct QueryRelayDemoView: View {
                                 // ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
                                 //               imageName: "checkmark.seal",
                                 //               labelText: "NIP-05")
-                            
+
                             Text("")
                             Text("event.id \(event.id)")
                             Text("event.kind \(event.kind)")
@@ -349,7 +349,7 @@ struct QueryRelayDemoView: View {
             }
         }
     }
-    
+
     private var currentFilter: Filter {
         let authors: [String]?
         if authorPubkey.isEmpty {
@@ -359,14 +359,14 @@ struct QueryRelayDemoView: View {
         }
         return Filter(authors: authors, kinds: [selectedKind])!//
     }
-    
+
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
         }
-        
+
         subscriptionId = relayPool.subscribe(with: currentFilter)
-        
+
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
             .map {

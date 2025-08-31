@@ -17,7 +17,7 @@ struct NostrSDKDemoApp: App {
         URL(string: "wss://nos.lol")!,
         URL(string: "ws://127.0.0.1:8080")!
     ])
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()

@@ -19,9 +19,9 @@ extension Relay {
 }
 
 struct RelaysView: View {
-    
+
     @EnvironmentObject var pool: RelayPool
-    
+
     var body: some View {
         List {
             ForEach(relays, id: \.url) { relay in
@@ -38,11 +38,11 @@ struct RelaysView: View {
             EditButton()
         }
     }
-    
+
     private var relays: [Relay] {
         pool.relays.sorted()
     }
-    
+
     private func remove(at offsets: IndexSet) {
         guard let index = offsets.first else {
             return

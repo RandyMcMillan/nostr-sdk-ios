@@ -50,7 +50,7 @@ struct DecryptMessageDemoView: View, EventCreating {
                 }
             }
             .disabled(!ready())
-            
+
             if message != "" {
                 Section("Decrypted Message") {
                     TextField("Decrypted Message", text: $message)

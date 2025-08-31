@@ -20,7 +20,7 @@ enum KeyType {
 }
 
 struct KeyInputSectionView: View {
-    
+
     @Binding var key: String
     @Binding var isValid: Bool
 
