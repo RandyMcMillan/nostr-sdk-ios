@@ -63,6 +63,41 @@ struct QueryRelayDemoView: View {
                     ),
                                    imageName: "network",
                                    labelText: "TextView")
+                    ListOptionView(destinationView: AnyView(
+                        Text("Text")
+                    ),
+                                   imageName: "network",
+                                   labelText: "TextView")
+                    ListOptionView(destinationView: AnyView(
+                        // Text("Text")
+
+                        Form {
+                            Section("NIP-0034 Viewer") {
+
+                                TextField(text: $authorPubkey) {
+                                    Text("Author Public Key (HEX)")
+                                }
+
+                                Picker("Kind", selection: $selectedKind) {
+                                    ForEach(kindOptions.keys.sorted(), id: \.self) { number in
+                                        if let name = kindOptions[number] {
+                                            Text("\(name) (\(String(number)))")
+                                        } else {
+                                            Text("\(String(number))")
+                                        }
+                                    }
+                                }
+                            }
+
+                            Button {
+                                updateSubscription()
+                            } label: {
+                                Text("Query")
+                            }}
+
+                    ),
+                                   imageName: "network",
+                                   labelText: "TextView")
 
                     //
                 }
