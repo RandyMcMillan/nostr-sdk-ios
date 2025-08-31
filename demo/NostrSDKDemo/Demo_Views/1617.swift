@@ -229,123 +229,63 @@ struct _1617QueryRelayDemoView: View {
 
                     // NavigationView {
                         VStack {
-                            // List {
-                            //    ListOptionView(destinationView: AnyView(RelaysView()),
-                            //                   imageName: "network",
-                            //                   labelText: "Configure Relays")
-                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                            //                   imageName: "list.bullet.rectangle.portrait",
-                            //                   labelText: "NIP-0034 Viewer")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(LegacyDirectMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-04 Direct Message")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(EncryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Encrypt")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(DecryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Decrypt")
-                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                            //                   imageName: "key",
-                            //                   labelText: "Key Generation")
-                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                            //                   imageName: "checkmark.seal",
-                            //                   labelText: "NIP-05")
-                            // }
-                       // }
-                       // .navigationTitle("NIP-0034 Viewer")
-                       // .navigationBarTitleDisplayMode(.inline)
-                    // }
                     List(events, id: \.id) { event in
                         if !event.content.isEmpty {
+                            ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                           imageName: "network",
+                                           labelText: "event.pubkey")
+                            Text("")
 
                                 ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
                                                imageName: "network",
                                                labelText: "event.id")
+                            Text("")
+
                             ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
                                            imageName: "network",
                                            labelText: "event.kind")
+                            Text("")
+
                             ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
                                            imageName: "network",
                                            labelText: "event.tags")
+                            Text("")
+
                             ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
                                            imageName: "network",
                                            labelText: "event.kind")
+                            Text("")
+
                             ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
                                            imageName: "network",
                                            labelText: "event.content")
-                            // ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
-                            //               imageName: "network",
-                            //               labelText: "Configure Relays")
-                            // ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
-                            //               imageName: "network",
-                            //               labelText: "Configure Relays")
-                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                            //                   imageName: "list.bullet.rectangle.portrait",
-                            //                   labelText: "NIP-0034 Viewer")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(LegacyDirectMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-04 Direct Message")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(EncryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Encrypt")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(DecryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Decrypt")
-                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                            //                   imageName: "key",
-                            //                   labelText: "Key Generation")
-                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                            //                   imageName: "checkmark.seal",
-                            //                   labelText: "NIP-05")
-                            //
                             Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                            Text("\(event.content)")
                         } else {
-                            // Text("Empty content field for event \(event.id)")
-
-                                // ListOptionView(destinationView: AnyView(RelaysView()),
-                                //               imageName: "network",
-                                //               labelText: "Configure Relays")
-                                // ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                                //               imageName: "list.bullet.rectangle.portrait",
-                                //               labelText: "NIP-0034 Viewer")
-                                // ListOptionView(destinationView:
-                                //                AnyView(LegacyDirectMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-04 Direct Message")
-                                // ListOptionView(destinationView:
-                                //                AnyView(EncryptMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-44 Encrypt")
-                                // ListOptionView(destinationView:
-                                //                AnyView(DecryptMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-44 Decrypt")
-                                // ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                                //               imageName: "key",
-                                //               labelText: "Key Generation")
-                                // ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                                //               imageName: "checkmark.seal",
-                                //               labelText: "NIP-05")
-
+                            ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                           imageName: "network",
+                                           labelText: "event.pubkey")
                             Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
+
+                                ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
+                                               imageName: "network",
+                                               labelText: "event.id")
                             Text("")
+
+                            ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
+                                           imageName: "network",
+                                           labelText: "event.kind")
+                            Text("")
+
+                            ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
+                                           imageName: "network",
+                                           labelText: "event.tags")
+                            Text("")
+
+                            ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
+                                           imageName: "network",
+                                           labelText: "event.kind")
+                            Text("")
+                            // Text("\(event.content)")
                         }
                     }
                        // }
