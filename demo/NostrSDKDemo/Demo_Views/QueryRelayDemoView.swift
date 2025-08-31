@@ -19,7 +19,7 @@ struct QueryRelayDemoView: View {
     @State private var errorString: String?
     @State private var subscriptionId: String?
     @State private var tags: [String]?
-    
+
 // 30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
         // 0: "Set Metadata",
@@ -31,9 +31,9 @@ struct QueryRelayDemoView: View {
         // 10000: "Mute List",
         // 10003: "Bookmarks List",
         // 30023: "Longform Content",
-        
+
         // nip-0034
-        
+
         30617: "Repository announcements",
         30618: "Repository state announcements",
         1617: "Patches",
@@ -48,10 +48,29 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        
-        // NavigationView {
-        //    VStack {
-        //        List {
+
+        NavigationView {
+            VStack {
+                List {
+                    //
+                    ListOptionView(destinationView: AnyView(
+                        RelaysView()
+                    ),
+                                   imageName: "network",
+                                   labelText: "Configure Relays")
+                    ListOptionView(destinationView: AnyView(
+                        Text("Text")
+                    ),
+                                   imageName: "network",
+                                   labelText: "TextView")
+
+                    //
+                }
+            }
+        }
+        .navigationTitle("NIP-0034 Viewer")
+        .navigationBarTitleDisplayMode(.inline)
+
         //            ListOptionView(destinationView: AnyView(RelaysView()),
         //                           imageName: "network",
         //                           labelText: "Configure Relays")
@@ -109,7 +128,7 @@ struct QueryRelayDemoView: View {
 
            // NavigationView {
              //   VStack {
-                    
+
             if !events.isEmpty {
                 Section("Results") {
                     if !authorPubkey.isEmpty {
@@ -118,7 +137,7 @@ struct QueryRelayDemoView: View {
                             .font(.footnote)
                     }
                     //
-                    
+
                     // NavigationView {
                       //  VStack {
 
@@ -160,7 +179,7 @@ struct QueryRelayDemoView: View {
             }
         }
     }
-    
+
     private var currentFilter: Filter {
         let authors: [String]?
         if authorPubkey.isEmpty {
@@ -170,14 +189,14 @@ struct QueryRelayDemoView: View {
         }
         return Filter(authors: authors, kinds: [selectedKind])!//
     }
-    
+
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
         }
-        
+
         subscriptionId = relayPool.subscribe(with: currentFilter)
-        
+
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
             .map {
