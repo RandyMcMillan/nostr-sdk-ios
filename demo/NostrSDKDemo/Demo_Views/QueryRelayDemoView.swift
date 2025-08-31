@@ -138,28 +138,28 @@ struct QueryRelayDemoView: View {
     // }
 
         Form {
-            Section("NIP-0034 Viewer") {
-
-                TextField(text: $authorPubkey) {
-                    Text("Author Public Key (HEX)")
-                }
-
-                Picker("Kind", selection: $selectedKind) {
-                    ForEach(kindOptions.keys.sorted(), id: \.self) { number in
-                        if let name = kindOptions[number] {
-                            Text("\(name) (\(String(number)))")
-                        } else {
-                            Text("\(String(number))")
-                        }
-                    }
-                }
-            }
-
-            Button {
-                updateSubscription()
-            } label: {
-                Text("Query")
-            }
+            // Section("NIP-0034 Viewer") {
+//
+            //    TextField(text: $authorPubkey) {
+            //        Text("Author Public Key (HEX)")
+            //    }
+//
+            //    Picker("Kind", selection: $selectedKind) {
+            //        ForEach(kindOptions.keys.sorted(), id: \.self) { number in
+            //            if let name = kindOptions[number] {
+            //                Text("\(name) (\(String(number)))")
+            //            } else {
+            //                Text("\(String(number))")
+            //            }
+            //        }
+            //    }
+            // }
+//
+            // Button {
+            //    updateSubscription()
+            // } label: {
+            //    Text("Query")
+            // }
 
            // NavigationView {
              //   VStack {
@@ -180,8 +180,14 @@ struct QueryRelayDemoView: View {
                         if !event.content.isEmpty {
                             Text("")
                             Text("event.id \(event.id)")
+                            Text("")
+
                             Text("event.kind \(event.kind)")
+                            Text("")
+
                             Text("event.tags \(event.tags)")
+                            Text("")
+
                             Text("event.pubkey \(event.pubkey)")
                             Text("")
                             Text("\(event.content)")
@@ -189,8 +195,14 @@ struct QueryRelayDemoView: View {
                             // Text("Empty content field for event \(event.id)")
                             Text("")
                             Text("event.id \(event.id)")
+                            Text("")
+
                             Text("event.kind \(event.kind)")
+                            Text("")
+
                             Text("event.tags \(event.tags)")
+                            Text("")
+
                             Text("event.pubkey \(event.pubkey)")
                             Text("")
                         }
