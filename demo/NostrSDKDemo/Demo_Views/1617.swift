@@ -156,7 +156,7 @@ struct _1617QueryRelayDemoView: View {
 
     ]
 
-    @State private var selectedKind = 30617
+    @State private var selectedKind = 1617
 
     var body: some View {
 
@@ -227,7 +227,7 @@ struct _1617QueryRelayDemoView: View {
                     // }
                     //
 
-                    NavigationView {
+                    // NavigationView {
                         VStack {
                             // List {
                             //    ListOptionView(destinationView: AnyView(RelaysView()),
@@ -262,9 +262,27 @@ struct _1617QueryRelayDemoView: View {
                     List(events, id: \.id) { event in
                         if !event.content.isEmpty {
 
-                            //    ListOptionView(destinationView: AnyView(RelaysView()),
-                            //                   imageName: "network",
-                            //                   labelText: "Configure Relays")
+                                ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
+                                               imageName: "network",
+                                               labelText: "event.id")
+                            ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
+                                           imageName: "network",
+                                           labelText: "event.kind")
+                            ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
+                                           imageName: "network",
+                                           labelText: "event.tags")
+                            ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
+                                           imageName: "network",
+                                           labelText: "event.kind")
+                            ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                                           imageName: "network",
+                                           labelText: "event.content")
+                            // ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
+                            //               imageName: "network",
+                            //               labelText: "Configure Relays")
+                            // ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
+                            //               imageName: "network",
+                            //               labelText: "Configure Relays")
                             //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
                             //                   imageName: "list.bullet.rectangle.portrait",
                             //                   labelText: "NIP-0034 Viewer")
@@ -330,7 +348,7 @@ struct _1617QueryRelayDemoView: View {
                             Text("")
                         }
                     }
-                        }
+                       // }
                     // }
                 }
             }
