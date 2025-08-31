@@ -16,6 +16,9 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 List {
+                    ListOptionView(destinationView: AnyView(ConnectRelayView(relay: $relay)),
+                                   imageName: "network",
+                                   labelText: "Connect Relay")
                     ListOptionView(destinationView: AnyView(RelaysView()),
                                    imageName: "network",
                                    labelText: "Configure Relays")
