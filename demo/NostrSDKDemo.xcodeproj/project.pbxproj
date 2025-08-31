@@ -57,7 +57,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F78221BC2A87EF6C008D5AE8 /* Demo Views */ = {
+		F78221BC2A87EF6C008D5AE8 /* Demo_Views */ = {
 			isa = PBXGroup;
 			children = (
 				1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */,
@@ -67,7 +67,7 @@
 				F7CB36462A3B74380098F35C /* NIP05VerificationDemoView.swift */,
 				F786D8F62A3BAED800A29915 /* QueryRelayDemoView.swift */,
 			);
-			path = "Demo Views";
+			path = Demo_Views;
 			sourceTree = "<group>";
 		};
 		F78221BD2A87EF99008D5AE8 /* Views */ = {
@@ -119,7 +119,7 @@
 				4BF9CC562E639E9B009953D7 /* Info.plist */,
 				F78221C22A8803E1008D5AE8 /* Helpers */,
 				F78221BD2A87EF99008D5AE8 /* Views */,
-				F78221BC2A87EF6C008D5AE8 /* Demo Views */,
+				F78221BC2A87EF6C008D5AE8 /* Demo_Views */,
 				F7CB362B2A35127B0098F35C /* NostrSDKDemoApp.swift */,
 				F7CB362D2A35127B0098F35C /* ContentView.swift */,
 				F7CB362F2A35127C0098F35C /* Assets.xcassets */,
