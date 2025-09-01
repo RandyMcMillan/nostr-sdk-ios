@@ -206,7 +206,40 @@ struct _1621QueryRelayDemoView: View {
                                     Section(">>>EVENT") {
 
                                         // TODO meta author view
-                                        ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                        ListOptionView(destinationView: AnyView(
+                                            
+                                            Section(){
+                                            
+                                            VStack(alignment: .leading) {
+                                                if event.tags.isEmpty {
+                                                    Text("No tags found for this event.")
+                                                        .foregroundColor(.secondary)
+                                                } else {
+                                                    ForEach(event.tags, id: \.self) { tag in
+                                                        VStack(alignment: .leading) {
+                                                            Divider()
+                                                            Text("Name: \(tag.name)")
+                                                                .font(.subheadline)
+                                                                .fontWeight(.bold)
+                                                            Text("Value: \(tag.value)")
+                                                                .font(.body)
+                                                            if !tag.otherParameters.isEmpty {
+                                                                Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                                    .font(.footnote)
+                                                                    .foregroundColor(.secondary)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            .padding()
+                                            
+                                            
+                                            //Text("event.pubkey \(event.pubkey)")
+                                            }
+                                        
+                                        
+                                        ),
                                                        customImageName: "network",
                                                        labelText: String("\(event.pubkey)"))
                                     }
@@ -240,35 +273,60 @@ struct _1621QueryRelayDemoView: View {
                                         //               labelText: "event.kind")
                                         // Text("")
 
+                                        
+                                        VStack(alignment: .leading) {
+                                            if event.tags.isEmpty {
+                                                Text("No tags found for this event.")
+                                                    .foregroundColor(.secondary)
+                                            } else {
+                                                ForEach(event.tags, id: \.self) { tag in
+                                                    VStack(alignment: .leading) {
+                                                        Divider()
+                                                        Text("Name: \(tag.name)")
+                                                            .font(.subheadline)
+                                                            .fontWeight(.bold)
+                                                        Text("Value: \(tag.value)")
+                                                            .font(.body)
+                                                        if !tag.otherParameters.isEmpty {
+                                                            Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                                .font(.footnote)
+                                                                .foregroundColor(.secondary)
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        .padding()
+                                        
                                         ListOptionView(
-                                                                    destinationView: AnyView(
-                                                                        VStack(alignment: .leading) {
-                                                                            if event.tags.isEmpty {
-                                                                                Text("No tags found for this event.")
-                                                                                    .foregroundColor(.secondary)
-                                                                            } else {
-                                                                                ForEach(event.tags, id: \.self) { tag in
-                                                                                    VStack(alignment: .leading) {
-                                                                                        Divider()
-                                                                                        Text("Name: \(tag.name)")
-                                                                                            .font(.subheadline)
-                                                                                            .fontWeight(.bold)
-                                                                                        Text("Value: \(tag.value)")
-                                                                                            .font(.body)
-                                                                                        if !tag.otherParameters.isEmpty {
-                                                                                            Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                                                                                .font(.footnote)
-                                                                                                .foregroundColor(.secondary)
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                        .padding()
-                                                                    ),
-                                                                    customImageName: "network",
-                                                                    labelText: "Tags (\(event.tags.count))"
-                                                                )
+                                            destinationView: AnyView(
+                                                VStack(alignment: .leading) {
+                                                    if event.tags.isEmpty {
+                                                        Text("No tags found for this event.")
+                                                            .foregroundColor(.secondary)
+                                                    } else {
+                                                        ForEach(event.tags, id: \.self) { tag in
+                                                            VStack(alignment: .leading) {
+                                                                Divider()
+                                                                Text("Name: \(tag.name)")
+                                                                    .font(.subheadline)
+                                                                    .fontWeight(.bold)
+                                                                Text("Value: \(tag.value)")
+                                                                    .font(.body)
+                                                                if !tag.otherParameters.isEmpty {
+                                                                    Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                                        .font(.footnote)
+                                                                        .foregroundColor(.secondary)
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                .padding()
+                                            ),
+                                            customImageName: "network",
+                                            labelText: "Tags (\(event.tags.count))"
+                                        )
 
                                     }
                                     Section(">>>>>>>EVENT") {
