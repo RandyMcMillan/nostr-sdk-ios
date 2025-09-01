@@ -196,34 +196,45 @@ struct _1621QueryRelayDemoView: View {
 
                     // NavigationView {
                         // VStack {
-                Section("Results") {
+                Section(">Results") {
                     List(events, id: \.id) { event in
-                        Section("Results") {
+                        Section(">EVENT") {
 
                             if !event.content.isEmpty {
-                                // TODO meta author view
-                                ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                               customImageName: "network",
-                                               labelText: String("\(event.pubkey)"))
+                                Section(">>EVENT") {
+                                    Section(">>>EVENT") {
 
-                                ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
-                                               customImageName: "network",
-                                               labelText: String("\(event.id)"))
+                                        // TODO meta author view
+                                        ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                                       customImageName: "network",
+                                                       labelText: String("\(event.pubkey)"))
+                                    }
+                                    Section(">>>>EVENT") {
 
-                                ListOptionView(destinationView: AnyView(Text("TODO:243:\(event.tags)")),
-                                               customImageName: "network",
-                                               labelText: String("TODO::245:\(event.tags)"))
-                                // Text("")
-                                //
-                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                                //               customImageName: "network",
-                                //               labelText: "event.kind")
-                                // Text("")
-
-                                ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                               customImageName: "_network",
-                                               labelText: String("\(event.content)"))
-                                Text("")
+                                        ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
+                                                       customImageName: "network",
+                                                       labelText: String("\(event.id)"))
+                                    }
+                                    Section(">>>>>EVENT") {
+                                        ListOptionView(destinationView: AnyView(Text("TODO:243:\(event.tags)")),
+                                                       customImageName: "network",
+                                                       labelText: String("TODO::245:\(event.tags)"))
+                                    }
+                                    Section(">>>>>>EVENT") {
+                                        // Text("")
+                                        //
+                                        // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                        //               customImageName: "network",
+                                        //               labelText: "event.kind")
+                                        // Text("")
+                                    }
+                                    Section(">>>>>>>EVENT") {
+                                        ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                                                       customImageName: "_network",
+                                                       labelText: String("\(event.content)"))
+                                        Text("=======")
+                                    }
+                                }
                             } else {
                                 ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                                customImageName: "network",
