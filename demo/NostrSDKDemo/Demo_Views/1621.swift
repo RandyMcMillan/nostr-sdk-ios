@@ -43,6 +43,7 @@ struct _1621EventDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                Text("LINE:46")
                 // Main Content
                 Text(event.content)
                     .font(.body)
@@ -160,42 +161,8 @@ struct _1621QueryRelayDemoView: View {
 
     var body: some View {
 
-        // NavigationView {
-        //    VStack {
-        //        List {
-        //            ListOptionView(destinationView: AnyView(RelaysView()),
-        //                           imageName: "network",
-        //                           labelText: "Configure Relays")
-        //            ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-        //                           imageName: "list.bullet.rectangle.portrait",
-        //                           labelText: "NIP-0034 Viewer")
-        //            ListOptionView(destinationView:
-        //                            AnyView(LegacyDirectMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-04 Direct Message")
-        //            ListOptionView(destinationView:
-        //                            AnyView(EncryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Encrypt")
-        //            ListOptionView(destinationView:
-        //                            AnyView(DecryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Decrypt")
-        //            ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-        //                           imageName: "key",
-        //                           labelText: "Key Generation")
-        //            ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-        //                           imageName: "checkmark.seal",
-        //                           labelText: "NIP-05")
-        //        }
-        //    }
-        //    .navigationTitle("NIP-0034 Viewer")
-        //    .navigationBarTitleDisplayMode(.inline)
-        // }
-    // }
-
         Form {
-            Section("NIP-0034 Viewer") {
+            Section("LINE:199:NIP-0034 Viewer") {
 
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
@@ -229,60 +196,64 @@ struct _1621QueryRelayDemoView: View {
 
                     // NavigationView {
                         // VStack {
+                Section("Results") {
                     List(events, id: \.id) { event in
-                        if !event.content.isEmpty {
-                            ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                           customImageName: "network",
-                                           labelText: String("\(event.pubkey)"))
+                        Section("Results") {
 
-                            ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
-                                            customImageName: "network",
-                                            labelText: String("\(event.id)"))
+                            if !event.content.isEmpty {
+                                // TODO meta author view
+                                ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                               customImageName: "network",
+                                               labelText: String("\(event.pubkey)"))
 
-                            ListOptionView(destinationView: AnyView(Text("\(event.tags)")),
-                                           customImageName: "network",
-                                           labelText: String("\(event.tags)"))
-                            // Text("")
-//
-                            // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                            //               customImageName: "network",
-                            //               labelText: "event.kind")
-                            // Text("")
+                                ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
+                                               customImageName: "network",
+                                               labelText: String("\(event.id)"))
 
-                            ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                           customImageName: "_network",
-                                           labelText: String("\(event.content)"))
-                            Text("")
-                        } else {
-                            ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                           customImageName: "network",
-                                           labelText: String("\(event.content)"))
-                            // Text("")
-//
-                            //    ListOptionView(destinationView: AnyView(Text("event.id //\(event.id)")),
-                            //                   customImageName: "network",
-                            //                   labelText: "event.id")
-                            // Text("")
-//
-                            // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                            //               customImageName: "network",
-                            //               labelText: "event.kind")
-                            // Text("")
-//
-                            // ListOptionView(destinationView: AnyView(Text("event.tags //\(event.tags)")),
-                            //               customImageName: "network",
-                            //               labelText: "event.tags")
-                            // Text("")
+                                ListOptionView(destinationView: AnyView(Text("TODO:243:\(event.tags)")),
+                                               customImageName: "network",
+                                               labelText: String("TODO::245:\(event.tags)"))
+                                // Text("")
+                                //
+                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.kind")
+                                // Text("")
 
-                            // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                            //               customImageName: "network",
-                            //               labelText: "event.kind")
-                            // Text("")
-                            //// Text("\(event.content)")
+                                ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                                               customImageName: "_network",
+                                               labelText: String("\(event.content)"))
+                                Text("")
+                            } else {
+                                ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                               customImageName: "network",
+                                               labelText: String("\(event.content)"))
+                                // Text("")
+                                //
+                                //    ListOptionView(destinationView: AnyView(Text("event.id //\(event.id)")),
+                                //                   customImageName: "network",
+                                //                   labelText: "event.id")
+                                // Text("")
+                                //
+                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.kind")
+                                // Text("")
+                                //
+                                // ListOptionView(destinationView: AnyView(Text("event.tags //\(event.tags)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.tags")
+                                // Text("")
+
+                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.kind")
+                                // Text("")
+                                //// Text("\(event.content)")
+                            }
                         }
                     }
-                       // }
-                    // }
+                }
                // }
             }
         }
