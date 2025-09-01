@@ -199,9 +199,10 @@ struct _1621QueryRelayDemoView: View {
                 Section(">Results") {
                     List(events, id: \.id) { event in
                         Section(">EVENT") {
-
+                            //
                             if !event.content.isEmpty {
                                 Section(">>EVENT") {
+
                                     Section(">>>EVENT") {
 
                                         // TODO meta author view
@@ -216,9 +217,20 @@ struct _1621QueryRelayDemoView: View {
                                                        labelText: String("\(event.id)"))
                                     }
                                     Section(">>>>>EVENT") {
-                                        ListOptionView(destinationView: AnyView(Text("TODO:243:\(event.tags)")),
+                                        ListOptionView(destinationView: AnyView(
+                                            VStack {
+                                                Divider()
+                                                Section(String("TODO:221:\(event.tags)")) {
+                                                    Divider()
+                                                    VStack {
+                                                        Divider()
+                                                        Text("TODO:222:\(event.tags)")
+                                                    }
+                                                }
+                                            }
+                                        ),
                                                        customImageName: "network",
-                                                       labelText: String("TODO::245:\(event.tags)"))
+                                                       labelText: String("TODO::226:\(event.tags)"))
                                     }
                                     Section(">>>>>>EVENT") {
                                         // Text("")
@@ -227,6 +239,37 @@ struct _1621QueryRelayDemoView: View {
                                         //               customImageName: "network",
                                         //               labelText: "event.kind")
                                         // Text("")
+
+                                        ListOptionView(
+                                                                    destinationView: AnyView(
+                                                                        VStack(alignment: .leading) {
+                                                                            if event.tags.isEmpty {
+                                                                                Text("No tags found for this event.")
+                                                                                    .foregroundColor(.secondary)
+                                                                            } else {
+                                                                                ForEach(event.tags, id: \.self) { tag in
+                                                                                    VStack(alignment: .leading) {
+                                                                                        Divider()
+                                                                                        Text("Name: \(tag.name)")
+                                                                                            .font(.subheadline)
+                                                                                            .fontWeight(.bold)
+                                                                                        Text("Value: \(tag.value)")
+                                                                                            .font(.body)
+                                                                                        if !tag.otherParameters.isEmpty {
+                                                                                            Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                                                                .font(.footnote)
+                                                                                                .foregroundColor(.secondary)
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        .padding()
+                                                                    ),
+                                                                    customImageName: "network",
+                                                                    labelText: "Tags (\(event.tags.count))"
+                                                                )
+
                                     }
                                     Section(">>>>>>>EVENT") {
                                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
