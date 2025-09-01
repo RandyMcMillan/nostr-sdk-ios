@@ -233,22 +233,15 @@ struct _1621QueryRelayDemoView: View {
                         if !event.content.isEmpty {
                             ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                            customImageName: "network",
-                                           labelText: "event.pubkey")
-                            Text("")
+                                           labelText: String("\(event.pubkey)"))
 
-                                ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
-                                               customImageName: "network",
-                                               labelText: "event.id")
-                            // Text("")
-//
-                            // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                            //               customImageName: "network",
-                            //               labelText: "event.kind")
-                            // Text("")
+                            ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
+                                            customImageName: "network",
+                                            labelText: String("\(event.id)"))
 
-                            ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
+                            ListOptionView(destinationView: AnyView(Text("\(event.tags)")),
                                            customImageName: "network",
-                                           labelText: "event.tags")
+                                           labelText: String("\(event.tags)"))
                             // Text("")
 //
                             // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
@@ -257,13 +250,13 @@ struct _1621QueryRelayDemoView: View {
                             // Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                           customImageName: "network",
-                                           labelText: "event.content")
+                                           customImageName: "_network",
+                                           labelText: String("\(event.content)"))
                             Text("")
                         } else {
                             ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                            customImageName: "network",
-                                           labelText: "event.pubkey")
+                                           labelText: String("\(event.content)"))
                             // Text("")
 //
                             //    ListOptionView(destinationView: AnyView(Text("event.id //\(event.id)")),
