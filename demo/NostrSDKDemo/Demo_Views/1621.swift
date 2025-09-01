@@ -207,14 +207,15 @@ struct _1621QueryRelayDemoView: View {
 
                                         // TODO meta author view
                                         ListOptionView(destinationView: AnyView(
-                                            
-                                            Section(){
-                                            
+
+                                            Section {
+                                            // Text("event.pubkey \(event.pubkey)")
                                             VStack(alignment: .leading) {
                                                 if event.tags.isEmpty {
                                                     Text("No tags found for this event.")
                                                         .foregroundColor(.secondary)
                                                 } else {
+                                                    Text("event.id \(event.id) \(event.tags.count)")
                                                     ForEach(event.tags, id: \.self) { tag in
                                                         VStack(alignment: .leading) {
                                                             Divider()
@@ -233,21 +234,22 @@ struct _1621QueryRelayDemoView: View {
                                                 }
                                             }
                                             .padding()
-                                            
-                                            
-                                            //Text("event.pubkey \(event.pubkey)")
+
+                                            // Text("event.pubkey \(event.pubkey)")
                                             }
-                                        
-                                        
+
                                         ),
                                                        customImageName: "network",
-                                                       labelText: String("\(event.pubkey)"))
+                                                       labelText:
+
+                                                        String("\(event.id) tags(\(event.tags.count))")).fontWeight(.bold)
+
                                     }
                                     Section(">>>>EVENT") {
 
-                                        ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
+                                        ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                                        customImageName: "network",
-                                                       labelText: String("\(event.id)"))
+                                                       labelText: String("\(event.pubkey)"))
                                     }
                                     Section(">>>>>EVENT") {
                                         ListOptionView(destinationView: AnyView(
@@ -265,70 +267,70 @@ struct _1621QueryRelayDemoView: View {
                                                        customImageName: "network",
                                                        labelText: String("TODO::226:\(event.tags)"))
                                     }
-                                    Section(">>>>>>EVENT") {
-                                        // Text("")
-                                        //
-                                        // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                                        //               customImageName: "network",
-                                        //               labelText: "event.kind")
-                                        // Text("")
-
-                                        
-                                        VStack(alignment: .leading) {
-                                            if event.tags.isEmpty {
-                                                Text("No tags found for this event.")
-                                                    .foregroundColor(.secondary)
-                                            } else {
-                                                ForEach(event.tags, id: \.self) { tag in
-                                                    VStack(alignment: .leading) {
-                                                        Divider()
-                                                        Text("Name: \(tag.name)")
-                                                            .font(.subheadline)
-                                                            .fontWeight(.bold)
-                                                        Text("Value: \(tag.value)")
-                                                            .font(.body)
-                                                        if !tag.otherParameters.isEmpty {
-                                                            Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                                                .font(.footnote)
-                                                                .foregroundColor(.secondary)
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .padding()
-                                        
-                                        ListOptionView(
-                                            destinationView: AnyView(
-                                                VStack(alignment: .leading) {
-                                                    if event.tags.isEmpty {
-                                                        Text("No tags found for this event.")
-                                                            .foregroundColor(.secondary)
-                                                    } else {
-                                                        ForEach(event.tags, id: \.self) { tag in
-                                                            VStack(alignment: .leading) {
-                                                                Divider()
-                                                                Text("Name: \(tag.name)")
-                                                                    .font(.subheadline)
-                                                                    .fontWeight(.bold)
-                                                                Text("Value: \(tag.value)")
-                                                                    .font(.body)
-                                                                if !tag.otherParameters.isEmpty {
-                                                                    Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                                                        .font(.footnote)
-                                                                        .foregroundColor(.secondary)
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                .padding()
-                                            ),
-                                            customImageName: "network",
-                                            labelText: "Tags (\(event.tags.count))"
-                                        )
-
-                                    }
+                                    // Section(">>>>>>EVENT") {
+                                    //    // Text("")
+                                    //    //
+                                    //    // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                    //    //               customImageName: "network",
+                                    //    //               labelText: "event.kind")
+                                    //    // Text("")
+//
+                                    //
+                                    //    VStack(alignment: .leading) {
+                                    //        if event.tags.isEmpty {
+                                    //            Text("No tags found for this event.")
+                                    //                .foregroundColor(.secondary)
+                                    //        } else {
+                                    //            ForEach(event.tags, id: \.self) { tag in
+                                    //                VStack(alignment: .leading) {
+                                    //                    Divider()
+                                    //                    Text("Name: \(tag.name)")
+                                    //                        .font(.subheadline)
+                                    //                        .fontWeight(.bold)
+                                    //                    Text("Value: \(tag.value)")
+                                    //                        .font(.body)
+                                    //                    if !tag.otherParameters.isEmpty {
+                                    //                        Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                    //                            .font(.footnote)
+                                    //                            .foregroundColor(.secondary)
+                                    //                    }
+                                    //                }
+                                    //            }
+                                    //        }
+                                    //    }
+                                    //    .padding()
+                                    //
+                                    //    ListOptionView(
+                                    //        destinationView: AnyView(
+                                    //            VStack(alignment: .leading) {
+                                    //                if event.tags.isEmpty {
+                                    //                    Text("No tags found for this event.")
+                                    //                        .foregroundColor(.secondary)
+                                    //                } else {
+                                    //                    ForEach(event.tags, id: \.self) { tag in
+                                    //                        VStack(alignment: .leading) {
+                                    //                            Divider()
+                                    //                            Text("Name: \(tag.name)")
+                                    //                                .font(.subheadline)
+                                    //                                .fontWeight(.bold)
+                                    //                            Text("Value: \(tag.value)")
+                                    //                                .font(.body)
+                                    //                            if !tag.otherParameters.isEmpty {
+                                    //                                Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                    //                                    .font(.footnote)
+                                    //                                    .foregroundColor(.secondary)
+                                    //                            }
+                                    //                        }
+                                    //                    }
+                                    //                }
+                                    //            }
+                                    //            .padding()
+                                    //        ),
+                                    //        customImageName: "network",
+                                    //        labelText: "Tags (\(event.tags.count))"
+                                    //    )
+//
+                                    // }
                                     Section(">>>>>>>EVENT") {
                                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
                                                        customImageName: "_network",
