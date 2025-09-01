@@ -1,26 +1,25 @@
-//
-//  ListOptionView.swift
-//  NostrSDKDemo
-//
-//  Created by Joel Klabo on 6/14/23.
-//
-
 import SwiftUI
 
 struct ListOptionView: View {
     var destinationView: AnyView
-    var imageName: String
+    var customImageName: String
     var labelText: String
 
     var body: some View {
         NavigationLink(destination: destinationView) {
-            Label(labelText, systemImage: imageName)
+            HStack {
+                Image(customImageName)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                Text(labelText)
+            }
         }
     }
 }
 
 struct ListOptionView_Previews: PreviewProvider {
     static var previews: some View {
-        ListOptionView(destinationView: AnyView(GenerateKeyDemoView()), imageName: "key", labelText: "Key Generation")
+        ListOptionView(destinationView:
+        AnyView(GenerateKeyDemoView()), customImageName: "network", labelText: "Custom Icon")
     }
 }
