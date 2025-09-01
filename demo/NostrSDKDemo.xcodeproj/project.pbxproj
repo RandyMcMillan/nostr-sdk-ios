@@ -389,7 +389,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NostrSDKDemo/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = bitchat;
+				INFOPLIST_KEY_CFBundleDisplayName = gnostr;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "bitchat uses Bluetooth to create a secure mesh network for chatting with nearby users.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "bitchat uses Bluetooth to discover and connect with other bitchat users nearby.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "bitchat uses the camera to scan QR codes to verify peers.";
@@ -425,7 +426,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NostrSDKDemo/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = bitchat;
+				INFOPLIST_KEY_CFBundleDisplayName = gnostr;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "bitchat uses Bluetooth to create a secure mesh network for chatting with nearby users.";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "bitchat uses Bluetooth to discover and connect with other bitchat users nearby.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "bitchat uses the camera to scan QR codes to verify peers.";
