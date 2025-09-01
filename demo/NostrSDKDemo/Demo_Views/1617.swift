@@ -85,7 +85,7 @@ struct _1617EventListView: View {
     @State private var events: [NostrEvent] = [] // State property to hold your events
 
     var body: some View {
-        NavigationView {
+        // NavigationView {
             List {
                 ForEach(events, id: \.id) { event in
                     // Use your custom EventRowView for each item
@@ -101,7 +101,7 @@ struct _1617EventListView: View {
                 // events from a Nostr relay here.
                 loadMockEvents()
             }
-        }
+        // }
     }
 
     // A simple function to generate some mock data for the preview
@@ -228,61 +228,61 @@ struct _1617QueryRelayDemoView: View {
                     //
 
                     // NavigationView {
-                        VStack {
+                        // VStack {
                     List(events, id: \.id) { event in
                         if !event.content.isEmpty {
                             ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.pubkey")
                             Text("")
 
                                 ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
-                                               imageName: "network",
+                                               customImageName: "network",
                                                labelText: "event.id")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.kind")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.tags")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.kind")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.content")
                             Text("")
                         } else {
                             ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.pubkey")
                             Text("")
 
                                 ListOptionView(destinationView: AnyView(Text("event.id \(event.id)")),
-                                               imageName: "network",
+                                               customImageName: "network",
                                                labelText: "event.id")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.kind")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.tags \(event.tags)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.tags")
                             Text("")
 
                             ListOptionView(destinationView: AnyView(Text("event.kind \(event.kind)")),
-                                           imageName: "network",
+                                           customImageName: "network",
                                            labelText: "event.kind")
                             Text("")
                             // Text("\(event.content)")
@@ -290,7 +290,7 @@ struct _1617QueryRelayDemoView: View {
                     }
                        // }
                     // }
-                }
+                // }
             }
         }
         .onChange(of: authorPubkey) { _ in
