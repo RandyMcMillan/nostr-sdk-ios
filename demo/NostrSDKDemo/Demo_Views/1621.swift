@@ -198,12 +198,12 @@ struct _1621QueryRelayDemoView: View {
                         // VStack {
                 Section(">Results") {
                     List(events, id: \.id) { event in
-                        Section(">EVENT") {
+                        // Section(">EVENT") {
                             //
                             if !event.content.isEmpty {
-                                Section(">>EVENT") {
+                                // Section(">>EVENT") {
 
-                                    Section(">>>EVENT") {
+                                    // Section(">>>EVENT") {
 
                                         // TODO meta author view
                                         ListOptionView(destinationView: AnyView(
@@ -215,8 +215,12 @@ struct _1621QueryRelayDemoView: View {
                                                     Text("No tags found for this event.")
                                                         .foregroundColor(.secondary)
                                                 } else {
-                                                    Text("event.id \(event.id) \(event.tags.count)")
-                                                    ForEach(event.tags, id: \.self) { tag in
+                                                    TextField(text: $authorPubkey) {
+                                                        // Text(">>Author Public Key (HEX)")
+                                                        // }
+                                                        Text(">>event.id \(event.id) \(event.tags.count)")
+                                                    }
+                                                        ForEach(event.tags, id: \.self) { tag in
                                                         VStack(alignment: .leading) {
                                                             Divider()
                                                             Text("Name: \(tag.name)")
@@ -225,9 +229,16 @@ struct _1621QueryRelayDemoView: View {
                                                             Text("Value: \(tag.value)")
                                                                 .font(.body)
                                                             if !tag.otherParameters.isEmpty {
-                                                                Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                                                    .font(.footnote)
-                                                                    .foregroundColor(.secondary)
+                                                                ForEach(tag.otherParameters, id: \.self) { para in
+                                                                    Divider()
+                                                                    Text("\(para)")
+                                                                        .bold()
+
+                                                                }
+
+                                                                // Text(">>Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                                    // .font(.subheadline)
+                                                                    // .foregroundColor(.secondary)
                                                             }
                                                         }
                                                     }
@@ -244,29 +255,29 @@ struct _1621QueryRelayDemoView: View {
 
                                                         String("\(event.id) tags(\(event.tags.count))")).fontWeight(.bold)
 
-                                    }
-                                    Section(">>>>EVENT") {
+                                    // }
+                                    // Section(">>>>EVENT") {
 
                                         ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                                        customImageName: "network",
                                                        labelText: String("\(event.pubkey)"))
-                                    }
-                                    Section(">>>>>EVENT") {
-                                        ListOptionView(destinationView: AnyView(
-                                            VStack {
-                                                Divider()
-                                                Section(String("TODO:221:\(event.tags)")) {
-                                                    Divider()
-                                                    VStack {
-                                                        Divider()
-                                                        Text("TODO:222:\(event.tags)")
-                                                    }
-                                                }
-                                            }
-                                        ),
-                                                       customImageName: "network",
-                                                       labelText: String("TODO::226:\(event.tags)"))
-                                    }
+                                    // }
+                                    // Section(">>>>>EVENT") {
+                                    //    ListOptionView(destinationView: AnyView(
+                                    //        VStack {
+                                    //            Divider()
+                                    //            Section(String("TODO:221:\(event.tags)")) {
+                                    //                Divider()
+                                    //                VStack {
+                                    //                    Divider()
+                                    //                    Text("TODO:222:\(event.tags)")
+                                    //                }
+                                    //            }
+                                    //        }
+                                    //    ),
+                                    //                   customImageName: "network",
+                                    //                   labelText: String("TODO::226:\(event.tags)"))
+                                    // }
                                     // Section(">>>>>>EVENT") {
                                     //    // Text("")
                                     //    //
@@ -331,13 +342,13 @@ struct _1621QueryRelayDemoView: View {
                                     //    )
 //
                                     // }
-                                    Section(">>>>>>>EVENT") {
+                                    // Section(">>>>>>>EVENT") {
                                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
                                                        customImageName: "_network",
                                                        labelText: String("\(event.content)"))
                                         Text("=======")
-                                    }
-                                }
+                                    // }
+                                // }
                             } else {
                                 ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                                customImageName: "network",
@@ -365,12 +376,14 @@ struct _1621QueryRelayDemoView: View {
                                 // Text("")
                                 //// Text("\(event.content)")
                             }
-                        }
+                        // }
                     }
                 }
                // }
             }
         }
+        .navigationTitle("Kind 1621")
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
@@ -383,8 +396,8 @@ struct _1621QueryRelayDemoView: View {
             if let subscriptionId {
                 relayPool.closeSubscription(with: subscriptionId)
             }
-        }
-    }
+        }// end body
+    }// end View
 
     private var currentFilter: Filter {
         let authors: [String]?
