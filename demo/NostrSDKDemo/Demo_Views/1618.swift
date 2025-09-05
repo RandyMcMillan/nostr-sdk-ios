@@ -9,7 +9,7 @@ import SwiftUI
 import NostrSDK
 import Combine
 
-struct _1617EventRowView: View {
+struct _1621EventRowView: View {
     var event: NostrEvent
 
     var body: some View {
@@ -37,12 +37,13 @@ struct _1617EventRowView: View {
     }
 }
 
-struct _1617EventDetailView: View {
+struct _1621EventDetailView: View {
     var event: NostrEvent
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                Text("LINE:46")
                 // Main Content
                 Text(event.content)
                     .font(.body)
@@ -81,7 +82,7 @@ struct _1617EventDetailView: View {
     }
 }
 
-struct _1617EventListView: View {
+struct _1621EventListView: View {
     @State private var events: [NostrEvent] = [] // State property to hold your events
 
     var body: some View {
@@ -90,8 +91,8 @@ struct _1617EventListView: View {
                 ForEach(events, id: \.id) { event in
                     // Use your custom EventRowView for each item
                     // You can wrap this in a NavigationLink if tapping the row should show a detail view
-                    NavigationLink(destination: _1617EventDetailView(event: event)) {
-                        _1617EventRowView(event: event)
+                    NavigationLink(destination: _1621EventDetailView(event: event)) {
+                        _1621EventRowView(event: event)
                     }
                 }
             }
@@ -122,7 +123,7 @@ struct _1617EventListView: View {
     }
 }
 
-struct _1617QueryRelayDemoView: View {
+struct _1621QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
 
@@ -156,46 +157,12 @@ struct _1617QueryRelayDemoView: View {
 
     ]
 
-    @State private var selectedKind = 30617
+    @State private var selectedKind = 1621
 
     var body: some View {
 
-        // NavigationView {
-        //    VStack {
-        //        List {
-        //            ListOptionView(destinationView: AnyView(RelaysView()),
-        //                           imageName: "network",
-        //                           labelText: "Configure Relays")
-        //            ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-        //                           imageName: "list.bullet.rectangle.portrait",
-        //                           labelText: "NIP-0034 Viewer")
-        //            ListOptionView(destinationView:
-        //                            AnyView(LegacyDirectMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-04 Direct Message")
-        //            ListOptionView(destinationView:
-        //                            AnyView(EncryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Encrypt")
-        //            ListOptionView(destinationView:
-        //                            AnyView(DecryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Decrypt")
-        //            ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-        //                           imageName: "key",
-        //                           labelText: "Key Generation")
-        //            ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-        //                           imageName: "checkmark.seal",
-        //                           labelText: "NIP-05")
-        //        }
-        //    }
-        //    .navigationTitle("NIP-0034 Viewer")
-        //    .navigationBarTitleDisplayMode(.inline)
-        // }
-    // }
-
         Form {
-            Section("NIP-0034 Viewer") {
+            Section("LINE:199:NIP-0034 Viewer") {
 
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
@@ -227,114 +194,196 @@ struct _1617QueryRelayDemoView: View {
                     // }
                     //
 
-                    NavigationView {
-                        VStack {
-                            // List {
-                            //    ListOptionView(destinationView: AnyView(RelaysView()),
-                            //                   imageName: "network",
-                            //                   labelText: "Configure Relays")
-                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                            //                   imageName: "list.bullet.rectangle.portrait",
-                            //                   labelText: "NIP-0034 Viewer")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(LegacyDirectMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-04 Direct Message")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(EncryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Encrypt")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(DecryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Decrypt")
-                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                            //                   imageName: "key",
-                            //                   labelText: "Key Generation")
-                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                            //                   imageName: "checkmark.seal",
-                            //                   labelText: "NIP-05")
-                            // }
-                       // }
-                       // .navigationTitle("NIP-0034 Viewer")
-                       // .navigationBarTitleDisplayMode(.inline)
-                    // }
+                    // NavigationView {
+                        // VStack {
+                Section(">Results") {
                     List(events, id: \.id) { event in
-                        if !event.content.isEmpty {
-
-                            //    ListOptionView(destinationView: AnyView(RelaysView()),
-                            //                   imageName: "network",
-                            //                   labelText: "Configure Relays")
-                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                            //                   imageName: "list.bullet.rectangle.portrait",
-                            //                   labelText: "NIP-0034 Viewer")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(LegacyDirectMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-04 Direct Message")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(EncryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Encrypt")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(DecryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Decrypt")
-                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                            //                   imageName: "key",
-                            //                   labelText: "Key Generation")
-                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                            //                   imageName: "checkmark.seal",
-                            //                   labelText: "NIP-05")
+                        // Section(">EVENT") {
                             //
-                            Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                            Text("\(event.content)")
-                        } else {
-                            // Text("Empty content field for event \(event.id)")
+                            if !event.content.isEmpty {
+                                // Section(">>EVENT") {
 
-                                // ListOptionView(destinationView: AnyView(RelaysView()),
-                                //               imageName: "network",
-                                //               labelText: "Configure Relays")
-                                // ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                                //               imageName: "list.bullet.rectangle.portrait",
-                                //               labelText: "NIP-0034 Viewer")
-                                // ListOptionView(destinationView:
-                                //                AnyView(LegacyDirectMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-04 Direct Message")
-                                // ListOptionView(destinationView:
-                                //                AnyView(EncryptMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-44 Encrypt")
-                                // ListOptionView(destinationView:
-                                //                AnyView(DecryptMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-44 Decrypt")
-                                // ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                                //               imageName: "key",
-                                //               labelText: "Key Generation")
-                                // ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                                //               imageName: "checkmark.seal",
-                                //               labelText: "NIP-05")
+                                    // Section(">>>EVENT") {
 
-                            Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                        }
+                                        // TODO meta author view
+                                        ListOptionView(destinationView: AnyView(
+
+                                            Section {
+                                            // Text("event.pubkey \(event.pubkey)")
+                                            VStack(alignment: .leading) {
+                                                if event.tags.isEmpty {
+                                                    Text("No tags found for this event.")
+                                                        .foregroundColor(.secondary)
+                                                } else {
+                                                    TextField(text: $authorPubkey) {
+                                                        // Text(">>Author Public Key (HEX)")
+                                                        // }
+                                                        Text(">>event.id \(event.id) \(event.tags.count)")
+                                                    }
+                                                        ForEach(event.tags, id: \.self) { tag in
+                                                        VStack(alignment: .leading) {
+                                                            Divider()
+                                                            Text("Name: \(tag.name)")
+                                                                .font(.subheadline)
+                                                                .fontWeight(.bold)
+                                                            Text("Value: \(tag.value)")
+                                                                .font(.body)
+                                                            if !tag.otherParameters.isEmpty {
+                                                                ForEach(tag.otherParameters, id: \.self) { para in
+                                                                    Divider()
+                                                                    Text("\(para)")
+                                                                        .bold()
+
+                                                                }
+
+                                                                // Text(">>Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                                    // .font(.subheadline)
+                                                                    // .foregroundColor(.secondary)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            .padding()
+
+                                            // Text("event.pubkey \(event.pubkey)")
+                                            }
+
+                                        ),
+                                                       customImageName: "network",
+                                                       labelText:
+
+                                                        String("\(event.id) tags(\(event.tags.count))")).fontWeight(.bold)
+
+                                    // }
+                                    // Section(">>>>EVENT") {
+
+                                        ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                                       customImageName: "network",
+                                                       labelText: String("\(event.pubkey)"))
+                                    // }
+                                    // Section(">>>>>EVENT") {
+                                    //    ListOptionView(destinationView: AnyView(
+                                    //        VStack {
+                                    //            Divider()
+                                    //            Section(String("TODO:221:\(event.tags)")) {
+                                    //                Divider()
+                                    //                VStack {
+                                    //                    Divider()
+                                    //                    Text("TODO:222:\(event.tags)")
+                                    //                }
+                                    //            }
+                                    //        }
+                                    //    ),
+                                    //                   customImageName: "network",
+                                    //                   labelText: String("TODO::226:\(event.tags)"))
+                                    // }
+                                    // Section(">>>>>>EVENT") {
+                                    //    // Text("")
+                                    //    //
+                                    //    // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                    //    //               customImageName: "network",
+                                    //    //               labelText: "event.kind")
+                                    //    // Text("")
+//
+                                    //
+                                    //    VStack(alignment: .leading) {
+                                    //        if event.tags.isEmpty {
+                                    //            Text("No tags found for this event.")
+                                    //                .foregroundColor(.secondary)
+                                    //        } else {
+                                    //            ForEach(event.tags, id: \.self) { tag in
+                                    //                VStack(alignment: .leading) {
+                                    //                    Divider()
+                                    //                    Text("Name: \(tag.name)")
+                                    //                        .font(.subheadline)
+                                    //                        .fontWeight(.bold)
+                                    //                    Text("Value: \(tag.value)")
+                                    //                        .font(.body)
+                                    //                    if !tag.otherParameters.isEmpty {
+                                    //                        Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                    //                            .font(.footnote)
+                                    //                            .foregroundColor(.secondary)
+                                    //                    }
+                                    //                }
+                                    //            }
+                                    //        }
+                                    //    }
+                                    //    .padding()
+                                    //
+                                    //    ListOptionView(
+                                    //        destinationView: AnyView(
+                                    //            VStack(alignment: .leading) {
+                                    //                if event.tags.isEmpty {
+                                    //                    Text("No tags found for this event.")
+                                    //                        .foregroundColor(.secondary)
+                                    //                } else {
+                                    //                    ForEach(event.tags, id: \.self) { tag in
+                                    //                        VStack(alignment: .leading) {
+                                    //                            Divider()
+                                    //                            Text("Name: \(tag.name)")
+                                    //                                .font(.subheadline)
+                                    //                                .fontWeight(.bold)
+                                    //                            Text("Value: \(tag.value)")
+                                    //                                .font(.body)
+                                    //                            if !tag.otherParameters.isEmpty {
+                                    //                                Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                    //                                    .font(.footnote)
+                                    //                                    .foregroundColor(.secondary)
+                                    //                            }
+                                    //                        }
+                                    //                    }
+                                    //                }
+                                    //            }
+                                    //            .padding()
+                                    //        ),
+                                    //        customImageName: "network",
+                                    //        labelText: "Tags (\(event.tags.count))"
+                                    //    )
+//
+                                    // }
+                                    // Section(">>>>>>>EVENT") {
+                                        ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                                                       customImageName: "_network",
+                                                       labelText: String("\(event.content)"))
+                                        Text("=======")
+                                    // }
+                                // }
+                            } else {
+                                ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                                               customImageName: "network",
+                                               labelText: String("\(event.content)"))
+                                // Text("")
+                                //
+                                //    ListOptionView(destinationView: AnyView(Text("event.id //\(event.id)")),
+                                //                   customImageName: "network",
+                                //                   labelText: "event.id")
+                                // Text("")
+                                //
+                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.kind")
+                                // Text("")
+                                //
+                                // ListOptionView(destinationView: AnyView(Text("event.tags //\(event.tags)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.tags")
+                                // Text("")
+
+                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
+                                //               customImageName: "network",
+                                //               labelText: "event.kind")
+                                // Text("")
+                                //// Text("\(event.content)")
+                            }
+                        // }
                     }
-                        }
-                    // }
                 }
+               // }
             }
         }
+        .navigationTitle("Kind 1621")
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
@@ -347,8 +396,8 @@ struct _1617QueryRelayDemoView: View {
             if let subscriptionId {
                 relayPool.closeSubscription(with: subscriptionId)
             }
-        }
-    }
+        }// end body
+    }// end View
 
     private var currentFilter: Filter {
         let authors: [String]?
@@ -379,7 +428,7 @@ struct _1617QueryRelayDemoView: View {
     }
 }
 
-struct _1617QueryRelayView_Previews: PreviewProvider {
+struct _1621QueryRelayView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             QueryRelayDemoView()
