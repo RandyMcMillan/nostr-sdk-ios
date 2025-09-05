@@ -13,8 +13,19 @@ struct ContentView: View {
     @State private var relay: Relay?
 
     var body: some View {
+        //Text("16:ListOptionView")
+
         NavigationView {
+            //Text("19:ListOptionView")
+
+            //VStack {
+              //  Text("22:ListOptionView")
+            //}
             VStack {
+                Text("25:ListOptionView")
+                VStack {
+                    Text("27:ListOptionView")
+                }
                 List {
 
                     // ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
@@ -97,6 +108,8 @@ struct ContentView: View {
             .navigationTitle("NIP-0034 Viewer")
             .navigationBarTitleDisplayMode(.inline)
         }
+        Text("104:ListOptionView")
+
     }
 }
 
