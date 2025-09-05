@@ -11,8 +11,19 @@ import NostrSDK
 struct ContentView: View {
 
     @State private var relay: Relay?
-
+    @State private var showOptions = true
+    
+    var welcome: some View {
+            // Your main app content
+            Text("Welcome to the App")
+                .sheet(isPresented: $showOptions) {
+                    // The view you want to present as a sheet
+                    //body
+                }
+        }
+    
     var body: some View {
+        welcome
         //Text("16:ListOptionView")
 
         NavigationView {
