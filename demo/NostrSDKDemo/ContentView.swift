@@ -49,6 +49,7 @@ struct ContentView: View {
                                    customImageName: "network",
                                    labelText: "NIP-0034 (30617)")
 
+                    //
                     ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
                                    customImageName: "network",
                                    labelText: "NIP-0034 (30618)")
@@ -120,7 +121,7 @@ struct ContentView: View {
             .navigationTitle("NIP-0034 Viewer")
             .navigationBarTitleDisplayMode(.inline)
         }
-        Text("104:ListOptionView")
+        Text("124:TODO Footer")
 
     }
 }
