@@ -145,6 +145,15 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
     /// This kind of event represents a calendar event RSVP, which is a response to a calendar event to indicate a user's attendance intention.
     /// See [NIP-52 - Calendar Event RSVP](https://github.com/nostr-protocol/nips/blob/master/52.md#calendar-event-rsvp).
     case calendarEventRSVP
+    /// Nip-34
+    case repositoryAnnouncements
+    case repositoryStateAnnouncem
+    case patches
+    case issues
+    case statusOpen
+    case statusAppliedMerged
+    case statusClosed
+    case statusDraft
 
     /// Any other event kind number that isn't supported by this enum yet will be represented by `unknown` so that `NostrEvent`s of those event kinds can still be encoded and decoded.
     case unknown(RawValue)
@@ -174,7 +183,17 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
         .dateBasedCalendarEvent,
         .timeBasedCalendarEvent,
         .calendar,
-        .calendarEventRSVP
+        .calendarEventRSVP,
+
+            .repositoryAnnouncements,
+            .repositoryStateAnnouncem,
+            .patches,
+            .issues,
+            .statusOpen,
+            .statusAppliedMerged,
+            .statusClosed,
+            .statusDraft
+
         //
     ]
 
@@ -208,11 +227,20 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
         case .privateEventRelayList:        return 10013
         case .authentication:               return 22242
         case .longformContent:              return 30023
-        case .draftPrivateWrap:                        return 31234
+        case .draftPrivateWrap:             return 31234
         case .dateBasedCalendarEvent:       return 31922
         case .timeBasedCalendarEvent:       return 31923
         case .calendar:                     return 31924
         case .calendarEventRSVP:            return 31925
+        //
+        case .repositoryAnnouncements:      return 30617
+        case .repositoryStateAnnouncem:     return 30618
+        case .patches:                      return 1617
+        case .issues:                       return 1621
+        case .statusOpen:                   return 1630
+        case .statusAppliedMerged:          return 1631
+        case .statusClosed:                 return 1632
+        case .statusDraft:                  return 1633
 
         case let .unknown(value):           return value//
         }
@@ -245,9 +273,27 @@ public enum EventKind: RawRepresentable, CaseIterable, Codable, Equatable, Hasha
         case .timeBasedCalendarEvent:       return TimeBasedCalendarEvent.self
         case .calendar:                     return CalendarListEvent.self
         case .calendarEventRSVP:            return CalendarEventRSVP.self
+// nip-34
+        case .repositoryAnnouncements:
+            return NostrEvent.self // RepoEvent.self
+        case .repositoryStateAnnouncem:
+            return NostrEvent.self // RepositoryStateAnnouncem.self
+        case .patches:
+            return NostrEvent.self // Patches.self
+        case .issues:
+            return NostrEvent.self // Issues.self
+        case .statusOpen:
+            return NostrEvent.self // StatusOpen.self
+        case .statusAppliedMerged:
+            return NostrEvent.self // StatusAppliedMerged.self
+        case .statusClosed:
+            return NostrEvent.self // StatusClosed.self
+        case .statusDraft:
+            return NostrEvent.self // StatusDraft.self
+        case .unknown:
+            return NostrEvent.self
+    }
 
-        case .unknown:                      return NostrEvent.self//
-        }
     }
 
     /// For kind `n` such that `10000 <= n < 20000 || n == 0 || n == 3`, events are normal replaceable,
