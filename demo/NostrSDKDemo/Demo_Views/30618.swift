@@ -195,20 +195,20 @@ struct _30618QueryRelayDemoView: View {
                 List(events, id: \.id) { event in
                     ListOptionView(destinationView: AnyView(
                         ScrollView {
-                            //VStack(alignment: .leading ) {
+                            VStack(alignment: .leading ) {
                                 if event.tags.isEmpty {
                                     Text("No tags found for this event.")
                                         .foregroundColor(.secondary)
                                 }/*end if events.tag.isEmpty*/ else {
                                     //VStack(/*alignment: .leading*/) {
-                                        Text("236:Public Key (HEX): \(event.pubkey)").bold()
+                                        Text("PublicKey: \(event.pubkey)").bold()
                                             .textSelection(.enabled)
                                         Divider()
                                         Text("Event ID: \(event.id)").bold()
                                             .textSelection(.enabled)
                                         Divider()
-                                        Text("Tag Count: \(event.tags.count)").bold()
-                                        Divider()
+                                        //Text("Tag Count: \(event.tags.count)").bold()
+                                        //Divider()
                                     //}//end VStack
                                     ForEach(event.tags, id: \.self) { tag in
                                       //  VStack(/*alignment: .leading*/) {
@@ -231,16 +231,16 @@ struct _30618QueryRelayDemoView: View {
                                     //end ForEach
                                 }
                                 //end else
-                            //}
+                            }
                             //end VStack
-                            //.navigationTitle(Text("ID: \(event.id)"))
-                            //.navigationBarTitleDisplayMode(.inline)
-                            //.padding()
-                            Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            .navigationTitle(Text("ID: \(event.id)"))
+                            .navigationBarTitleDisplayMode(.inline)
+                            .padding()
+                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
                             //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
-                            Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
                             //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
-                            Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
                         }
                         //end Section
                         //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.horizontal)
