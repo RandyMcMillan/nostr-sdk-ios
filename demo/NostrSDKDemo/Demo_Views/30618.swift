@@ -39,6 +39,7 @@ struct _30618EventRowView: View {
 
 struct _30618EventDetailView: View {
     var event: NostrEvent
+    var events: [NostrEvent] = []
 
     var body: some View {
         ScrollView {
@@ -128,6 +129,7 @@ struct _30618QueryRelayDemoView: View {
     @EnvironmentObject var relayPool: RelayPool
 
     @State private var authorPubkey: String = ""
+    @State private var eventPubkeys: [String] = []
     @State private var events: [NostrEvent] = []
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
@@ -146,14 +148,14 @@ struct _30618QueryRelayDemoView: View {
 
         // nip-0034
 
-        30617: "Repository announcements",
-        30618: "Repository state announcements",
-        1617: "Patches",
-        1621: "Issues",
-        1630: "Status (Open)",
-        1631: "Status (Applied / Merged)",
-        1632: "Status (Closed)",
-        1633: "Status (Draft)"
+        // 30617: "Repository announcements",
+        30618: "Repository state announcements"
+        // 1617: "Patches",
+        // 1621: "Issues",
+        // 1630: "Status (Open)",
+        // 1631: "Status (Applied / Merged)",
+        // 1632: "Status (Closed)",
+        // 1633: "Status (Draft)"
 
     ]
 
@@ -164,23 +166,28 @@ struct _30618QueryRelayDemoView: View {
         Form {
             Section("LINE:199:NIP-0034 Viewer") {
 
-                TextField(text: $authorPubkey) {
-                    Text("Author Public Key (HEX)")
-                }
-
-                Picker("Kind", selection: $selectedKind) {
-                    ForEach(kindOptions.keys.sorted(), id: \.self) { number in
-                        if let name = kindOptions[number] {
-                            Text("\(name) (\(String(number)))")
-                        } else {
-                            Text("\(String(number))")
-                        }
-                    }
-                }
+            //    TextField(text: $authorPubkey) {
+            //        Text("Author Public Key (HEX)")
+            //    }
+//
+            //    Picker("Kind", selection: $selectedKind) {
+            //        ForEach(kindOptions.keys.sorted(), id: \.self) { number in
+            //            if let name = kindOptions[number] {
+            //                Text("\(name) (\(String(number)))")
+            //            } else {
+            //                Text("\(String(number))")
+            //            }
+            //        }
+            //    }
             }
 
             Button {
                 updateSubscription()
+                for event in events {
+                                // Correct syntax to append to the array.
+    print("appending event.pubkey \(event.pubkey)")
+                                eventPubkeys.append(event.pubkey)
+                            }
             } label: {
                 Text("Query")
             }
@@ -202,14 +209,28 @@ struct _30618QueryRelayDemoView: View {
                             //
                             // if !event.content.isEmpty {
                                 // Section(">>EVENT") {
-
+                            // $eventPubkeys.append(event.pubkey)
                                     // Section(">>>EVENT") {
-                        Text("Public Key (HEX): \(event.pubkey)").bold()
 
+                         // ListOptionView(
+                         //   destinationView: AnyView(
+                         //   /*begin AnyView*/
+                         //       //first arg
+                         //       Text("218:event.pubkey //\(event.pubkey)").bold().textSelection(.disabled)
+                         //   /*end AnyView*/
+                         //   ),
+                         //   //second arg
+                         //   customImageName: "network",
+                         //   //third arg
+                         //   labelText: "221:event.kind //\(event.pubkey)"
+                         /// *end AnyView*/
+                         // )
+                        // end ListOptionView
                                         // TODO meta author view
                                         ListOptionView(destinationView: AnyView(
 
                                             Section {
+
                                             // Text("event.pubkey \(event.pubkey)")
                                             VStack(alignment: .leading) {
                                                 // Text("event.pubkey \(event.pubkey)")//author
@@ -219,7 +240,7 @@ struct _30618QueryRelayDemoView: View {
                                                         .foregroundColor(.secondary)
                                                 } else {
                                                     VStack(alignment: .leading) {
-                                                        Text("222:Public Key (HEX): \(event.pubkey)").bold()
+                                                        Text("236:Public Key (HEX): \(event.pubkey)").bold()
                                                                 .textSelection(.enabled)
                                                         Divider()
                                                         Text("Event ID: \(event.id)").bold()
@@ -262,11 +283,8 @@ struct _30618QueryRelayDemoView: View {
                                             }
 
                                         ),
-                                                       customImageName: "network",
-                                                       labelText:
-
-                                                        String("\(event.id) tags(\(event.tags.count))")).fontWeight(.bold)
-
+                                        customImageName: "network",
+                                        labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))")).fontWeight(.bold)
                                     // }
                                     // Section(">>>>EVENT") {
 
@@ -354,16 +372,21 @@ struct _30618QueryRelayDemoView: View {
 //
                                     // }
                                     // Section(">>>>>>>EVENT") {
-                                        ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                                       customImageName: "_network",
-                                                       labelText: String("\(event.content)"))
-                                        Text("=======")
+                        if !event.content.isEmpty {
+                            ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                                           customImageName: "_network",
+                                           labelText: String("\(event.content)"))
+                            Text("=======")
+                        }
                                     // }
                                 // }
                             // } else {
-                                ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                               customImageName: "network",
-                                               labelText: String("\(event.content)"))
+                        // if !event.pubkey.isEmpty {
+                    //
+                        //    ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
+                        //                   customImageName: "network",
+                        //                   labelText: String("\(event.content)"))
+                        // }
                                 // Text("")
                                 //
                                 //    ListOptionView(destinationView: AnyView(Text("event.id //\(event.id)")),
@@ -407,7 +430,28 @@ struct _30618QueryRelayDemoView: View {
             if let subscriptionId {
                 relayPool.closeSubscription(with: subscriptionId)
             }
-        }// end body
+        }
+        .onAppear {
+            // This code will run when the view appears on the screen.
+            if let subscriptionId = self.subscriptionId {
+                updateSubscription() // Assuming updateSubscription takes a parameter
+                // Or if updateSubscription uses the property directly:
+                updateSubscription()
+            }
+            // if let events = self.events {
+
+            // }
+
+            for event in events {
+                print(event.pubkey)
+                if !eventPubkeys.contains(event.pubkey) {
+                    // Correct syntax to append to the array.
+                    eventPubkeys.append(event.pubkey)
+                }
+                        }
+        }
+
+        // end body
     }// end View
 
     private var currentFilter: Filter {
