@@ -11,32 +11,32 @@ import NostrSDK
 struct ContentView: View {
 
     @State private var relay: Relay?
-    @State private var showOptions = true
-    
+    @State private var showWelcomeOptions = false
+
     var welcome: some View {
             // Your main app content
             Text("Welcome to the App")
-                .sheet(isPresented: $showOptions) {
+                .sheet(isPresented: $showWelcomeOptions) {
                     // The view you want to present as a sheet
-                    //body
+                    // body
                 }
         }
-    
+
     var body: some View {
         welcome
-        //Text("16:ListOptionView")
+        // Text("16:ListOptionView")
 
         NavigationView {
-            //Text("19:ListOptionView")
+            // Text("19:ListOptionView")
 
-            //VStack {
+            // VStack {
               //  Text("22:ListOptionView")
-            //}
+            // }
             VStack {
-                Text("25:ListOptionView")
-                VStack {
-                    Text("27:ListOptionView")
-                }
+                // Text("36:ListOptionView")
+                // VStack {
+                //    Text("38:ListOptionView")
+                // }
                 List {
 
                     // ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
@@ -44,13 +44,14 @@ struct ContentView: View {
                     //               labelText: "NIP-0034 (30618)")
 
                     // Assuming you have an image file named "network" in your Assets.xcassets
-                    ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (30618)")
 
                     ListOptionView(destinationView: AnyView(_30617QueryRelayDemoView()),
                                    customImageName: "network",
                                    labelText: "NIP-0034 (30617)")
+
+                    ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
+                                   customImageName: "network",
+                                   labelText: "NIP-0034 (30618)")
 
                     ListOptionView(destinationView: AnyView(_1633QueryRelayDemoView()),
                                    customImageName: "network",
@@ -88,10 +89,10 @@ struct ContentView: View {
                                    customImageName: "network",
                                    labelText: "Configure Relays")
 
-                    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 Viewer")
-
+                    // ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
+                    //               customImageName: "network",
+                    //               labelText: "NIP-0034 Viewer")
+//
                     ListOptionView(destinationView:
                                     AnyView(LegacyDirectMessageDemoView()),
                                    customImageName: "network",
