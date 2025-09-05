@@ -124,6 +124,7 @@ struct _30618EventListView: View {
     }
 }
 
+//
 struct _30618QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
@@ -162,14 +163,14 @@ struct _30618QueryRelayDemoView: View {
     @State private var selectedKind = 30618
 
     var body: some View {
-
-        Form {
-            Section("LINE:199:NIP-0034 Viewer") {
+        //Form
+        Form {//begin Form
+            Section("") {
 
             //    TextField(text: $authorPubkey) {
             //        Text("Author Public Key (HEX)")
             //    }
-//
+            //
             //    Picker("Kind", selection: $selectedKind) {
             //        ForEach(kindOptions.keys.sorted(), id: \.self) { number in
             //            if let name = kindOptions[number] {
@@ -179,244 +180,85 @@ struct _30618QueryRelayDemoView: View {
             //            }
             //        }
             //    }
-            }
-
-            Button {
+        }//end Section
+            Button/*begin Button*/ {
                 updateSubscription()
                 for event in events {
-                                // Correct syntax to append to the array.
-    print("appending event.pubkey \(event.pubkey)")
-                                eventPubkeys.append(event.pubkey)
-                            }
-            } label: {
-                Text("Query")
-            }
-
-            // if !events.isEmpty {
-                // Section("Results") {
-                  //  if !authorPubkey.isEmpty {
-                    //    Text("Note: send an event from this account and see it appear here.")
-                      //      .foregroundColor(.gray)
-                        //    .font(.footnote)
-                    // }
-                    //
-
-                    // NavigationView {
-                        // VStack {
-                Section(">Results") {
-                    List(events, id: \.id) { event in
-                        // Section(">EVENT") {
-                            //
-                            // if !event.content.isEmpty {
-                                // Section(">>EVENT") {
-                            // $eventPubkeys.append(event.pubkey)
-                                    // Section(">>>EVENT") {
-
-                         // ListOptionView(
-                         //   destinationView: AnyView(
-                         //   /*begin AnyView*/
-                         //       //first arg
-                         //       Text("218:event.pubkey //\(event.pubkey)").bold().textSelection(.disabled)
-                         //   /*end AnyView*/
-                         //   ),
-                         //   //second arg
-                         //   customImageName: "network",
-                         //   //third arg
-                         //   labelText: "221:event.kind //\(event.pubkey)"
-                         /// *end AnyView*/
-                         // )
-                        // end ListOptionView
-                                        // TODO meta author view
-                                        ListOptionView(destinationView: AnyView(
-
-                                            Section {
-
-                                            // Text("event.pubkey \(event.pubkey)")
-                                            VStack(alignment: .leading) {
-                                                // Text("event.pubkey \(event.pubkey)")//author
-
-                                                if event.tags.isEmpty {
-                                                    Text("No tags found for this event.")
-                                                        .foregroundColor(.secondary)
-                                                } else {
-                                                    VStack(alignment: .leading) {
-                                                        Text("236:Public Key (HEX): \(event.pubkey)").bold()
-                                                                .textSelection(.enabled)
-                                                        Divider()
-                                                        Text("Event ID: \(event.id)").bold()
-                                                                .textSelection(.enabled)
-                                                        Divider()
-                                                        Text("Tag Count: \(event.tags.count)").bold()
-                                                        Divider()
-                                                        }
-
-                                                        ForEach(event.tags, id: \.self) { tag in
-                                                        VStack(alignment: .leading) {
-                                                            Divider()
-                                                            Text("Name: \(tag.name)")
-                                                                .font(.subheadline)
-                                                                .fontWeight(.bold)
-                                                            Text("Value: \(tag.value)")
-                                                                .font(.body)
-                                                            if !tag.otherParameters.isEmpty {
-                                                                ForEach(tag.otherParameters, id: \.self) { para in
-                                                                    Divider()
-                                                                    Text("\(para)")
-                                                                        .bold()
-
-                                                                }
-
-                                                                // Text(">>Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                                                    // .font(.subheadline)
-                                                                    // .foregroundColor(.secondary)
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }//
-                                            .navigationTitle(Text("ID: \(event.id)"))
-                                            .navigationBarTitleDisplayMode(.inline)
-                                            .padding()
-                                                Text("254:Public Key (HEX): \(event.pubkey)").bold()
-
-                                            // Text("event.pubkey \(event.pubkey)")
-                                            }
-
-                                        ),
-                                        customImageName: "network",
-                                        labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))")).fontWeight(.bold)
-                                    // }
-                                    // Section(">>>>EVENT") {
-
-                                        // Text("event.pubkey \(event.pubkey)")//author
-
-                                    // }
-                                    // Section(">>>>>EVENT") {
-                                    //    ListOptionView(destinationView: AnyView(
-                                    //        VStack {
-                                    //            Divider()
-                                    //            Section(String("TODO:221:\(event.tags)")) {
-                                    //                Divider()
-                                    //                VStack {
-                                    //                    Divider()
-                                    //                    Text("TODO:222:\(event.tags)")
-                                    //                }
-                                    //            }
-                                    //        }
-                                    //    ),
-                                    //                   customImageName: "network",
-                                    //                   labelText: String("TODO::226:\(event.tags)"))
-                                    // }
-                                    // Section(">>>>>>EVENT") {
-                                    //    // Text("")
-                                    //    //
-                                    //    // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                                    //    //               customImageName: "network",
-                                    //    //               labelText: "event.kind")
-                                    //    // Text("")
-//
-                                    //
-                                    //    VStack(alignment: .leading) {
-                                    //        if event.tags.isEmpty {
-                                    //            Text("No tags found for this event.")
-                                    //                .foregroundColor(.secondary)
-                                    //        } else {
-                                    //            ForEach(event.tags, id: \.self) { tag in
-                                    //                VStack(alignment: .leading) {
-                                    //                    Divider()
-                                    //                    Text("Name: \(tag.name)")
-                                    //                        .font(.subheadline)
-                                    //                        .fontWeight(.bold)
-                                    //                    Text("Value: \(tag.value)")
-                                    //                        .font(.body)
-                                    //                    if !tag.otherParameters.isEmpty {
-                                    //                        Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                    //                            .font(.footnote)
-                                    //                            .foregroundColor(.secondary)
-                                    //                    }
-                                    //                }
-                                    //            }
-                                    //        }
-                                    //    }
-                                    //    .padding()
-                                    //
-                                    //    ListOptionView(
-                                    //        destinationView: AnyView(
-                                    //            VStack(alignment: .leading) {
-                                    //                if event.tags.isEmpty {
-                                    //                    Text("No tags found for this event.")
-                                    //                        .foregroundColor(.secondary)
-                                    //                } else {
-                                    //                    ForEach(event.tags, id: \.self) { tag in
-                                    //                        VStack(alignment: .leading) {
-                                    //                            Divider()
-                                    //                            Text("Name: \(tag.name)")
-                                    //                                .font(.subheadline)
-                                    //                                .fontWeight(.bold)
-                                    //                            Text("Value: \(tag.value)")
-                                    //                                .font(.body)
-                                    //                            if !tag.otherParameters.isEmpty {
-                                    //                                Text("Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                    //                                    .font(.footnote)
-                                    //                                    .foregroundColor(.secondary)
-                                    //                            }
-                                    //                        }
-                                    //                    }
-                                    //                }
-                                    //            }
-                                    //            .padding()
-                                    //        ),
-                                    //        customImageName: "network",
-                                    //        labelText: "Tags (\(event.tags.count))"
-                                    //    )
-//
-                                    // }
-                                    // Section(">>>>>>>EVENT") {
-                        if !event.content.isEmpty {
-                            ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                           customImageName: "_network",
-                                           labelText: String("\(event.content)"))
-                            Text("=======")
-                        }
-                                    // }
-                                // }
-                            // } else {
-                        // if !event.pubkey.isEmpty {
-                    //
-                        //    ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                        //                   customImageName: "network",
-                        //                   labelText: String("\(event.content)"))
-                        // }
-                                // Text("")
-                                //
-                                //    ListOptionView(destinationView: AnyView(Text("event.id //\(event.id)")),
-                                //                   customImageName: "network",
-                                //                   labelText: "event.id")
-                                // Text("")
-                                //
-                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                                //               customImageName: "network",
-                                //               labelText: "event.kind")
-                                // Text("")
-                                //
-                                // ListOptionView(destinationView: AnyView(Text("event.tags //\(event.tags)")),
-                                //               customImageName: "network",
-                                //               labelText: "event.tags")
-                                // Text("")
-
-                                // ListOptionView(destinationView: AnyView(Text("event.kind //\(event.kind)")),
-                                //               customImageName: "network",
-                                //               labelText: "event.kind")
-                                // Text("")
-                                //// Text("\(event.content)")
-                            // }
-                        // }
-                    }
+                    // Correct syntax to append to the array.
+                    print("appending event.pubkey \(event.pubkey)")
+                    eventPubkeys.append(event.pubkey)
                 }
-               // }
-            // }
-        }
-        .navigationTitle("Kind 30618")
+            }/*end Button*/ label:/*begin label*/ {
+                Text("Update")
+            }//end label:
+            Section(">Results") {
+                List(events, id: \.id) { event in
+                    ListOptionView(destinationView: AnyView(
+                        ScrollView {
+                            //VStack(alignment: .leading ) {
+                                if event.tags.isEmpty {
+                                    Text("No tags found for this event.")
+                                        .foregroundColor(.secondary)
+                                }/*end if events.tag.isEmpty*/ else {
+                                    //VStack(/*alignment: .leading*/) {
+                                        Text("236:Public Key (HEX): \(event.pubkey)").bold()
+                                            .textSelection(.enabled)
+                                        Divider()
+                                        Text("Event ID: \(event.id)").bold()
+                                            .textSelection(.enabled)
+                                        Divider()
+                                        Text("Tag Count: \(event.tags.count)").bold()
+                                        Divider()
+                                    //}//end VStack
+                                    ForEach(event.tags, id: \.self) { tag in
+                                      //  VStack(/*alignment: .leading*/) {
+                                            //Divider()
+                                            Text("Name: \(tag.name)")
+                                                .font(.subheadline)
+                                                .fontWeight(.bold)
+                                            Text("Value: \(tag.value)")
+                                                .font(.body)
+                                            if !tag.otherParameters.isEmpty {
+                                                ForEach(tag.otherParameters, id: \.self) { para in
+                                                    Divider()
+                                                    Text("\(para)")
+                                                        .bold()
+                                                }
+                                            }
+                                        }
+                                        //end VStack
+                                    //}
+                                    //end ForEach
+                                }
+                                //end else
+                            //}
+                            //end VStack
+                            //.navigationTitle(Text("ID: \(event.id)"))
+                            //.navigationBarTitleDisplayMode(.inline)
+                            //.padding()
+                            Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
+                            Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
+                            Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                        }
+                        //end Section
+                        //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.horizontal)
+
+                    )
+                    /*end AnyView*/,
+                                   customImageName: "network",
+                                   labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))")).fontWeight(.bold)
+                    if !event.content.isEmpty {
+                        ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                                       customImageName: "_network",
+                                       labelText: String("\(event.content)"))
+                        Text("=======")
+                    }// end if !event.content.isEmpty
+                }//end List(events, id...
+            }//end Section
+        }//end Form
+        .navigationTitle("FORM:Kind 30618")
         .navigationBarTitleDisplayMode(.large)
         .onChange(of: authorPubkey) { _ in
             events = []
@@ -432,27 +274,21 @@ struct _30618QueryRelayDemoView: View {
             }
         }
         .onAppear {
+            updateSubscription()
             // This code will run when the view appears on the screen.
             if let subscriptionId = self.subscriptionId {
                 updateSubscription() // Assuming updateSubscription takes a parameter
                 // Or if updateSubscription uses the property directly:
                 updateSubscription()
             }
-            // if let events = self.events {
-
-            // }
-
             for event in events {
                 print(event.pubkey)
                 if !eventPubkeys.contains(event.pubkey) {
-                    // Correct syntax to append to the array.
                     eventPubkeys.append(event.pubkey)
                 }
-                        }
-        }
-
-        // end body
-    }// end View
+            }
+        }//End Form.options
+    }//end body
 
     private var currentFilter: Filter {
         let authors: [String]?
@@ -462,7 +298,7 @@ struct _30618QueryRelayDemoView: View {
             authors = [authorPubkey]
         }
         return Filter(authors: authors, kinds: [selectedKind])!//
-    }
+    }// end currentFilter
 
     private func updateSubscription() {
         if let subscriptionId {
@@ -480,7 +316,7 @@ struct _30618QueryRelayDemoView: View {
             .sink { event in
                 events.insert(event, at: 0)
             }
-    }
+    }//end updateSubscription
 }
 
 struct _30618EventListView_Previews: PreviewProvider {
