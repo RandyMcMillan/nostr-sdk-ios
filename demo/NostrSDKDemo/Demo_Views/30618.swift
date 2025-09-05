@@ -185,7 +185,7 @@ struct _30618QueryRelayDemoView: View {
                 Text("Query")
             }
 
-            if !events.isEmpty {
+            //if !events.isEmpty {
                 // Section("Results") {
                   //  if !authorPubkey.isEmpty {
                     //    Text("Note: send an event from this account and see it appear here.")
@@ -200,7 +200,7 @@ struct _30618QueryRelayDemoView: View {
                     List(events, id: \.id) { event in
                         // Section(">EVENT") {
                             //
-                            if !event.content.isEmpty {
+                            //if !event.content.isEmpty {
                                 // Section(">>EVENT") {
 
                                     // Section(">>>EVENT") {
@@ -349,7 +349,7 @@ struct _30618QueryRelayDemoView: View {
                                         Text("=======")
                                     // }
                                 // }
-                            } else {
+                            //} else {
                                 ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                                customImageName: "network",
                                                labelText: String("\(event.content)"))
@@ -375,12 +375,12 @@ struct _30618QueryRelayDemoView: View {
                                 //               labelText: "event.kind")
                                 // Text("")
                                 //// Text("\(event.content)")
-                            }
+                            //}
                         // }
                     }
                 }
                // }
-            }
+            //}
         }
         .navigationTitle("Kind 1621")
         .navigationBarTitleDisplayMode(.inline)
