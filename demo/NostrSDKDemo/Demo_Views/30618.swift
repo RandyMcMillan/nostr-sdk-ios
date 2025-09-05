@@ -185,7 +185,7 @@ struct _30618QueryRelayDemoView: View {
                 Text("Query")
             }
 
-            //if !events.isEmpty {
+            // if !events.isEmpty {
                 // Section("Results") {
                   //  if !authorPubkey.isEmpty {
                     //    Text("Note: send an event from this account and see it appear here.")
@@ -200,10 +200,11 @@ struct _30618QueryRelayDemoView: View {
                     List(events, id: \.id) { event in
                         // Section(">EVENT") {
                             //
-                            //if !event.content.isEmpty {
+                            // if !event.content.isEmpty {
                                 // Section(">>EVENT") {
 
                                     // Section(">>>EVENT") {
+                        Text("Public Key (HEX): \(event.pubkey)").bold()
 
                                         // TODO meta author view
                                         ListOptionView(destinationView: AnyView(
@@ -211,15 +212,23 @@ struct _30618QueryRelayDemoView: View {
                                             Section {
                                             // Text("event.pubkey \(event.pubkey)")
                                             VStack(alignment: .leading) {
+                                                // Text("event.pubkey \(event.pubkey)")//author
+
                                                 if event.tags.isEmpty {
                                                     Text("No tags found for this event.")
                                                         .foregroundColor(.secondary)
                                                 } else {
-                                                    TextField(text: $authorPubkey) {
-                                                        // Text(">>Author Public Key (HEX)")
-                                                        // }
-                                                        Text(">>event.id \(event.id) \(event.tags.count)")
-                                                    }
+                                                    VStack(alignment: .leading) {
+                                                        Text("222:Public Key (HEX): \(event.pubkey)").bold()
+                                                                .textSelection(.enabled)
+                                                        Divider()
+                                                        Text("Event ID: \(event.id)").bold()
+                                                                .textSelection(.enabled)
+                                                        Divider()
+                                                        Text("Tag Count: \(event.tags.count)").bold()
+                                                        Divider()
+                                                        }
+
                                                         ForEach(event.tags, id: \.self) { tag in
                                                         VStack(alignment: .leading) {
                                                             Divider()
@@ -243,8 +252,11 @@ struct _30618QueryRelayDemoView: View {
                                                         }
                                                     }
                                                 }
-                                            }
+                                            }//
+                                            .navigationTitle(Text("ID: \(event.id)"))
+                                            .navigationBarTitleDisplayMode(.inline)
                                             .padding()
+                                                Text("254:Public Key (HEX): \(event.pubkey)").bold()
 
                                             // Text("event.pubkey \(event.pubkey)")
                                             }
@@ -258,9 +270,8 @@ struct _30618QueryRelayDemoView: View {
                                     // }
                                     // Section(">>>>EVENT") {
 
-                                        ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
-                                                       customImageName: "network",
-                                                       labelText: String("\(event.pubkey)"))
+                                        // Text("event.pubkey \(event.pubkey)")//author
+
                                     // }
                                     // Section(">>>>>EVENT") {
                                     //    ListOptionView(destinationView: AnyView(
@@ -349,7 +360,7 @@ struct _30618QueryRelayDemoView: View {
                                         Text("=======")
                                     // }
                                 // }
-                            //} else {
+                            // } else {
                                 ListOptionView(destinationView: AnyView(Text("event.pubkey \(event.pubkey)")),
                                                customImageName: "network",
                                                labelText: String("\(event.content)"))
@@ -375,15 +386,15 @@ struct _30618QueryRelayDemoView: View {
                                 //               labelText: "event.kind")
                                 // Text("")
                                 //// Text("\(event.content)")
-                            //}
+                            // }
                         // }
                     }
                 }
                // }
-            //}
+            // }
         }
-        .navigationTitle("Kind 1621")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Kind 30618")
+        .navigationBarTitleDisplayMode(.large)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
