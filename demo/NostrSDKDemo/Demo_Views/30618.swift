@@ -41,6 +41,8 @@ struct _30618EventDetailView: View {
     var event: NostrEvent
     var events: [NostrEvent] = []
 
+    @Environment(\.dismiss) var dismiss
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -80,6 +82,16 @@ struct _30618EventDetailView: View {
             .padding()
         }
         .navigationTitle("Event Details")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                    Text("Back")
+                }
+            }
+        }
     }
 }
 
@@ -135,7 +147,7 @@ struct _30618QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-// 30617 30618 1617 1621 1630 1631 1632 1633
+    // 30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
         // 0: "Set Metadata",
         // 1: "Text Note",
@@ -167,20 +179,20 @@ struct _30618QueryRelayDemoView: View {
         Form {// begin Form
             Section("") {
 
-            //    TextField(text: $authorPubkey) {
-            //        Text("Author Public Key (HEX)")
-            //    }
-            //
-            //    Picker("Kind", selection: $selectedKind) {
-            //        ForEach(kindOptions.keys.sorted(), id: \.self) { number in
-            //            if let name = kindOptions[number] {
-            //                Text("\(name) (\(String(number)))")
-            //            } else {
-            //                Text("\(String(number))")
-            //            }
-            //        }
-            //    }
-        }// end Section
+                //    TextField(text: $authorPubkey) {
+                //        Text("Author Public Key (HEX)")
+                //    }
+                //
+                //    Picker("Kind", selection: $selectedKind) {
+                //        ForEach(kindOptions.keys.sorted(), id: \.self) { number in
+                //            if let name = kindOptions[number] {
+                //                Text("\(name) (\(String(number)))")
+                //            } else {
+                //                Text("\(String(number))")
+                //            }
+                //        }
+                //    }
+            }// end Section
             Button/*begin Button*/ {
                 updateSubscription()
                 for event in events {
@@ -193,7 +205,22 @@ struct _30618QueryRelayDemoView: View {
             }// end label:
             Section(">Results") {
                 List(events, id: \.id) { event in
+                    
+                    //List(events, id: \.id) { event in
+                    //    ListOptionView(
+                    //        destinationView: AnyView(Text("inner test")),
+                    //        customImageName: "network",
+                    //        labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))")) };
+
                     ListOptionView(destinationView: AnyView(
+                        
+                        //List(events, id: \.id) { event in
+                        //    ListOptionView(
+                        //        destinationView: AnyView(Text("inner test")),
+                        //        customImageName: "network",
+                        //        labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"));))
+                            
+                                           
                         ScrollView {
                             VStack(alignment: .leading ) {
                                 if event.tags.isEmpty {
@@ -201,41 +228,41 @@ struct _30618QueryRelayDemoView: View {
                                         .foregroundColor(.secondary)
                                 }/*end if events.tag.isEmpty*/ else {
                                     // VStack(/*alignment: .leading*/) {
-                                        Text("PublicKey: \(event.pubkey)").bold()
-                                            .textSelection(.enabled)
-                                        Divider()
-                                        Text("Event ID: \(event.id)").bold()
-                                            .textSelection(.enabled)
-                                        Divider()
-                                        // Text("Tag Count: \(event.tags.count)").bold()
-                                        // Divider()
+                                    Text("PublicKey: \(event.pubkey)").bold()
+                                        .textSelection(.enabled)
+                                    Divider()
+                                    Text("Event ID: \(event.id)").bold()
+                                        .textSelection(.enabled)
+                                    Divider()
+                                    // Text("Tag Count: \(event.tags.count)").bold()
+                                    // Divider()
                                     // }//end VStack
                                     ForEach(event.tags, id: \.self) { tag in
-                                      //  VStack(/*alignment: .leading*/) {
-                                            // Divider()
-                                            Text("Name: \(tag.name)")
-                                                .font(.subheadline)
-                                                // .fontWeight(.bold)
-                                            Text("Value: \(tag.value)")
-                                                .font(.body)
-                                            if !tag.otherParameters.isEmpty {
-                                    // Text(String(tag.otherParameters))
+                                        //  VStack(/*alignment: .leading*/) {
+                                        //      Divider()
+                                        Text("Name: \(tag.name)")
+                                            .font(.subheadline)
+                                            // .fontWeight(.bold)
+                                        Text("Value: \(tag.value)")
+                                            .font(.body)
+                                        if !tag.otherParameters.isEmpty {
+                                            // Text(String(tag.otherParameters))
 
-                                        Text(">>Parameters: \(tag.otherParameters.joined(separator: ", "))")
-                                             .font(.subheadline)
-                                             .foregroundColor(.secondary)
-                                                // ForEach(tag.otherParameters, id: \.self) { para in
-                                                //    Divider()
-                                                //    Text("para:\(para)")
-                                                //        .bold()
-                                                //    Divider()
-//
-                                                }
-                                            // }
+                                            Text(">>Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+                                            // ForEach(tag.otherParameters, id: \.self) { para in
+                                            //    Divider()
+                                            //    Text("para:\(para)")
+                                            //        .bold()
+                                            //    Divider()
+                                            //
                                         }
+                                        // }
                                         // end VStack
-                                    // }
-                                    // end ForEach
+                                        // }
+                                        // end ForEach
+                                    }
                                 }
                                 // end else
                             }
@@ -254,14 +281,14 @@ struct _30618QueryRelayDemoView: View {
 
                     )
                     /*end AnyView*/,
-                                   customImageName: "network",
-                                   labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"))
-                    if !event.content.isEmpty {
-                        ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                       customImageName: "_network",
-                                       labelText: String("\(event.content)"))
-                        Text("=======")
-                    }// end if !event.content.isEmpty
+                    customImageName: "network",
+                    labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"))
+                    // if !event.content.isEmpty {
+                    //    ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
+                    //                 customImageName: "_network",
+                    //                 labelText: String("\(event.content)"))
+                    Text("=======")
+                    // }// end if !event.content.isEmpty
                 }// end List(events, id...
             }// end Section
         }// end Form

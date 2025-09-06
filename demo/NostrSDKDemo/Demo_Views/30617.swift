@@ -260,7 +260,7 @@ struct _30617QueryRelayDemoView: View {
                     if !event.content.isEmpty {
                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
                                        customImageName: "_network",
-                                       labelText: String("\(event.content)"))
+                                       labelText: String("(event.content)>>"))
                         Text("=======")
                     }// end if !event.content.isEmpty
                 }// end List(events, id...
