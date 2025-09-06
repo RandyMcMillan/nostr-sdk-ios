@@ -51,7 +51,7 @@ struct ContentView: View {
         NavigationSplitView {
             List {
                 Group {
-                    ListOptionView(destinationView: AnyView(_30617QueryRelayDemoView()),
+                    ListOptionView(destinationView: AnyView(_30617ContentView()),
                                    customImageName: "network",
                                    labelText: "NIP-0034 (30617)")
                     ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
