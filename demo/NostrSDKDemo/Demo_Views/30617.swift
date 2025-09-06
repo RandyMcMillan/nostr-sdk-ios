@@ -50,7 +50,7 @@ struct _30617EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    //.background(Color(.systemGray6))
+                    // .background(Color(.systemGray6))
                     .cornerRadius(10)
 
                 // Event Metadata
@@ -149,7 +149,7 @@ struct _30617QueryRelayDemoView: View {
 
         // nip-0034
 
-        30617: "Repository announcements",
+        30617: "Repository announcements"
         // 30618: "Repository state announcements"
         // 1617: "Patches",
         // 1621: "Issues",
@@ -163,9 +163,9 @@ struct _30617QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        //Form
-        Form {//begin Form
-            Section("") {
+        // Form
+        Form {// begin Form
+            // Section("") {
 
             //    TextField(text: $authorPubkey) {
             //        Text("Author Public Key (HEX)")
@@ -180,7 +180,7 @@ struct _30617QueryRelayDemoView: View {
             //            }
             //        }
             //    }
-        }//end Section
+        // }//end Section
             Button/*begin Button*/ {
                 updateSubscription()
                 for event in events {
@@ -188,9 +188,9 @@ struct _30617QueryRelayDemoView: View {
                     print("appending event.pubkey \(event.pubkey)")
                     eventPubkeys.append(event.pubkey)
                 }
-            }/*end Button*/ label:/*begin label*/ {
+            }/*end Button*/ label: /*begin label*/ {
                 Text("Update")
-            }//end label:
+            }// end label:
             Section(">Results") {
                 List(events, id: \.id) { event in
                     ListOptionView(destinationView: AnyView(
@@ -200,31 +200,31 @@ struct _30617QueryRelayDemoView: View {
                                     Text("No tags found for this event.")
                                         .foregroundColor(.secondary)
                                 }/*end if events.tag.isEmpty*/ else {
-                                    //VStack(/*alignment: .leading*/) {
+                                    // VStack(/*alignment: .leading*/) {
                                         Text("PublicKey: \(event.pubkey)").bold()
                                             .textSelection(.enabled)
                                         Divider()
                                         Text("Event ID: \(event.id)").bold()
                                             .textSelection(.enabled)
                                         Divider()
-                                        //Text("Tag Count: \(event.tags.count)").bold()
-                                        //Divider()
-                                    //}//end VStack
+                                        // Text("Tag Count: \(event.tags.count)").bold()
+                                        // Divider()
+                                    // }//end VStack
                                     ForEach(event.tags, id: \.self) { tag in
                                       //  VStack(/*alignment: .leading*/) {
-                                            //Divider()
+                                            // Divider()
                                             Text("Name: \(tag.name)")
                                                 .font(.subheadline)
-                                                //.fontWeight(.bold)
+                                                // .fontWeight(.bold)
                                             Text("Value: \(tag.value)")
                                                 .font(.body)
                                             if !tag.otherParameters.isEmpty {
-                                    //Text(String(tag.otherParameters))
+                                    // Text(String(tag.otherParameters))
                                                 Text("Name: \(tag.name)")
 
                                         Text("Values:\(tag.otherParameters.joined(separator: ", "))")
-                                             //.font(.subheadline)
-                                             //.foregroundColor(.secondary)
+                                             // .font(.subheadline)
+                                             // .foregroundColor(.secondary)
                                                 ForEach(tag.otherParameters, id: \.self) { para in
                                                     Divider()
                                                     Text("ParaName: \(tag.name)\nValue:\(para)")
@@ -234,40 +234,40 @@ struct _30617QueryRelayDemoView: View {
                                                 }
                                             }
                                         }
-                                        //end VStack
-                                    //}
-                                    //end ForEach
+                                        // end VStack
+                                    // }
+                                    // end ForEach
                                 }
-                                //end else
+                                // end else
                             }
-                            //end VStack
+                            // end VStack
                             .navigationTitle(Text("ID: \(event.id)"))
-                            //.navigationBarTitleDisplayMode(.inline)
+                            // .navigationBarTitleDisplayMode(.inline)
                             .padding()
-                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
-                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
-                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
-                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
-                            //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            // Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            // Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
+                            // Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
+                            // Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
+                            // Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
                         }
-                        //end Section
-                        //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.horizontal)
+                        // end Section
+                        // Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.horizontal)
 
                     )
                     /*end AnyView*/,
                                    customImageName: "network",
-                                   labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"))//.fontWeight(.bold)
+                                   labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"))// .fontWeight(.bold)
                     if !event.content.isEmpty {
                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
                                        customImageName: "_network",
                                        labelText: String("\(event.content)"))
                         Text("=======")
                     }// end if !event.content.isEmpty
-                }//end List(events, id...
-            }//end Section
-        }//end Form
+                }// end List(events, id...
+            }// end Section
+        }// end Form
         .navigationTitle("FORM:Kind 30617")
-        //.navigationBarTitleDisplayMode(.large)
+        // .navigationBarTitleDisplayMode(.large)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
@@ -295,8 +295,8 @@ struct _30617QueryRelayDemoView: View {
                     eventPubkeys.append(event.pubkey)
                 }
             }
-        }//End Form.options
-    }//end body
+        }// End Form.options
+    }// end body
 
     private var currentFilter: Filter {
         let authors: [String]?
@@ -324,7 +324,7 @@ struct _30617QueryRelayDemoView: View {
             .sink { event in
                 events.insert(event, at: 0)
             }
-    }//end updateSubscription
+    }// end updateSubscription
 }
 
 struct _30617EventListView_Previews: PreviewProvider {

@@ -7,15 +7,30 @@
 
 import SwiftUI
 import NostrSDK
+import Combine
 
 struct ContentView: View {
 
-    @State private var relay: Relay?
+    @State private var relay: Relay? = try? Relay(url: URL(string: "wss://relay.damus.io".lowercased())!)
     @State private var showWelcomeOptions = false
+
+    @State private var relayURLString = "wss://relay.damus.io"
+    @State private var relayError: String?
+    @State private var state: Relay.State = .notConnected
+    @State private var stateCancellable: AnyCancellable?
 
     var welcome: some View {
             // Your main app content
-            Text("Welcome to the App")
+            Text("gnostr")
+                .sheet(isPresented: $showWelcomeOptions) {
+                    // The view you want to present as a sheet
+                    // body
+                }
+        }
+
+    var footer: some View {
+            // Your main app content
+            Text("Footer")
                 .sheet(isPresented: $showWelcomeOptions) {
                     // The view you want to present as a sheet
                     // body
@@ -118,10 +133,28 @@ struct ContentView: View {
                                    labelText: "NIP-05")
                 }
             }
-            .navigationTitle("NIP-0034 Viewer")
+            // .navigationTitle("NIP-0034 Viewer")
             //            .navigationBarTitleDisplayMode(.inline)
         }
-        Text("124:TODO Footer")
+        footer// Text("124:TODO Footer")
+        // $relay = try Relay(url: URL(string: "wss://relay.damus.io".lowercased())!)
+        // if let relayURL = URL(string: "wss://relay.damus.io".lowercased()) {
+        //    do {
+        //        relay = try Relay(url: relayURL)
+        //        relay?.connect()
+        //        stateCancellable = relay?.$state
+        //            .receive(on: DispatchQueue.main)
+        //            .sink { newState in
+        //                state = newState
+        //            }
+        //    } catch {
+        //        relayError = error.localizedDescription
+        //    }
+        // } else {
+        //    relayError = "Invalid URL String"
+        // }
+
+        ConnectRelayView(relay: $relay)
 
     }
 }

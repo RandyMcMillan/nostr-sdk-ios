@@ -48,7 +48,7 @@ struct EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    //.background(Color(.systemGray6))
+                    // .background(Color(.systemGray6))
                     .cornerRadius(10)
 
                 // Event Metadata

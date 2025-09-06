@@ -49,7 +49,7 @@ struct _1621EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    //.background(Color(.systemGray6))
+                    // .background(Color(.systemGray6))
                     .cornerRadius(10)
 
                 // Event Metadata
@@ -383,7 +383,7 @@ struct _1621QueryRelayDemoView: View {
             }
         }
         .navigationTitle("Kind 1621")
-        //.navigationBarTitleDisplayMode(.large)
+        // .navigationBarTitleDisplayMode(.large)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()

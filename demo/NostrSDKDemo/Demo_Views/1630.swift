@@ -49,7 +49,7 @@ struct _1630EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    //.background(Color(.systemGray6))
+                    // .background(Color(.systemGray6))
                     .cornerRadius(10)
 
                 // Event Metadata
@@ -225,7 +225,7 @@ struct _1630QueryRelayDemoView: View {
                                                             Divider()
                                                             Text("Name: \(tag.name)")
                                                                 .font(.subheadline)
-                                                                //:.fontWeight(.bold)
+                                                                //: .fontWeight(.bold)
                                                             Text("Value: \(tag.value)")
                                                                 .font(.body)
                                                             if !tag.otherParameters.isEmpty {
@@ -253,7 +253,7 @@ struct _1630QueryRelayDemoView: View {
                                                        customImageName: "network",
                                                        labelText:
 
-                                                        String("\(event.id) tags(\(event.tags.count))"))//.fontWeight(.bold)
+                                                        String("\(event.id) tags(\(event.tags.count))"))// .fontWeight(.bold)
 
                                     // }
                                     // Section(">>>>EVENT") {
@@ -383,7 +383,7 @@ struct _1630QueryRelayDemoView: View {
             }
         }
         .navigationTitle("Kind 1630")
-        //.navigationBarTitleDisplayMode(.large)
+        // .navigationBarTitleDisplayMode(.large)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()

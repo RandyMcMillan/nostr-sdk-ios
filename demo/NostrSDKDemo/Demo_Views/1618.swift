@@ -383,7 +383,7 @@ struct _1618QueryRelayDemoView: View {
             }
         }
         .navigationTitle("Kind 1618")
-        //.navigationBarTitleDisplayMode(.inline)
+        // .navigationBarTitleDisplayMode(.inline)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
