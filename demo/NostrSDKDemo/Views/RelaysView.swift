@@ -35,7 +35,7 @@ struct RelaysView: View {
         }
         .navigationTitle("Relays")
         .toolbar {
-            EditButton()
+            //            EditButton()
         }
     }
 

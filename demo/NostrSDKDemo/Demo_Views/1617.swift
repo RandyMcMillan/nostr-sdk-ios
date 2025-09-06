@@ -49,7 +49,7 @@ struct _1617EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    //.background(Color(.systemGray6))
                     .cornerRadius(10)
 
                 // Event Metadata
@@ -225,7 +225,7 @@ struct _1617QueryRelayDemoView: View {
                                                             Divider()
                                                             Text("Name: \(tag.name)")
                                                                 .font(.subheadline)
-                                                                .fontWeight(.bold)
+                                                                //.fontWeight(.bold)
                                                             Text("Value: \(tag.value)")
                                                                 .font(.body)
                                                             if !tag.otherParameters.isEmpty {
@@ -253,7 +253,7 @@ struct _1617QueryRelayDemoView: View {
                                                        customImageName: "network",
                                                        labelText:
 
-                                                        String("\(event.id) tags(\(event.tags.count))")).fontWeight(.bold)
+                                                        String("\(event.id) tags(\(event.tags.count))"))
 
                                     // }
                                     // Section(">>>>EVENT") {
@@ -344,7 +344,7 @@ struct _1617QueryRelayDemoView: View {
                                     // }
                                     // Section(">>>>>>>EVENT") {
                                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
-                                                       customImageName: "_network",
+                                                       customImageName: "network",
                                                        labelText: String("\(event.content)"))
                                         Text("=======")
                                     // }
@@ -383,7 +383,6 @@ struct _1617QueryRelayDemoView: View {
             }
         }
         .navigationTitle("Kind 1617")
-        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()

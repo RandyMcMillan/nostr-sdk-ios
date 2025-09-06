@@ -33,7 +33,6 @@ struct ConnectRelayView: View {
                     Text("wss://relay.damus.io")
                 }
                 .textFieldStyle(.roundedBorder)
-                .autocapitalization(.none)
                 .autocorrectionDisabled()
 
                 Button("Connect") {

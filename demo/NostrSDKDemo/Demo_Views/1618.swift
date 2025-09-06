@@ -9,7 +9,7 @@ import SwiftUI
 import NostrSDK
 import Combine
 
-struct _1621EventRowView: View {
+struct _1618EventRowView: View {
     var event: NostrEvent
 
     var body: some View {
@@ -37,7 +37,7 @@ struct _1621EventRowView: View {
     }
 }
 
-struct _1621EventDetailView: View {
+struct _1618EventDetailView: View {
     var event: NostrEvent
 
     var body: some View {
@@ -49,7 +49,7 @@ struct _1621EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    .background(Color(NSColor.systemGray))
                     .cornerRadius(10)
 
                 // Event Metadata
@@ -82,7 +82,7 @@ struct _1621EventDetailView: View {
     }
 }
 
-struct _1621EventListView: View {
+struct _1618EventListView: View {
     @State private var events: [NostrEvent] = [] // State property to hold your events
 
     var body: some View {
@@ -91,8 +91,8 @@ struct _1621EventListView: View {
                 ForEach(events, id: \.id) { event in
                     // Use your custom EventRowView for each item
                     // You can wrap this in a NavigationLink if tapping the row should show a detail view
-                    NavigationLink(destination: _1621EventDetailView(event: event)) {
-                        _1621EventRowView(event: event)
+                    NavigationLink(destination: _1618EventDetailView(event: event)) {
+                        _1618EventRowView(event: event)
                     }
                 }
             }
@@ -123,7 +123,7 @@ struct _1621EventListView: View {
     }
 }
 
-struct _1621QueryRelayDemoView: View {
+struct _1618QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
 
@@ -132,7 +132,7 @@ struct _1621QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-// 30617 30618 1617 1621 1630 1631 1632 1633
+// 30617 30618 1617 1618 1630 1631 1632 1633
     private let kindOptions = [
         // 0: "Set Metadata",
         // 1: "Text Note",
@@ -149,7 +149,7 @@ struct _1621QueryRelayDemoView: View {
         30617: "Repository announcements",
         30618: "Repository state announcements",
         1617: "Patches",
-        1621: "Issues",
+        1618: "Issues",
         1630: "Status (Open)",
         1631: "Status (Applied / Merged)",
         1632: "Status (Closed)",
@@ -157,7 +157,7 @@ struct _1621QueryRelayDemoView: View {
 
     ]
 
-    @State private var selectedKind = 1621
+    @State private var selectedKind = 1618
 
     var body: some View {
 
@@ -253,7 +253,7 @@ struct _1621QueryRelayDemoView: View {
                                                        customImageName: "network",
                                                        labelText:
 
-                                                        String("\(event.id) tags(\(event.tags.count))")).fontWeight(.bold)
+                                                        String("\(event.id) tags(\(event.tags.count))"))
 
                                     // }
                                     // Section(">>>>EVENT") {
@@ -382,8 +382,8 @@ struct _1621QueryRelayDemoView: View {
                // }
             }
         }
-        .navigationTitle("Kind 1621")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Kind 1618")
+        //.navigationBarTitleDisplayMode(.inline)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
@@ -428,7 +428,7 @@ struct _1621QueryRelayDemoView: View {
     }
 }
 
-struct _1621QueryRelayView_Previews: PreviewProvider {
+struct _1618QueryRelayView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             QueryRelayDemoView()

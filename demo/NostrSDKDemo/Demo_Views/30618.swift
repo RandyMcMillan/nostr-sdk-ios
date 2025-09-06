@@ -50,7 +50,7 @@ struct _30618EventDetailView: View {
                     .font(.body)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
+                    //.background(Color(.systemGray6))
                     .cornerRadius(10)
 
                 // Event Metadata
@@ -215,16 +215,23 @@ struct _30618QueryRelayDemoView: View {
                                             //Divider()
                                             Text("Name: \(tag.name)")
                                                 .font(.subheadline)
-                                                .fontWeight(.bold)
+                                                //.fontWeight(.bold)
                                             Text("Value: \(tag.value)")
                                                 .font(.body)
                                             if !tag.otherParameters.isEmpty {
-                                                ForEach(tag.otherParameters, id: \.self) { para in
-                                                    Divider()
-                                                    Text("\(para)")
-                                                        .bold()
+                                    //Text(String(tag.otherParameters))
+                                        
+                                        Text(">>Parameters: \(tag.otherParameters.joined(separator: ", "))")
+                                             .font(.subheadline)
+                                             .foregroundColor(.secondary)
+                                                //ForEach(tag.otherParameters, id: \.self) { para in
+                                                //    Divider()
+                                                //    Text("para:\(para)")
+                                                //        .bold()
+                                                //    Divider()
+//
                                                 }
-                                            }
+                                            //}
                                         }
                                         //end VStack
                                     //}
@@ -234,7 +241,7 @@ struct _30618QueryRelayDemoView: View {
                             }
                             //end VStack
                             .navigationTitle(Text("ID: \(event.id)"))
-                            .navigationBarTitleDisplayMode(.inline)
+                            //.navigationBarTitleDisplayMode(.inline)
                             .padding()
                             //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding(.vertical)
                             //Text("239:Public Key (HEX): \(event.pubkey)").bold().padding()
@@ -248,7 +255,7 @@ struct _30618QueryRelayDemoView: View {
                     )
                     /*end AnyView*/,
                                    customImageName: "network",
-                                   labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))")).fontWeight(.bold)
+                                   labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"))
                     if !event.content.isEmpty {
                         ListOptionView(destinationView: AnyView(Text("event.content \(event.content)")),
                                        customImageName: "_network",
@@ -259,7 +266,7 @@ struct _30618QueryRelayDemoView: View {
             }//end Section
         }//end Form
         .navigationTitle("FORM:Kind 30618")
-        .navigationBarTitleDisplayMode(.large)
+        //.navigationBarTitleDisplayMode(.large)
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()

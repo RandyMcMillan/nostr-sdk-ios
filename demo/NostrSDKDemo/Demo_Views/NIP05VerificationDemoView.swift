@@ -28,7 +28,6 @@ struct NIP05VerficationDemoView: View {
                     Text("NIP-05 Identifier")
                 }
                 .autocorrectionDisabled()
-                .autocapitalization(.none)
             }
 
             Section("Query Public Key") {

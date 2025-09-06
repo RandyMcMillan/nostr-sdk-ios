@@ -119,7 +119,7 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("NIP-0034 Viewer")
-            .navigationBarTitleDisplayMode(.inline)
+            //            .navigationBarTitleDisplayMode(.inline)
         }
         Text("124:TODO Footer")
 

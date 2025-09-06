@@ -6,6 +6,7 @@ struct ListOptionView: View {
     var labelText: String
 
     var body: some View {
+        // Text("9:ListOptionView")
         NavigationLink(destination: destinationView) {
             HStack {
                 Image(customImageName)

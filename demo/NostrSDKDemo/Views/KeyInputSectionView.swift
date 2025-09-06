@@ -31,7 +31,6 @@ struct KeyInputSectionView: View {
             TextField(type.label,
                       text: $key)
                 .font(.system(size: 16, weight: .regular, design: .monospaced))
-                .autocapitalization(.none)
                 .autocorrectionDisabled()
 
             if key.isEmpty {
