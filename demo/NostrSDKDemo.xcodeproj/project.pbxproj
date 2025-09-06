@@ -11,6 +11,7 @@
 		1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */; };
 		3A114FB42B0178AB00ABDBB0 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 3A114FB32B0178AB00ABDBB0 /* NostrSDK */; };
 		3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */; };
+		4B2A76352E6CA72700C689A6 /* DetailViewNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2A76342E6CA72700C689A6 /* DetailViewNav.swift */; };
 		4BAB7E052E64ED9B001692DF /* 1633.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAB7E022E64ED9B001692DF /* 1633.swift */; };
 		4BAB7E062E64ED9B001692DF /* 1621.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAB7DFE2E64ED9B001692DF /* 1621.swift */; };
 		4BAB7E072E64ED9B001692DF /* 1632.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAB7E012E64ED9B001692DF /* 1632.swift */; };
@@ -37,6 +38,7 @@
 		1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptMessageDemoView.swift; sourceTree = "<group>"; };
 		1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptMessageDemoView.swift; sourceTree = "<group>"; };
 		3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyDirectMessageDemoView.swift; sourceTree = "<group>"; };
+		4B2A76342E6CA72700C689A6 /* DetailViewNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewNav.swift; sourceTree = "<group>"; };
 		4BAB7DFD2E64ED9B001692DF /* 1617.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 1617.swift; sourceTree = "<group>"; };
 		4BAB7DFE2E64ED9B001692DF /* 1621.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 1621.swift; sourceTree = "<group>"; };
 		4BAB7DFF2E64ED9B001692DF /* 1630.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 1630.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 		F78221BD2A87EF99008D5AE8 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4B2A76342E6CA72700C689A6 /* DetailViewNav.swift */,
 				F7CB36422A3ACD7B0098F35C /* ListOptionView.swift */,
 				F78221CD2A8999F9008D5AE8 /* KeyInputSectionView.swift */,
 				F78221C02A87FB39008D5AE8 /* ConnectRelayView.swift */,
@@ -257,6 +260,7 @@
 				F7CB36412A3ACD530098F35C /* GenerateKeyDemoView.swift in Sources */,
 				F7CB36432A3ACD7B0098F35C /* ListOptionView.swift in Sources */,
 				1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */,
+				4B2A76352E6CA72700C689A6 /* DetailViewNav.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
