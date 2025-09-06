@@ -17,16 +17,16 @@ struct InitialDetailView: View {
                 .foregroundColor(.accentColor)
                 .padding()
 
-            Text("gnostr")
-                .font(.largeTitle)
-                .padding(.bottom, 5)
+            // Text("gnostr")
+            //    .font(.largeTitle)
+            //    .padding(.bottom, 5)
 
             Text("gnostr")
                 .font(.body)
                 .foregroundColor(.secondary)
         }
         .padding()
-        .navigationTitle("Details")
+        .navigationTitle("")
     }
 }
 
@@ -48,74 +48,84 @@ struct ContentView: View {
     // Using NavigationStack and NavigationSplitView is the modern approach
     // and is supported on iOS 16+.
     var body: some View {
-        NavigationSplitView {
-            List {
-                Group {
-                    //if macos
+        if #available(macCatalyst 16.0, *) {
+            NavigationSplitView {
+                List {
+                    Group {
+
+                        if #available(macCatalyst 14.0, *) {
+                            // Code to run only on Mac Catalyst, version 14.0 or later.
+                        } else {
+                            // Fallback code for other platforms or older versions.
+                        }
+
+                        // if macos
 #if os(macOS)
-                    ListOptionView(destinationView: AnyView(DetailViewNav()),
-                                   customImageName: "network",
-                                   labelText: "DetailViewNav")
+                        ListOptionView(destinationView: AnyView(DetailViewNav()),
+                                       customImageName: "network",
+                                       labelText: "DetailViewNav")
 #endif
 #if os(iOS)
-                    //if iphone
-                    ListOptionView(destinationView: AnyView(_30617QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (30617)")
-                    ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (30618)")
-                    ListOptionView(destinationView: AnyView(_1633QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1633)")
-                    ListOptionView(destinationView: AnyView(_1632QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1632)")
-                    ListOptionView(destinationView: AnyView(_1631QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1631)")
-                    ListOptionView(destinationView: AnyView(_1630QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1630)")
-                    ListOptionView(destinationView: AnyView(_1621QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1621)")
-                    ListOptionView(destinationView: AnyView(_1617QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1617)")
-                    ListOptionView(destinationView: AnyView(_1632QueryRelayDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-0034 (1632)")
-                    ListOptionView(destinationView: AnyView(ConnectRelayView(relay: $relay)),
-                                   customImageName: "network",
-                                   labelText: "Connect Relay")
-                    ListOptionView(destinationView: AnyView(RelaysView()),
-                                   customImageName: "network",
-                                   labelText: "Configure Relays")
+                        // if iphone
+                        ListOptionView(destinationView: AnyView(_30617QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (30617)")
+                        ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (30618)")
+                        ListOptionView(destinationView: AnyView(_1633QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1633)")
+                        ListOptionView(destinationView: AnyView(_1632QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1632)")
+                        ListOptionView(destinationView: AnyView(_1631QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1631)")
+                        ListOptionView(destinationView: AnyView(_1630QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1630)")
+                        ListOptionView(destinationView: AnyView(_1621QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1621)")
+                        ListOptionView(destinationView: AnyView(_1617QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1617)")
+                        ListOptionView(destinationView: AnyView(_1632QueryRelayDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-0034 (1632)")
+                        ListOptionView(destinationView: AnyView(ConnectRelayView(relay: $relay)),
+                                       customImageName: "network",
+                                       labelText: "Connect Relay")
+                        ListOptionView(destinationView: AnyView(RelaysView()),
+                                       customImageName: "network",
+                                       labelText: "Configure Relays")
 #endif
+                    }
+                    Group {
+                        ListOptionView(destinationView: AnyView(LegacyDirectMessageDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-04 Direct Message")
+                        ListOptionView(destinationView: AnyView(EncryptMessageDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-44 Encrypt")
+                        ListOptionView(destinationView: AnyView(DecryptMessageDemoView()),
+                                       customImageName: "network",
+                                       labelText: "NIP-44 Decrypt")
+                        ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
+                                       customImageName: "key",
+                                       labelText: "Key Generation")
+                        ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
+                                       customImageName: "checkmark.seal",
+                                       labelText: "NIP-05")
+                    }
                 }
-                Group {
-                    ListOptionView(destinationView: AnyView(LegacyDirectMessageDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-04 Direct Message")
-                    ListOptionView(destinationView: AnyView(EncryptMessageDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-44 Encrypt")
-                    ListOptionView(destinationView: AnyView(DecryptMessageDemoView()),
-                                   customImageName: "network",
-                                   labelText: "NIP-44 Decrypt")
-                    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                                   customImageName: "key",
-                                   labelText: "Key Generation")
-                    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                                   customImageName: "checkmark.seal",
-                                   labelText: "NIP-05")
-                }
+                .navigationTitle("Gnostr")
+            } detail: {
+                InitialDetailView()
             }
-            .navigationTitle("Gnostr")
-        } detail: {
-            InitialDetailView()
-        }
+        }/*end if #available(macCatalyst 16.0, *)*/ else {}
+
     }
 }
 
