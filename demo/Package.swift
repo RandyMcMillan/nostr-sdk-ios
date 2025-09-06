@@ -5,7 +5,7 @@ let package = Package(
     name: "NostrSDKDemo",
     platforms: [
         .macOS(.v12),
-        .iOS(.v15),
+        .iOS(.v15)
     ],
     products: [
         .executable(
@@ -25,4 +25,3 @@ let package = Package(
         )
     ]
 )
-
