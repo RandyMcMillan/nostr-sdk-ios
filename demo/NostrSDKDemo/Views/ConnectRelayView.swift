@@ -36,18 +36,18 @@ struct ConnectRelayView: View {
                 .autocorrectionDisabled()
 
                 Button("Connect") {
-                    attemptRelayConnect()
+                    _ = attemptRelayConnect()
                 }
                 Text(relayError ?? status(state))
             }
         }
         .padding()
         .onAppear {
-            attemptRelayConnect()
+            _ = attemptRelayConnect()
         }
     }
 
-    private func attemptRelayConnect() {
+    private func attemptRelayConnect() -> Bool {
         if let relayURL = URL(string: relayURLString.lowercased()) {
             do {
                 relay = try Relay(url: relayURL)
@@ -63,6 +63,7 @@ struct ConnectRelayView: View {
         } else {
             relayError = "Invalid URL String"
         }
+        return true
     }
 
     private func status(_ state: Relay.State?) -> String {
