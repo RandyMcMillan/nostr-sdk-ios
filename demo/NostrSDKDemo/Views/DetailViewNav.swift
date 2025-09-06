@@ -10,7 +10,7 @@ import NostrSDK
 import Combine
 
 struct InitialDetailViewNav: View {
-    
+
     @EnvironmentObject var relayPool: RelayPool
 
     @State private var authorPubkey: String = ""
@@ -19,7 +19,7 @@ struct InitialDetailViewNav: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-    
+
     private let kindOptions = [
         // 0: "Set Metadata",
         // 1: "Text Note",
@@ -151,4 +151,3 @@ struct DetailViewNav_Previews: PreviewProvider {
         DetailViewNav()
     }
 }
-

@@ -51,9 +51,17 @@ struct ContentView: View {
         NavigationSplitView {
             List {
                 Group {
+                    //if macos
+#if os(macOS)
                     ListOptionView(destinationView: AnyView(DetailViewNav()),
                                    customImageName: "network",
                                    labelText: "DetailViewNav")
+#endif
+#if os(iOS)
+                    //if iphone
+                    ListOptionView(destinationView: AnyView(_30617QueryRelayDemoView()),
+                                   customImageName: "network",
+                                   labelText: "NIP-0034 (30617)")
                     ListOptionView(destinationView: AnyView(_30618QueryRelayDemoView()),
                                    customImageName: "network",
                                    labelText: "NIP-0034 (30618)")
@@ -84,6 +92,7 @@ struct ContentView: View {
                     ListOptionView(destinationView: AnyView(RelaysView()),
                                    customImageName: "network",
                                    labelText: "Configure Relays")
+#endif
                 }
                 Group {
                     ListOptionView(destinationView: AnyView(LegacyDirectMessageDemoView()),
@@ -103,7 +112,7 @@ struct ContentView: View {
                                    labelText: "NIP-05")
                 }
             }
-            .navigationTitle("NostrSDK Demo")
+            .navigationTitle("Gnostr")
         } detail: {
             InitialDetailView()
         }

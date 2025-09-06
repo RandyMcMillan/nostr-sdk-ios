@@ -205,22 +205,21 @@ struct _30618QueryRelayDemoView: View {
             }// end label:
             Section(">Results") {
                 List(events, id: \.id) { event in
-                    
-                    //List(events, id: \.id) { event in
+
+                    // List(events, id: \.id) { event in
                     //    ListOptionView(
                     //        destinationView: AnyView(Text("inner test")),
                     //        customImageName: "network",
                     //        labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))")) };
 
                     ListOptionView(destinationView: AnyView(
-                        
-                        //List(events, id: \.id) { event in
+
+                        // List(events, id: \.id) { event in
                         //    ListOptionView(
                         //        destinationView: AnyView(Text("inner test")),
                         //        customImageName: "network",
                         //        labelText: String("ID:\(event.id)\nPUBKEY:\(event.pubkey)\nTAGS(\(event.tags.count))"));))
-                            
-                                           
+
                         ScrollView {
                             VStack(alignment: .leading ) {
                                 if event.tags.isEmpty {

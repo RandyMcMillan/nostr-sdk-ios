@@ -20,9 +20,18 @@ extension Relay {
 
 struct RelaysView: View {
 
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var pool: RelayPool
+    @State private var newRelayURLString: String = ""
 
     var body: some View {
+
+            Section(header: Text("Add New Relay URL")) {
+                TextField("wss://relay.example.com", text: $newRelayURLString)
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.URL)
+            }
+
         List {
             ForEach(relays, id: \.url) { relay in
                 HStack {
@@ -35,7 +44,20 @@ struct RelaysView: View {
         }
         .navigationTitle("Relays")
         .toolbar {
-            //            EditButton()
+
+            Button("Add") {
+                if let relayURL = URL(string: newRelayURLString.lowercased()) {
+                    do {
+                        let newRelay = try Relay(url: relayURL)
+                        pool.add(relay: newRelay)
+                    } catch {
+                        print("Error creating relay from URL: \(error.localizedDescription)")
+                    }
+                }
+            }
+            .disabled(newRelayURLString.isEmpty)
+
+            EditButton()
         }
     }
 
@@ -48,6 +70,9 @@ struct RelaysView: View {
             return
         }
         let relay = relays[index]
+        pool.remove(relay: relay)
+    }
+    private func add(relay: Relay) {
         pool.remove(relay: relay)
     }
 }
