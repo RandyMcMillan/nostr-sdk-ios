@@ -13,7 +13,7 @@ struct _30618EventRowView: View {
     var event: NostrEvent
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             // Display the event content
             Text(event.content)
                 .font(.body)
