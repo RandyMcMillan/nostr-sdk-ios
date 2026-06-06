@@ -12,6 +12,7 @@ import Combine
 private struct EventCardView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var title: String {
         metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? event.pubkey
@@ -21,6 +22,14 @@ private struct EventCardView: View {
         metadata?.nostrAddress ?? metadata?.name ?? metadata?.about
     }
 
+    private var titleFont: Font {
+        verticalSizeClass == .regular ? .system(size: 12, weight: .semibold, design: .default) : .headline
+    }
+
+    private var pubkeyFont: Font {
+        verticalSizeClass == .regular ? .system(size: 7, weight: .regular, design: .monospaced) : .caption2.monospaced()
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
@@ -28,7 +37,7 @@ private struct EventCardView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.headline)
+                        .font(titleFont)
 
                     if let subtitle {
                         Text(subtitle)
@@ -57,13 +66,17 @@ private struct EventCardView: View {
                 .font(.body)
                 .lineLimit(4)
 
-            Text("Pubkey: \(event.pubkey)")
-                .font(.caption2.monospaced())
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .allowsTightening(true)
-                .truncationMode(.middle)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("Pubkey:")
+                Text(event.pubkey)
+                    .layoutPriority(1)
+            }
+            .font(pubkeyFont)
+            .foregroundColor(.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.1)
+            //.allowsTightening(true)
+            .fixedSize(horizontal: true, vertical: false)
 
             Text("ID: \(event.id)")
                 .font(.caption.monospaced())
@@ -126,9 +139,14 @@ private struct EventCardView: View {
 private struct EventDetailView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var title: String {
         metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? event.pubkey
+    }
+
+    private var pubkeyFont: Font {
+        verticalSizeClass == .regular ? .system(size: 5, weight: .regular, design: .monospaced) : .caption2.monospaced()
     }
 
     var body: some View {
@@ -165,12 +183,16 @@ private struct EventDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ID: \(event.id)")
                     Text("Kind: \(event.kind.rawValue)")
-                    Text("Pubkey: \(event.pubkey)")
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .allowsTightening(true)
-                        .truncationMode(.middle)
-                        .font(.caption2.monospaced())
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("Pubkey:")
+                        Text(event.pubkey)
+                            .layoutPriority(1)
+                    }
+                    .font(pubkeyFont)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
+                    //.allowsTightening(true)
+                    .fixedSize(horizontal: true, vertical: false)
                     Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
                     Text("Signature: \(event.signature ?? "N/A")")
                 }
