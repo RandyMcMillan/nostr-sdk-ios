@@ -101,6 +101,11 @@ private struct EventCardView: View {
     let metadata: MetadataEvent?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
+    private struct TagItem: Hashable {
+        let label: String
+        let value: String
+    }
+
     private var title: String? {
         tagValue("name") ?? tagValue("description") ?? tagValue("alt")
     }
@@ -129,6 +134,18 @@ private struct EventCardView: View {
         values(for: "maintainers").first
     }
 
+    private var cardTags: [TagItem] {
+        [
+            TagItem(label: "Repo", value: repoID),
+            TagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
+            TagItem(label: "Web", value: shortDisplayValue(webURL))
+        ]
+        .compactMap { item in
+            guard let value = item.value, value.isEmpty == false else { return nil }
+            return TagItem(label: item.label, value: value)
+        }
+    }
+
     private var titleFont: Font {
         verticalSizeClass == .regular ? .system(size: 12, weight: .semibold, design: .default) : .headline
     }
@@ -152,15 +169,6 @@ private struct EventCardView: View {
                         .minimumScaleFactor(0.6)
                         .allowsTightening(true)
                         .layoutPriority(1)
-
-                    Spacer(minLength: 8)
-
-                    Text("\(event.tags.count) tags")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Capsule(style: .continuous).fill(Color(.tertiarySystemFill)))
                 }
 
                 if let title {
@@ -180,6 +188,18 @@ private struct EventCardView: View {
                         .font(.caption.monospaced())
                         .foregroundColor(.secondary)
                         .lineLimit(1)
+                }
+
+                if cardTags.isEmpty == false {
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: 88), spacing: 8, alignment: .leading)],
+                        alignment: .leading,
+                        spacing: 8
+                    ) {
+                        ForEach(cardTags, id: \.self) { item in
+                            TagChipView(label: item.label, value: item.value)
+                        }
+                    }
                 }
 
                 HStack(spacing: 8) {
@@ -263,12 +283,25 @@ private struct EventCardView: View {
     private func values(for name: String) -> [String] {
         event.tags.filter { $0.name == name }.map(\.value)
     }
+
+    private func shortDisplayValue(_ value: String?) -> String? {
+        guard let value, value.isEmpty == false else { return nil }
+        if let url = URL(string: value), let host = url.host {
+            return host
+        }
+        return value
+    }
 }
 
 private struct EventDetailView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private struct TagItem: Hashable {
+        let label: String
+        let value: String
+    }
 
     private var title: String {
         tagValue("name") ?? tagValue("description") ?? tagValue("alt") ?? event.pubkey
@@ -296,6 +329,23 @@ private struct EventDetailView: View {
 
     private var maintainersText: String? {
         values(for: "maintainers").first
+    }
+
+    private var detailTags: [TagItem] {
+        [
+            TagItem(label: "Repo", value: repoID),
+            TagItem(label: "Name", value: tagValue("name")),
+            TagItem(label: "Description", value: tagValue("description")),
+            TagItem(label: "Alt", value: tagValue("alt")),
+            TagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
+            TagItem(label: "Web", value: shortDisplayValue(webURL)),
+            TagItem(label: "Relays", value: relaysText),
+            TagItem(label: "Maintainers", value: maintainersText)
+        ]
+        .compactMap { item in
+            guard let value = item.value, value.isEmpty == false else { return nil }
+            return TagItem(label: item.label, value: value)
+        }
     }
 
     var body: some View {
@@ -365,14 +415,19 @@ private struct EventDetailView: View {
                 .font(.body)
                 .foregroundColor(.primary)
 
-                if !event.tags.isEmpty {
-                    VStack(alignment: .leading) {
-                        Text("Tags:")
+                if detailTags.isEmpty == false {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Tags")
                             .font(.headline)
 
-                        ForEach(event.tags, id: \.self) { tag in
-                            Text("• \(tag.name): \(tag.value)")
-                                .font(.caption)
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 120), spacing: 8, alignment: .leading)],
+                            alignment: .leading,
+                            spacing: 8
+                        ) {
+                            ForEach(detailTags, id: \.self) { item in
+                                TagChipView(label: item.label, value: item.value)
+                            }
                         }
                     }
                 }
@@ -397,6 +452,14 @@ private struct EventDetailView: View {
 
     private func values(for name: String) -> [String] {
         event.tags.filter { $0.name == name }.map(\.value)
+    }
+
+    private func shortDisplayValue(_ value: String?) -> String? {
+        guard let value, value.isEmpty == false else { return nil }
+        if let url = URL(string: value), let host = url.host {
+            return host
+        }
+        return value
     }
 
     @ViewBuilder
@@ -437,6 +500,34 @@ private struct EventDetailView: View {
                 .padding(16)
         }
         .frame(width: 96, height: 96)
+    }
+}
+
+private struct TagChipView: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label.uppercased())
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.caption.monospaced())
+                .foregroundColor(.primary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(.tertiarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color(.separator).opacity(0.12))
+        )
     }
 }
 
