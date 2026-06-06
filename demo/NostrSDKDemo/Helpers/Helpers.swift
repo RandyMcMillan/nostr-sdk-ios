@@ -15,7 +15,7 @@ struct DemoHelper {
         Binding.constant("")
     }
     static var previewRelay: Binding<Relay?> {
-        let urlString = "wss://relay.damus.io"
+        let urlString = "wss://nos.lol"
 
         guard let url = URL(string: urlString) else {
             fatalError("Invalid URL: \(urlString)")
