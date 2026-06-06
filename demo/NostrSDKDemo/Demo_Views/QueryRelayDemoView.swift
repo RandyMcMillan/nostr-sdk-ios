@@ -102,7 +102,7 @@ private struct EventCardView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var title: String {
-        metadata?.displayName ?? metadata?.name ?? "Unknown user"
+        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? "Loading user metadata…"
     }
 
     private var subtitle: String? {
