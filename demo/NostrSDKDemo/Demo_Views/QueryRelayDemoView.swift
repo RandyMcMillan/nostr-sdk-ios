@@ -16,9 +16,9 @@ private struct EventCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Kind \(event.kind.rawValue.formatted(.number))")
+                    Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
                         .font(.headline)
-                    Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
+                    Text(event.createdDate.formatted(date: .abbreviated, time: .omitted) + " " + event.createdDate.formatted(date: .omitted, time: .shortened))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
