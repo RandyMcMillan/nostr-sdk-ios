@@ -14,16 +14,23 @@ import UIKit
 final class PubkeyMetadataLoader: ObservableObject {
     @Published var metadata: MetadataEvent?
 
-    private let relayPool: RelayPool
+    private var relayPool: RelayPool?
     private var subscriptionId: String?
     private var cancellable: AnyCancellable?
     private var trackedPubkey: String?
 
-    init(relayPool: RelayPool) {
+    func attach(relayPool: RelayPool) {
         self.relayPool = relayPool
     }
 
+    init() {
+    }
+
     func update(publicKeyInput: String, isValid: Bool) {
+        guard let relayPool else {
+            return
+        }
+
         guard isValid, let pubkey = normalizedHexPubkey(from: publicKeyInput) else {
             stop()
             metadata = nil
@@ -66,6 +73,10 @@ final class PubkeyMetadataLoader: ObservableObject {
     }
 
     func stop() {
+        guard let relayPool else {
+            return
+        }
+
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
         }
@@ -119,23 +130,37 @@ struct PubkeyMetadataPreviewView: View {
     let metadata: MetadataEvent?
 
     var body: some View {
-        if let metadata {
-            HStack(alignment: .center, spacing: 12) {
-                CachedRemoteImageView(url: metadata.pictureURL)
-                    .frame(width: 56, height: 56)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
+        HStack(alignment: .center, spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(Color(.tertiarySystemFill))
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(metadata.displayName ?? metadata.name ?? "Unknown user")
-                        .font(.headline)
+                if let metadata?.pictureURL {
+                    CachedRemoteImageView(url: metadata?.pictureURL)
+                } else {
+                    Image("GnostrIcon")
+                        .resizable()
+                        .scaledToFit()
+                        .padding(12)
+                }
+            }
+            .frame(width: 56, height: 56)
+            .clipShape(Circle())
+            .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
 
-                    if let about = metadata.about, !about.isEmpty {
-                        Text(about)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                    }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(metadata?.displayName ?? metadata?.name ?? "Loading user metadata…")
+                    .font(.headline)
+
+                if let about = metadata?.about, !about.isEmpty {
+                    Text(about)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                } else if metadata == nil {
+                    Text("Waiting for kind 0 metadata")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
         }
