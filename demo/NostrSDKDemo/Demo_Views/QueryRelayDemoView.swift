@@ -287,7 +287,6 @@ private struct EventDetailView: View {
                     .allowsTightening(true)
                     .fixedSize(horizontal: true, vertical: false)
                     Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
-                    Text("Signature: \(event.signature ?? "N/A")")
                 }
                 .font(.body)
                 .foregroundColor(.primary)
@@ -303,6 +302,11 @@ private struct EventDetailView: View {
                         }
                     }
                 }
+
+                Text("Signature: \(event.signature ?? "N/A")")
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding()
         }
