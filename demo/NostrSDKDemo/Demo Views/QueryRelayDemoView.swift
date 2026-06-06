@@ -14,7 +14,7 @@ private struct EventCardView: View {
     let metadata: MetadataEvent?
 
     private var title: String {
-        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? shortPubkey(event.pubkey)
+        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? event.pubkey
     }
 
     private var subtitle: String? {
@@ -64,7 +64,6 @@ private struct EventCardView: View {
                 Text(event.pubkey)
                     .font(.caption.monospaced())
                     .foregroundColor(.secondary)
-                    .lineLimit(1)
 
                 Text("ID")
                     .font(.caption)
