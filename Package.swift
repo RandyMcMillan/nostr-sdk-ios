@@ -4,13 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "NostrSDK",
+    name: "GnostrSDK",
     platforms: [.macOS(.v14), .iOS(.v15)],
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
+        // Products define the executables and libraries a package produces,
+        // and make them visible to other packages.
+        // origin https://github.com/nostr-sdk/nostr-sdk-ios
         .library(
-            name: "NostrSDK",
-            targets: ["NostrSDK"])
+            name: "GnostrSDK",
+            targets: ["GnostrSDK"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -24,7 +26,7 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "NostrSDK",
+            name: "GnostrSDK",
             dependencies: [
                 .product(name: "secp256k1", package: "secp256k1.swift"),
                 "CryptoSwift",
@@ -32,8 +34,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "NostrSDKTests",
-            dependencies: ["NostrSDK"],
+            name: "GnostrSDKTests",
+            dependencies: ["GnostrSDK"],
             resources: [.copy("Fixtures")]
         )
     ]
