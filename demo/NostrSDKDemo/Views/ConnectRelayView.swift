@@ -13,7 +13,7 @@ struct ConnectRelayView: View {
 
     @Binding var relay: Relay?
 
-    @State private var relayURLString = "wss://relay.damus.io"
+    @State private var relayURLString = "wss://nos.lol"
     @State private var relayError: String?
     @State private var state: Relay.State = .notConnected
     @State private var stateCancellable: AnyCancellable?
@@ -30,7 +30,7 @@ struct ConnectRelayView: View {
                 }
             } else {
                 TextField(text: $relayURLString) {
-                    Text("wss://relay.damus.io")
+                    Text("wss://nos.lol")
                 }
                 .textFieldStyle(.roundedBorder)
                 .autocapitalization(.none)
