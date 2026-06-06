@@ -124,6 +124,18 @@ private struct EventCardView: View {
                 .frame(maxHeight: .infinity, alignment: .top)
 
             VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("ID:")
+                    Text(event.id)
+                        .layoutPriority(1)
+                }
+                .font(pubkeyFont)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.1)
+                //.allowsTightening(true)
+                .fixedSize(horizontal: true, vertical: false)
+
                 Text(title)
                     .font(titleFont)
 
@@ -145,23 +157,6 @@ private struct EventCardView: View {
                 Text(event.content.isEmpty ? "No content" : event.content)
                     .font(.body)
                     .lineLimit(4)
-
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("Pubkey:")
-                    Text(event.pubkey)
-                        .layoutPriority(1)
-                }
-                .font(pubkeyFont)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.1)
-                //.allowsTightening(true)
-                .fixedSize(horizontal: true, vertical: false)
-
-                Text("ID: \(event.id)")
-                    .font(.caption.monospaced())
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
             }
 
             Spacer()
