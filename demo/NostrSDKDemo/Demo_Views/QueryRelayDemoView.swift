@@ -11,13 +11,36 @@ import Combine
 
 private struct EventCardView: View {
     let event: NostrEvent
+    let metadata: MetadataEvent?
+
+    private var title: String {
+        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? shortPubkey(event.pubkey)
+    }
+
+    private var subtitle: String? {
+        metadata?.nostrAddress ?? metadata?.name ?? metadata?.about
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
+            HStack(alignment: .top, spacing: 12) {
+                avatar
+
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
+                    Text(title)
                         .font(.headline)
+
+                    if let subtitle {
+                        Text(subtitle)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+
                     Text(event.createdDate.formatted(date: .abbreviated, time: .omitted) + " " + event.createdDate.formatted(date: .omitted, time: .shortened))
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -63,14 +86,80 @@ private struct EventCardView: View {
                 .stroke(Color(.separator).opacity(0.15))
         )
     }
+
+    @ViewBuilder
+    private var avatar: some View {
+        if let pictureURL = metadata?.pictureURL {
+            AsyncImage(url: pictureURL) { phase in
+                switch phase {
+                case .empty:
+                    avatarPlaceholder
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 44, height: 44)
+                        .clipShape(Circle())
+                case .failure:
+                    avatarPlaceholder
+                @unknown default:
+                    avatarPlaceholder
+                }
+            }
+        } else {
+            avatarPlaceholder
+        }
+    }
+
+    private var avatarPlaceholder: some View {
+        Circle()
+            .fill(Color(.tertiarySystemFill))
+            .frame(width: 44, height: 44)
+            .overlay(
+                Text(String(title.prefix(1)).uppercased())
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            )
+    }
+
+    private func shortPubkey(_ pubkey: String) -> String {
+        guard pubkey.count > 16 else { return pubkey }
+        return "\(pubkey.prefix(8))...\(pubkey.suffix(8))"
+    }
 }
 
 private struct EventDetailView: View {
     let event: NostrEvent
+    let metadata: MetadataEvent?
+
+    private var title: String {
+        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? event.pubkey
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                HStack(alignment: .top, spacing: 12) {
+                    detailAvatar
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(title)
+                            .font(.headline)
+
+                        if let nostrAddress = metadata?.nostrAddress {
+                            Text(nostrAddress)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        if let about = metadata?.about, !about.isEmpty {
+                            Text(about)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
                 Text(event.content.isEmpty ? "No content" : event.content)
                     .font(.body)
                     .padding()
@@ -104,6 +193,41 @@ private struct EventDetailView: View {
         }
         .navigationTitle("Event Details")
     }
+
+    @ViewBuilder
+    private var detailAvatar: some View {
+        if let pictureURL = metadata?.pictureURL {
+            AsyncImage(url: pictureURL) { phase in
+                switch phase {
+                case .empty:
+                    detailAvatarPlaceholder
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 72, height: 72)
+                        .clipShape(Circle())
+                case .failure:
+                    detailAvatarPlaceholder
+                @unknown default:
+                    detailAvatarPlaceholder
+                }
+            }
+        } else {
+            detailAvatarPlaceholder
+        }
+    }
+
+    private var detailAvatarPlaceholder: some View {
+        Circle()
+            .fill(Color(.tertiarySystemFill))
+            .frame(width: 72, height: 72)
+            .overlay(
+                Text(String(title.prefix(1)).uppercased())
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+            )
+    }
 }
 
 struct QueryRelayDemoView: View {
@@ -112,21 +236,14 @@ struct QueryRelayDemoView: View {
 
     @State private var authorPubkey: String = DemoHelper.validHexPublicKey.wrappedValue
     @State private var events: [NostrEvent] = []
+    @State private var metadataByPubkey: [String: MetadataEvent] = [:]
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-    //30617 30618 1617 1621 1630 1631 1632 1633
+    @State private var metadataSubscriptionId: String?
+    @State private var trackedMetadataPubkeys: Set<String> = []
+
     private let kindOptions = [
-        //0: "Set Metadata",
-        //1: "Text Note",
-        //3: "Follow List",
-        //6: "Repost",
-        //7: "Reaction",
-        //1984: "Report",
-        //10000: "Mute List",
-        //10003: "Bookmarks List",
-        //30023: "Longform Content",
-        //nip-0034
         30617: "Repository announcements",
         30618: "Repository state announcements",
         1617: "Patches",
@@ -172,27 +289,36 @@ struct QueryRelayDemoView: View {
                     }
 
                     ForEach(events, id: \.id) { event in
-                        NavigationLink(destination: EventDetailView(event: event)) {
-                            EventCardView(event: event)
+                        NavigationLink(destination: EventDetailView(event: event, metadata: metadataByPubkey[event.pubkey])) {
+                            EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
                         }
-                            .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                 }
             }
         }
+        .onAppear {
+            updateSubscription()
+            updateMetadataSubscription()
+        }
         .onChange(of: authorPubkey) { _ in
             events = []
             updateSubscription()
+            updateMetadataSubscription()
         }
         .onChange(of: selectedKind) { _ in
             events = []
             updateSubscription()
+            updateMetadataSubscription()
         }
         .onDisappear {
             if let subscriptionId {
                 relayPool.closeSubscription(with: subscriptionId)
+            }
+            if let metadataSubscriptionId {
+                relayPool.closeSubscription(with: metadataSubscriptionId)
             }
         }
     }
@@ -219,8 +345,40 @@ struct QueryRelayDemoView: View {
             .map { $0.event }
             .removeDuplicates()
             .sink { event in
+                if let metadataEvent = event as? MetadataEvent {
+                    if metadataByPubkey[metadataEvent.pubkey]?.createdAt ?? 0 <= metadataEvent.createdAt {
+                        metadataByPubkey[metadataEvent.pubkey] = metadataEvent
+                    }
+                    return
+                }
+
                 events.insert(event, at: 0)
+                updateMetadataSubscription()
             }
+    }
+
+    private func updateMetadataSubscription() {
+        var pubkeys = Set(events.map(\.pubkey))
+        if authorPubkey.isEmpty == false {
+            pubkeys.insert(authorPubkey)
+        }
+
+        guard pubkeys != trackedMetadataPubkeys else {
+            return
+        }
+
+        trackedMetadataPubkeys = pubkeys
+
+        if let metadataSubscriptionId {
+            relayPool.closeSubscription(with: metadataSubscriptionId)
+        }
+
+        guard pubkeys.isEmpty == false, let filter = Filter(authors: Array(pubkeys), kinds: [EventKind.metadata.rawValue]) else {
+            metadataSubscriptionId = nil
+            return
+        }
+
+        metadataSubscriptionId = relayPool.subscribe(with: filter)
     }
 }
 
