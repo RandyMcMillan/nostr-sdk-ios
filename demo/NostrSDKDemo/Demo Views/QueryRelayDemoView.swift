@@ -402,28 +402,30 @@ struct QueryRelayDemoView: View {
 
             Divider()
 
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 12) {
-                    if !events.isEmpty {
-                        if !authorPubkey.isEmpty {
-                            Text("Showing events for \(authorPubkey)")
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal)
-                        }
+            List {
+                if !events.isEmpty {
+                    if !authorPubkey.isEmpty {
+                        Text("Showing events for \(authorPubkey)")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 16))
+                            .listRowSeparator(.hidden)
+                    }
 
-                        ForEach(events, id: \.id) { event in
-                            NavigationLink(destination: EventDetailView(event: event, metadata: metadataByPubkey[event.pubkey])) {
-                                EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal)
+                    ForEach(events, id: \.id) { event in
+                        NavigationLink(destination: EventDetailView(event: event, metadata: metadataByPubkey[event.pubkey])) {
+                            EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
                         }
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                 }
-                .padding(.vertical)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
         .onAppear {
             updateSubscription()
