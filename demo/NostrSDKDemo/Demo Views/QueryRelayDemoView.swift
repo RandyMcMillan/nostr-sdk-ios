@@ -22,6 +22,10 @@ private struct EventCardView: View {
         metadata?.nostrAddress ?? metadata?.name ?? metadata?.about
     }
 
+    private var titleFont: Font {
+        verticalSizeClass == .regular ? .system(size: 12, weight: .semibold, design: .default) : .headline
+    }
+
     private var pubkeyFont: Font {
         verticalSizeClass == .regular ? .system(size: 7, weight: .regular, design: .monospaced) : .caption2.monospaced()
     }
@@ -33,7 +37,7 @@ private struct EventCardView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .font(.headline)
+                        .font(titleFont)
 
                     if let subtitle {
                         Text(subtitle)
