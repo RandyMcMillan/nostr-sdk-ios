@@ -276,16 +276,17 @@ private struct EventDetailView: View {
                         Text(event.pubkey)
                             .layoutPriority(1)
                     }
-                    .font(pubkeyFont)
+                    .font(.body.monospaced())
+                    .foregroundColor(.primary)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.1)
-                    //.allowsTightening(true)
+                    .minimumScaleFactor(0.5)
+                    .allowsTightening(true)
                     .fixedSize(horizontal: true, vertical: false)
                     Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
                     Text("Signature: \(event.signature ?? "N/A")")
                 }
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.body)
+                .foregroundColor(.primary)
 
                 if !event.tags.isEmpty {
                     VStack(alignment: .leading) {
