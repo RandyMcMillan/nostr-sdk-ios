@@ -372,8 +372,11 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        Form {
-            Section("NIP-0034 Viewer") {
+        VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("NIP-0034 Viewer")
+                    .font(.headline)
+
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
                 }
@@ -387,31 +390,39 @@ struct QueryRelayDemoView: View {
                         }
                     }
                 }
+
+                Button {
+                    updateSubscription()
+                } label: {
+                    Text("Query")
+                }
             }
+            .padding(.horizontal)
+            .padding(.top)
 
-            Button {
-                updateSubscription()
-            } label: {
-                Text("Query")
-            }
+            Divider()
 
-            if !events.isEmpty {
-                Section("Results") {
-                    if !authorPubkey.isEmpty {
-                        Text("Showing events for \(authorPubkey)")
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                    }
-
-                    ForEach(events, id: \.id) { event in
-                        NavigationLink(destination: EventDetailView(event: event, metadata: metadataByPubkey[event.pubkey])) {
-                            EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    if !events.isEmpty {
+                        if !authorPubkey.isEmpty {
+                            Text("Showing events for \(authorPubkey)")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal)
                         }
-                        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+
+                        ForEach(events, id: \.id) { event in
+                            NavigationLink(destination: EventDetailView(event: event, metadata: metadataByPubkey[event.pubkey])) {
+                                EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal)
+                        }
                     }
                 }
+                .padding(.vertical)
             }
         }
         .onAppear {
