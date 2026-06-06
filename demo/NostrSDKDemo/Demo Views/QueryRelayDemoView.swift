@@ -8,39 +8,45 @@
 import SwiftUI
 import NostrSDK
 import Combine
-import WebKit
+import UIKit
 
-private struct TinyWebImageView: UIViewRepresentable {
+private struct TinyWebImageView: View {
     let url: URL
+    @State private var image: UIImage?
 
-    func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView(frame: .zero)
-        webView.isOpaque = false
-        webView.backgroundColor = .clear
-        webView.scrollView.isScrollEnabled = false
-        webView.scrollView.bounces = false
-        webView.scrollView.showsHorizontalScrollIndicator = false
-        webView.scrollView.showsVerticalScrollIndicator = false
-        return webView
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                ZStack {
+                    Color(.tertiarySystemFill)
+                    ProgressView()
+                }
+            }
+        }
+        .clipped()
+        .task(id: url) {
+            await loadImage()
+        }
     }
 
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        let html = """
-        <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-          <style>
-            html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
-            img { width: 100%; height: 100%; object-fit: cover; display: block; }
-          </style>
-        </head>
-        <body>
-          <img src="\(url.absoluteString)" />
-        </body>
-        </html>
-        """
+    private func loadImage() async {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let loadedImage = UIImage(data: data) else {
+                print("[QueryRelayDemo] image decode failed url=\(url.absoluteString)")
+                return
+            }
 
-        webView.loadHTMLString(html, baseURL: url.deletingLastPathComponent())
+            await MainActor.run {
+                image = loadedImage
+            }
+        } catch {
+            print("[QueryRelayDemo] image load failed url=\(url.absoluteString) error=\(error)")
+        }
     }
 }
 
