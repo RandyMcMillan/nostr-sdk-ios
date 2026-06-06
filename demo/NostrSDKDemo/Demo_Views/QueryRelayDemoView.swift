@@ -124,17 +124,24 @@ private struct EventCardView: View {
                 .frame(maxHeight: .infinity, alignment: .top)
 
             VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("ID:")
-                    Text(event.id)
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("ID: \(event.id)")
+                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                        .allowsTightening(true)
                         .layoutPriority(1)
+
+                    Spacer(minLength: 8)
+
+                    Text("\(event.tags.count) tags")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Capsule(style: .continuous).fill(Color(.tertiarySystemFill)))
                 }
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                .foregroundColor(.primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.1)
-                //.allowsTightening(true)
-                .fixedSize(horizontal: true, vertical: false)
 
                 Text(title)
                     .font(titleFont)
@@ -146,24 +153,19 @@ private struct EventCardView: View {
                         .lineLimit(1)
                 }
 
-                Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Text(event.createdDate.formatted(date: .abbreviated, time: .omitted) + " " + event.createdDate.formatted(date: .omitted, time: .shortened))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 8) {
+                    Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
+                    Text("•")
+                    Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
 
                 Text(event.content.isEmpty ? "No content" : event.content)
                     .font(.body)
                     .lineLimit(4)
             }
 
-            Spacer()
-
-            Text("\(event.tags.count) tags")
-                .font(.caption)
-                .foregroundColor(.secondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
