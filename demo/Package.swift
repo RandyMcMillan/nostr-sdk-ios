@@ -1,11 +1,11 @@
 let package = Package(
-    name: "NostrSDKDemo",
+    name: "GnostrSDKDemo",
     dependencies: [
         .package(path: "../")
     ],
     targets: [
         .target(
-            name: "NostrSDKDemo",
-            dependencies: ["NostrSDK"])
+            name: "GnostrSDKDemo",
+            dependencies: ["GnostrSDK"])
     ]
 )

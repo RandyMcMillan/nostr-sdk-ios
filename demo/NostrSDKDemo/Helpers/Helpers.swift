@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import NostrSDK
+import GnostrSDK
 
 struct DemoHelper {
     static var emptyString: Binding<String> {

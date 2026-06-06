@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import NostrSDK
+import GnostrSDK
 import SwiftUI
 
 extension Relay {

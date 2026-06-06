@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		1F73BD012D24432B00C49147 /* EncryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */; };
 		1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */; };
-		3A114FB42B0178AB00ABDBB0 /* NostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 3A114FB32B0178AB00ABDBB0 /* NostrSDK */; };
 		3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */; };
+		4BB77E8F2FD49904003742C9 /* GnostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 4BB77E8E2FD49904003742C9 /* GnostrSDK */; };
 		50BB70A12B4302F300EDD3B5 /* RelaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50BB70A02B4302F300EDD3B5 /* RelaysView.swift */; };
 		F78221C12A87FB39008D5AE8 /* ConnectRelayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78221C02A87FB39008D5AE8 /* ConnectRelayView.swift */; };
 		F78221C42A8803F3008D5AE8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78221C32A8803F3008D5AE8 /* Helpers.swift */; };
@@ -50,7 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A114FB42B0178AB00ABDBB0 /* NostrSDK in Frameworks */,
+				4BB77E8F2FD49904003742C9 /* GnostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -153,7 +153,7 @@
 			);
 			name = NostrSDKDemo;
 			packageProductDependencies = (
-				3A114FB32B0178AB00ABDBB0 /* NostrSDK */,
+				4BB77E8E2FD49904003742C9 /* GnostrSDK */,
 			);
 			productName = NostrSDKDemo;
 			productReference = F7CB36282A35127B0098F35C /* NostrSDKDemo.app */;
@@ -184,7 +184,7 @@
 			);
 			mainGroup = F7CB361F2A35127B0098F35C;
 			packageReferences = (
-				3A114FB22B0178AB00ABDBB0 /* XCLocalSwiftPackageReference ".." */,
+				4BB77E8D2FD49904003742C9 /* XCLocalSwiftPackageReference "../../gnostr-sdk-ios" */,
 			);
 			productRefGroup = F7CB36292A35127B0098F35C /* Products */;
 			projectDirPath = "";
@@ -441,16 +441,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		3A114FB22B0178AB00ABDBB0 /* XCLocalSwiftPackageReference ".." */ = {
+		4BB77E8D2FD49904003742C9 /* XCLocalSwiftPackageReference "../../gnostr-sdk-ios" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ..;
+			relativePath = "../../gnostr-sdk-ios";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3A114FB32B0178AB00ABDBB0 /* NostrSDK */ = {
+		4BB77E8E2FD49904003742C9 /* GnostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = NostrSDK;
+			productName = GnostrSDK;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

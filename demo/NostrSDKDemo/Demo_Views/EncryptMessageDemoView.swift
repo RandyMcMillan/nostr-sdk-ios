@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import NostrSDK
+import GnostrSDK
 
 struct EncryptMessageDemoView: View, EventCreating {
 
