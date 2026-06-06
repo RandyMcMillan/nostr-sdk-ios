@@ -118,59 +118,57 @@ private struct EventCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            profileImage
+        HStack(alignment: .top, spacing: 12) {
+            avatar
+                .frame(width: 72)
+                .frame(maxHeight: .infinity, alignment: .top)
 
-            HStack(alignment: .top, spacing: 12) {
-                avatar
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(titleFont)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(titleFont)
-
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-
-                    Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
+                if let subtitle {
+                    Text(subtitle)
                         .font(.caption)
                         .foregroundColor(.secondary)
-
-                    Text(event.createdDate.formatted(date: .abbreviated, time: .omitted) + " " + event.createdDate.formatted(date: .omitted, time: .shortened))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .lineLimit(1)
                 }
 
-                Spacer()
-
-                Text("\(event.tags.count) tags")
+                Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
                     .font(.caption)
                     .foregroundColor(.secondary)
-            }
 
-            Text(event.content.isEmpty ? "No content" : event.content)
-                .font(.body)
-                .lineLimit(4)
+                Text(event.createdDate.formatted(date: .abbreviated, time: .omitted) + " " + event.createdDate.formatted(date: .omitted, time: .shortened))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
 
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text("Pubkey:")
-                Text(event.pubkey)
-                    .layoutPriority(1)
-            }
-            .font(pubkeyFont)
-            .foregroundColor(.secondary)
-            .lineLimit(1)
-            .minimumScaleFactor(0.1)
-            //.allowsTightening(true)
-            .fixedSize(horizontal: true, vertical: false)
+                Text(event.content.isEmpty ? "No content" : event.content)
+                    .font(.body)
+                    .lineLimit(4)
 
-            Text("ID: \(event.id)")
-                .font(.caption.monospaced())
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("Pubkey:")
+                    Text(event.pubkey)
+                        .layoutPriority(1)
+                }
+                .font(pubkeyFont)
                 .foregroundColor(.secondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.1)
+                //.allowsTightening(true)
+                .fixedSize(horizontal: true, vertical: false)
+
+                Text("ID: \(event.id)")
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            Text("\(event.tags.count) tags")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
