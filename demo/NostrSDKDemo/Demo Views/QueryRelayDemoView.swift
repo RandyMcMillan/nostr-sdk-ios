@@ -106,8 +106,9 @@ private struct EventCardView: View {
                     image
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 44, height: 44)
+                        .frame(width: 64, height: 64)
                         .clipShape(Circle())
+                        .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
                 case .failure:
                     avatarPlaceholder
                 @unknown default:
@@ -122,7 +123,7 @@ private struct EventCardView: View {
     private var avatarPlaceholder: some View {
         Circle()
             .fill(Color(.tertiarySystemFill))
-            .frame(width: 44, height: 44)
+            .frame(width: 64, height: 64)
             .overlay(
                 Text(String(title.prefix(1)).uppercased())
                     .font(.caption)
@@ -259,8 +260,9 @@ private struct EventDetailView: View {
                     image
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 72, height: 72)
+                        .frame(width: 96, height: 96)
                         .clipShape(Circle())
+                        .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
                 case .failure:
                     detailAvatarPlaceholder
                 @unknown default:
@@ -275,7 +277,7 @@ private struct EventDetailView: View {
     private var detailAvatarPlaceholder: some View {
         Circle()
             .fill(Color(.tertiarySystemFill))
-            .frame(width: 72, height: 72)
+            .frame(width: 96, height: 96)
             .overlay(
                 Text(String(title.prefix(1)).uppercased())
                     .font(.title3)
