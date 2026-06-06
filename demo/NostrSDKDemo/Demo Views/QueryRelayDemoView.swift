@@ -136,14 +136,11 @@ private struct EventCardView: View {
 
     private var cardTags: [TagItem] {
         [
-            TagItem(label: "Repo", value: repoID),
-            TagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
-            TagItem(label: "Web", value: shortDisplayValue(webURL))
+            tagItem(label: "Repo", value: repoID),
+            tagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
+            tagItem(label: "Web", value: shortDisplayValue(webURL))
         ]
-        .compactMap { item in
-            guard let value = item.value, value.isEmpty == false else { return nil }
-            return TagItem(label: item.label, value: value)
-        }
+        .compactMap { $0 }
     }
 
     private var titleFont: Font {
@@ -291,6 +288,11 @@ private struct EventCardView: View {
         }
         return value
     }
+
+    private func tagItem(label: String, value: String?) -> TagItem? {
+        guard let value, value.isEmpty == false else { return nil }
+        return TagItem(label: label, value: value)
+    }
 }
 
 private struct EventDetailView: View {
@@ -333,19 +335,16 @@ private struct EventDetailView: View {
 
     private var detailTags: [TagItem] {
         [
-            TagItem(label: "Repo", value: repoID),
-            TagItem(label: "Name", value: tagValue("name")),
-            TagItem(label: "Description", value: tagValue("description")),
-            TagItem(label: "Alt", value: tagValue("alt")),
-            TagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
-            TagItem(label: "Web", value: shortDisplayValue(webURL)),
-            TagItem(label: "Relays", value: relaysText),
-            TagItem(label: "Maintainers", value: maintainersText)
+            tagItem(label: "Repo", value: repoID),
+            tagItem(label: "Name", value: tagValue("name")),
+            tagItem(label: "Description", value: tagValue("description")),
+            tagItem(label: "Alt", value: tagValue("alt")),
+            tagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
+            tagItem(label: "Web", value: shortDisplayValue(webURL)),
+            tagItem(label: "Relays", value: relaysText),
+            tagItem(label: "Maintainers", value: maintainersText)
         ]
-        .compactMap { item in
-            guard let value = item.value, value.isEmpty == false else { return nil }
-            return TagItem(label: item.label, value: value)
-        }
+        .compactMap { $0 }
     }
 
     var body: some View {
@@ -460,6 +459,11 @@ private struct EventDetailView: View {
             return host
         }
         return value
+    }
+
+    private func tagItem(label: String, value: String?) -> TagItem? {
+        guard let value, value.isEmpty == false else { return nil }
+        return TagItem(label: label, value: value)
     }
 
     @ViewBuilder
