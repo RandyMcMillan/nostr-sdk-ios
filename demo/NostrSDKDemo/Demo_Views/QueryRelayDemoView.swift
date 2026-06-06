@@ -10,70 +10,66 @@ import GnostrSDK
 import Combine
 import UIKit
 
-private struct TinyWebImageView: View {
+private struct TinyWebImageView: UIViewRepresentable {
     let url: URL
-    @StateObject private var loader = RemoteImageLoader()
 
-    var body: some View {
-        Group {
-            if let image = loader.image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                ZStack {
-                    Color(.tertiarySystemFill)
-                    ProgressView()
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> UIImageView {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = .clear
+        context.coordinator.load(url: url, into: imageView)
+        return imageView
+    }
+
+    func updateUIView(_ uiView: UIImageView, context: Context) {
+        context.coordinator.load(url: url, into: uiView)
+    }
+
+    final class Coordinator {
+        private var task: Task<Void, Never>?
+        private var currentURL: URL?
+
+        func load(url: URL, into imageView: UIImageView) {
+            currentURL = url
+            print("[QueryRelayDemo] image load attempt url=\(url.absoluteString)")
+
+            if let cachedImage = RemoteImageLoader.cache.object(forKey: url as NSURL) {
+                print("[QueryRelayDemo] image load cache hit url=\(url.absoluteString)")
+                imageView.image = cachedImage
+                return
+            }
+
+            task?.cancel()
+            task = Task.detached(priority: .background) { [weak imageView] in
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    guard let loadedImage = UIImage(data: data) else {
+                        print("[QueryRelayDemo] image decode failed url=\(url.absoluteString)")
+                        return
+                    }
+
+                    RemoteImageLoader.cache.setObject(loadedImage, forKey: url as NSURL)
+
+                    await MainActor.run {
+                        guard let imageView, self.currentURL == url else { return }
+                        imageView.image = loadedImage
+                    }
+                } catch is CancellationError {
+                } catch {
+                    print("[QueryRelayDemo] image load failed url=\(url.absoluteString) error=\(error)")
                 }
             }
-        }
-        .clipped()
-        .task(id: url) {
-            await loader.load(url: url)
         }
     }
 }
 
-private final class RemoteImageLoader: ObservableObject {
+private final class RemoteImageLoader {
     static let cache = NSCache<NSURL, UIImage>()
-
-    @Published var image: UIImage?
-    private var task: Task<Void, Never>?
-
-    func load(url: URL) async {
-        print("[QueryRelayDemo] image load attempt url=\(url.absoluteString)")
-        if let cachedImage = Self.cache.object(forKey: url as NSURL) {
-            print("[QueryRelayDemo] image load cache hit url=\(url.absoluteString)")
-            await MainActor.run {
-                image = cachedImage
-            }
-            return
-        }
-
-        task?.cancel()
-        task = Task {
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                try Task.checkCancellation()
-
-                guard let loadedImage = UIImage(data: data) else {
-                    print("[QueryRelayDemo] image decode failed url=\(url.absoluteString)")
-                    return
-                }
-
-                Self.cache.setObject(loadedImage, forKey: url as NSURL)
-
-                await MainActor.run {
-                    image = loadedImage
-                }
-            } catch is CancellationError {
-            } catch {
-                print("[QueryRelayDemo] image load failed url=\(url.absoluteString) error=\(error)")
-            }
-        }
-
-        await task?.value
-    }
 }
 
 private final class RemoteImagePrefetcher {
