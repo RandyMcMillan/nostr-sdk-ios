@@ -101,8 +101,8 @@ private struct EventCardView: View {
     let metadata: MetadataEvent?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-    private var title: String {
-        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? "Loading user metadata…"
+    private var title: String? {
+        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress
     }
 
     private var subtitle: String? {
@@ -143,8 +143,10 @@ private struct EventCardView: View {
                         .background(Capsule(style: .continuous).fill(Color(.tertiarySystemFill)))
                 }
 
-                Text(title)
-                    .font(titleFont)
+                if let title {
+                    Text(title)
+                        .font(titleFont)
+                }
 
                 if let subtitle {
                     Text(subtitle)

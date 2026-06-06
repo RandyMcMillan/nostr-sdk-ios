@@ -149,18 +149,18 @@ struct PubkeyMetadataPreviewView: View {
             .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? "Loading user metadata…")
-                    .font(.headline)
+                if let metadata {
+                    if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
+                        Text(title)
+                            .font(.headline)
+                    }
 
-                if let about = metadata?.about, !about.isEmpty {
-                    Text(about)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                } else if metadata == nil {
-                    Text("Waiting for kind 0 metadata")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    if let about = metadata.about, !about.isEmpty {
+                        Text(about)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
+                    }
                 }
             }
         }
