@@ -11,6 +11,7 @@ import GnostrSDK
 struct EncryptMessageDemoView: View, EventCreating {
 
     @EnvironmentObject var relayPool: RelayPool
+    @StateObject private var metadataLoader = PubkeyMetadataLoader()
 
     @State private var recipientPublicKey = ""
     @State private var recipientPublicKeyIsValid: Bool = false
@@ -28,6 +29,11 @@ struct EncryptMessageDemoView: View, EventCreating {
                 KeyInputSectionView(key: $recipientPublicKey,
                                     isValid: $recipientPublicKeyIsValid,
                                     type: .public)
+            }
+            if recipientPublicKeyIsValid {
+                Section("Recipient Metadata") {
+                    PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
+                }
             }
             Section("Sender") {
                 KeyInputSectionView(key: $senderPrivateKey,
@@ -57,6 +63,19 @@ struct EncryptMessageDemoView: View, EventCreating {
                 }
             }
         }
+        .onAppear {
+            metadataLoader.attach(relayPool: relayPool)
+            updateRecipientMetadata()
+        }
+        .onChange(of: recipientPublicKey) { _ in
+            updateRecipientMetadata()
+        }
+        .onChange(of: recipientPublicKeyIsValid) { _ in
+            updateRecipientMetadata()
+        }
+        .onDisappear {
+            metadataLoader.stop()
+        }
     }
 
     private func keypair() -> Keypair? {
@@ -79,6 +98,10 @@ struct EncryptMessageDemoView: View, EventCreating {
         !message.isEmpty &&
         recipientPublicKeyIsValid &&
         senderPrivateKeyIsValid
+    }
+
+    private func updateRecipientMetadata() {
+        metadataLoader.update(publicKeyInput: recipientPublicKey, isValid: recipientPublicKeyIsValid)
     }
 }
 

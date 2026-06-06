@@ -16,6 +16,7 @@
 		F78221C42A8803F3008D5AE8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78221C32A8803F3008D5AE8 /* Helpers.swift */; };
 		F78221CE2A8999F9008D5AE8 /* KeyInputSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F78221CD2A8999F9008D5AE8 /* KeyInputSectionView.swift */; };
 		F786D8F72A3BAED800A29915 /* QueryRelayDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F786D8F62A3BAED800A29915 /* QueryRelayDemoView.swift */; };
+		A1B2C3D42E00000100000001 /* PubkeyMetadataPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D32E00000100000001 /* PubkeyMetadataPreview.swift */; };
 		F7CB362C2A35127B0098F35C /* NostrSDKDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CB362B2A35127B0098F35C /* NostrSDKDemoApp.swift */; };
 		F7CB362E2A35127B0098F35C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CB362D2A35127B0098F35C /* ContentView.swift */; };
 		F7CB36302A35127C0098F35C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F7CB362F2A35127C0098F35C /* Assets.xcassets */; };
@@ -35,6 +36,7 @@
 		F78221C32A8803F3008D5AE8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		F78221CD2A8999F9008D5AE8 /* KeyInputSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyInputSectionView.swift; sourceTree = "<group>"; };
 		F786D8F62A3BAED800A29915 /* QueryRelayDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryRelayDemoView.swift; sourceTree = "<group>"; };
+		A1B2C3D32E00000100000001 /* PubkeyMetadataPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubkeyMetadataPreview.swift; sourceTree = "<group>"; };
 		F7CB36282A35127B0098F35C /* NostrSDKDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NostrSDKDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F7CB362B2A35127B0098F35C /* NostrSDKDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrSDKDemoApp.swift; sourceTree = "<group>"; };
 		F7CB362D2A35127B0098F35C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -66,6 +68,7 @@
 				3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */,
 				F7CB36462A3B74380098F35C /* NIP05VerificationDemoView.swift */,
 				F786D8F62A3BAED800A29915 /* QueryRelayDemoView.swift */,
+				A1B2C3D32E00000100000001 /* PubkeyMetadataPreview.swift */,
 			);
 			path = Demo_Views;
 			sourceTree = "<group>";
@@ -221,6 +224,7 @@
 				3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */,
 				50BB70A12B4302F300EDD3B5 /* RelaysView.swift in Sources */,
 				F786D8F72A3BAED800A29915 /* QueryRelayDemoView.swift in Sources */,
+				A1B2C3D42E00000100000001 /* PubkeyMetadataPreview.swift in Sources */,
 				F78221CE2A8999F9008D5AE8 /* KeyInputSectionView.swift in Sources */,
 				F7CB36412A3ACD530098F35C /* GenerateKeyDemoView.swift in Sources */,
 				F7CB36432A3ACD7B0098F35C /* ListOptionView.swift in Sources */,
