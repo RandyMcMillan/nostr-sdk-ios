@@ -102,11 +102,31 @@ private struct EventCardView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var title: String? {
-        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress
+        tagValue("name") ?? tagValue("description") ?? tagValue("alt")
     }
 
     private var subtitle: String? {
-        metadata?.nostrAddress ?? metadata?.name ?? metadata?.about
+        tagValue("description") ?? tagValue("alt")
+    }
+
+    private var repoID: String? {
+        tagValue("d")
+    }
+
+    private var cloneURL: String? {
+        tagValue("clone")
+    }
+
+    private var webURL: String? {
+        tagValue("web")
+    }
+
+    private var relaysText: String? {
+        values(for: "relays").first
+    }
+
+    private var maintainersText: String? {
+        values(for: "maintainers").first
     }
 
     private var titleFont: Font {
@@ -152,6 +172,13 @@ private struct EventCardView: View {
                     Text(subtitle)
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+
+                if let repoID {
+                    Text(repoID)
+                        .font(.caption.monospaced())
+                        .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
 
@@ -167,6 +194,13 @@ private struct EventCardView: View {
                     Text(event.content)
                         .font(.body)
                         .lineLimit(4)
+                }
+
+                if let cloneURL {
+                    Text(cloneURL)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
                 }
             }
 
@@ -221,6 +255,14 @@ private struct EventCardView: View {
         guard pubkey.count > 16 else { return pubkey }
         return "\(pubkey.prefix(8))...\(pubkey.suffix(8))"
     }
+
+    private func tagValue(_ name: String) -> String? {
+        event.tags.first(where: { $0.name == name })?.value
+    }
+
+    private func values(for name: String) -> [String] {
+        event.tags.filter { $0.name == name }.map(\.value)
+    }
 }
 
 private struct EventDetailView: View {
@@ -229,11 +271,31 @@ private struct EventDetailView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var title: String {
-        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? event.pubkey
+        tagValue("name") ?? tagValue("description") ?? tagValue("alt") ?? event.pubkey
     }
 
     private var pubkeyFont: Font {
         verticalSizeClass == .regular ? .system(size: 7, weight: .regular, design: .monospaced) : .caption2.monospaced()
+    }
+
+    private var repoID: String? {
+        tagValue("d")
+    }
+
+    private var cloneURL: String? {
+        tagValue("clone")
+    }
+
+    private var webURL: String? {
+        tagValue("web")
+    }
+
+    private var relaysText: String? {
+        values(for: "relays").first
+    }
+
+    private var maintainersText: String? {
+        values(for: "maintainers").first
     }
 
     var body: some View {
@@ -275,9 +337,12 @@ private struct EventDetailView: View {
                     Text("ID: \(event.id)")
                         .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     Text("Kind: \(event.kind.rawValue)")
+                    if let repoID {
+                        Text("Repository: \(repoID)")
+                    }
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("Pubkey:")
-                        Text(event.pubkey)
+                        Text("Clone:")
+                        Text(cloneURL ?? "—")
                             .layoutPriority(1)
                     }
                     .font(.body.monospaced())
@@ -286,6 +351,15 @@ private struct EventDetailView: View {
                     .minimumScaleFactor(0.5)
                     .allowsTightening(true)
                     .fixedSize(horizontal: true, vertical: false)
+                    if let webURL {
+                        Text("Web: \(webURL)")
+                    }
+                    if let relaysText {
+                        Text("Relays: \(relaysText)")
+                    }
+                    if let maintainersText {
+                        Text("Maintainers: \(maintainersText)")
+                    }
                     Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
                 }
                 .font(.body)
@@ -315,6 +389,14 @@ private struct EventDetailView: View {
                 .padding(.vertical, 8)
                 .background(.ultraThinMaterial)
         }
+    }
+
+    private func tagValue(_ name: String) -> String? {
+        event.tags.first(where: { $0.name == name })?.value
+    }
+
+    private func values(for name: String) -> [String] {
+        event.tags.filter { $0.name == name }.map(\.value)
     }
 
     @ViewBuilder
