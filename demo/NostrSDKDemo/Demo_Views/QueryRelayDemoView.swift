@@ -372,13 +372,15 @@ struct QueryRelayDemoView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("NIP-0034 Viewer")
-                    .font(.subheadline.weight(.semibold))
-
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Author Public Key")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.secondary)
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
                 }
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
 
                 Picker("Kind", selection: $selectedKind) {
                     ForEach(kindOptions.keys.sorted(), id: \.self) { number in
@@ -389,12 +391,15 @@ struct QueryRelayDemoView: View {
                         }
                     }
                 }
+                .pickerStyle(.menu)
 
                 Button {
                     updateSubscription()
                 } label: {
                     Text("Query")
                 }
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal)
             .padding(.top, 4)
@@ -426,6 +431,7 @@ struct QueryRelayDemoView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
         }
+        .navigationTitle("NIP-0034 Viewer")
         .onAppear {
             updateSubscription()
             updateMetadataSubscription()
