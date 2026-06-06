@@ -65,6 +65,47 @@ private struct EventCardView: View {
     }
 }
 
+private struct EventDetailView: View {
+    let event: NostrEvent
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text(event.content.isEmpty ? "No content" : event.content)
+                    .font(.body)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("ID: \(event.id)")
+                    Text("Kind: \(event.kind.rawValue)")
+                    Text("Pubkey: \(event.pubkey)")
+                    Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
+                    Text("Signature: \(event.signature ?? "N/A")")
+                }
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+                if !event.tags.isEmpty {
+                    VStack(alignment: .leading) {
+                        Text("Tags:")
+                            .font(.headline)
+
+                        ForEach(event.tags, id: \.self) { tag in
+                            Text("• \(tag.name): \(tag.value)")
+                                .font(.caption)
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Event Details")
+    }
+}
+
 struct QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
@@ -131,7 +172,9 @@ struct QueryRelayDemoView: View {
                     }
 
                     ForEach(events, id: \.id) { event in
-                        EventCardView(event: event)
+                        NavigationLink(destination: EventDetailView(event: event)) {
+                            EventCardView(event: event)
+                        }
                             .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)

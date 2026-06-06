@@ -196,7 +196,9 @@ struct QueryRelayDemoView: View {
                     }
 
                     ForEach(events, id: \.id) { event in
-                        EventRowView(event: event)
+                        NavigationLink(destination: EventDetailView(event: event)) {
+                            EventRowView(event: event)
+                        }
                             .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
