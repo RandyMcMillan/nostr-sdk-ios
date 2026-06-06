@@ -41,7 +41,9 @@ private final class RemoteImageLoader: ObservableObject {
     private var task: Task<Void, Never>?
 
     func load(url: URL) async {
+        print("[QueryRelayDemo] image load attempt url=\(url.absoluteString)")
         if let cachedImage = Self.cache.object(forKey: url as NSURL) {
+            print("[QueryRelayDemo] image load cache hit url=\(url.absoluteString)")
             await MainActor.run {
                 image = cachedImage
             }
@@ -82,6 +84,7 @@ private final class RemoteImagePrefetcher {
         guard RemoteImageLoader.cache.object(forKey: url as NSURL) == nil else { return }
 
         Task.detached(priority: .background) {
+            print("[QueryRelayDemo] image prefetch attempt url=\(url.absoluteString)")
             do {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 guard let loadedImage = UIImage(data: data) else {
