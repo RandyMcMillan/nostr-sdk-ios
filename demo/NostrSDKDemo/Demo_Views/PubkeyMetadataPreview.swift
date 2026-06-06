@@ -135,8 +135,8 @@ struct PubkeyMetadataPreviewView: View {
                 Circle()
                     .fill(Color(.tertiarySystemFill))
 
-                if let metadata?.pictureURL {
-                    CachedRemoteImageView(url: metadata?.pictureURL)
+                if let pictureURL = metadata?.pictureURL {
+                    CachedRemoteImageView(url: pictureURL)
                 } else {
                     Image("GnostrIcon")
                         .resizable()
