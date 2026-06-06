@@ -34,14 +34,14 @@ public extension LegacyDirectMessageEncrypting {
     func legacyEncrypt(content: String, privateKey: PrivateKey, publicKey: PublicKey) throws -> String {
 
         let sharedSecret = try getSharedSecret(privateKey: privateKey, recipient: publicKey)
-        
-        let iv = Data.randomBytes(count: 16).bytes
-        let utf8Content = Data(content.utf8).bytes
+
+        let iv = Array(Data.randomBytes(count: 16))
+        let utf8Content = Array(Data(content.utf8))
         guard let encryptedMessage = AESEncrypt(data: utf8Content, iv: iv, sharedSecret: sharedSecret) else {
             throw LegacyDirectMessageEncryptingError.encryptionError
         }
 
-        return encodeDMBase64(content: encryptedMessage.bytes, iv: iv)
+        return encodeDMBase64(content: Array(encryptedMessage), iv: iv)
     }
 
     /// Produces a `String` containing `encryptedContent` that has been decrypted using a recipient's `privateKey` and a sender's `publicKey`.
@@ -77,7 +77,7 @@ public extension LegacyDirectMessageEncrypting {
         let ivContentTrimmed = ivContent.dropFirst(3)
 
         guard let ivContentData = Data(base64Encoded: String(ivContentTrimmed)),
-              let decryptedContentData = AESDecrypt(data: encryptedContentData.bytes, iv: ivContentData.bytes, sharedSecret: sharedSecret),
+              let decryptedContentData = AESDecrypt(data: Array(encryptedContentData), iv: Array(ivContentData), sharedSecret: sharedSecret),
               let decodedContent = String(data: decryptedContentData, encoding: .utf8) else {
             throw LegacyDirectMessageEncryptingError.decryptionError
         }
@@ -86,7 +86,7 @@ public extension LegacyDirectMessageEncrypting {
     }
 
     private func getSharedSecret(privateKey: PrivateKey, recipient pubkey: PublicKey) throws -> [UInt8] {
-        let privateKeyBytes = privateKey.dataRepresentation.bytes
+        let privateKeyBytes = Array(privateKey.dataRepresentation)
         let publicKeyBytes = preparePublicKeyBytes(from: pubkey)
 
         let recipientPublicKey = try parsePublicKey(from: publicKeyBytes)
@@ -94,7 +94,7 @@ public extension LegacyDirectMessageEncrypting {
     }
 
     private func preparePublicKeyBytes(from pubkey: PublicKey) -> [UInt8] {
-        var bytes = pubkey.dataRepresentation.bytes
+        var bytes = Array(pubkey.dataRepresentation)
         bytes.insert(2, at: 0)
         return bytes
     }
