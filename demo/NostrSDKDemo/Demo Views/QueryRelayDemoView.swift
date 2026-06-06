@@ -13,27 +13,55 @@ struct EventRowView: View {
     var event: NostrEvent
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Display the event content
-            Text(event.content)
-                .font(.body)
-                .lineLimit(3) // Display up to 3 lines of content
-                .padding(.bottom, 4)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Kind \(event.kind.rawValue)")
+                        .font(.headline)
+                    Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
 
-            Divider()
+                Spacer()
 
-            // Display other event details in a more compact format
-            Group {
-                Text("Kind: \(event.kind.rawValue)")
-                Text("ID: \(event.id.prefix(8))...") // Shorten the ID for readability
-                Text("Pubkey: \(event.pubkey.prefix(8))...") // Shorten the pubkey for readability
-                Text("Created: \(event.createdDate.formatted(date: .abbreviated, time: .shortened))")
-                Text("Tags: \(event.tags.count)")
+                Text("\(event.tags.count) tags")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-            .font(.caption)
-            .foregroundColor(.secondary)
+
+            Text(event.content.isEmpty ? "No content" : event.content)
+                .font(.body)
+                .lineLimit(4)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Pubkey")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(event.pubkey)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+
+                Text("ID")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(event.id)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
         }
-        .padding(.vertical, 8)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.separator).opacity(0.15))
+        )
     }
 }
 
@@ -43,7 +71,6 @@ struct EventDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Main Content
                 Text(event.content)
                     .font(.body)
                     .padding()
@@ -51,7 +78,6 @@ struct EventDetailView: View {
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
 
-                // Event Metadata
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ID: \(event.id)")
                     Text("Kind: \(event.kind.rawValue)")
@@ -62,12 +88,11 @@ struct EventDetailView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-                // Tags Section
                 if !event.tags.isEmpty {
                     VStack(alignment: .leading) {
                         Text("Tags:")
                             .font(.headline)
-                        
+
                         ForEach(event.tags, id: \.self) { tag in
                             Text("• \(tag.name): \(tag.value)")
                                 .font(.caption)
@@ -82,14 +107,12 @@ struct EventDetailView: View {
 }
 
 struct EventListView: View {
-    @State private var events: [NostrEvent] = [] // State property to hold your events
+    @State private var events: [NostrEvent] = []
 
     var body: some View {
         NavigationView {
             List {
                 ForEach(events, id: \.id) { event in
-                    // Use your custom EventRowView for each item
-                    // You can wrap this in a NavigationLink if tapping the row should show a detail view
                     NavigationLink(destination: EventDetailView(event: event)) {
                         EventRowView(event: event)
                     }
@@ -97,23 +120,18 @@ struct EventListView: View {
             }
             .navigationTitle("Nostr Events")
             .onAppear {
-                // This is a placeholder. In a real app, you would fetch
-                // events from a Nostr relay here.
                 loadMockEvents()
             }
         }
     }
 
-    // A simple function to generate some mock data for the preview
     private func loadMockEvents() {
         let mockEvent1 = try? NostrEvent.Builder(kind: .textNote)
             .content("This is the first mock Nostr event. It's a test of the SwiftUI list view integration!")
-            // .appendTags(contentsOf: .init(name: "p"/*, value: "abcdef123..."*/))
             .build(pubkey: "1234567890abcdef...")
-        
+
         let mockEvent2 = try? NostrEvent.Builder(kind: .textNote)
             .content("A second event to demonstrate the list view with more data.")
-            // .appendTags(contentsOf: .init(name: "e"/*, value: "fedcba987..."*/))
             .build(pubkey: "9876543210fedcba...")
 
         if let event1 = mockEvent1, let event2 = mockEvent2 {
@@ -131,20 +149,8 @@ struct QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-// 30617 30618 1617 1621 1630 1631 1632 1633
+    // 30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
-        // 0: "Set Metadata",
-        // 1: "Text Note",
-        // 3: "Follow List",
-        // 6: "Repost",
-        // 7: "Reaction",
-        // 1984: "Report",
-        // 10000: "Mute List",
-        // 10003: "Bookmarks List",
-        // 30023: "Longform Content",
-        
-        // nip-0034
-        
         30617: "Repository announcements",
         30618: "Repository state announcements",
         1617: "Patches",
@@ -153,50 +159,13 @@ struct QueryRelayDemoView: View {
         1631: "Status (Applied / Merged)",
         1632: "Status (Closed)",
         1633: "Status (Draft)"
-
     ]
 
     @State private var selectedKind = 30617
 
     var body: some View {
-        
-        // NavigationView {
-        //    VStack {
-        //        List {
-        //            ListOptionView(destinationView: AnyView(RelaysView()),
-        //                           imageName: "network",
-        //                           labelText: "Configure Relays")
-        //            ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-        //                           imageName: "list.bullet.rectangle.portrait",
-        //                           labelText: "NIP-0034 Viewer")
-        //            ListOptionView(destinationView:
-        //                            AnyView(LegacyDirectMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-04 Direct Message")
-        //            ListOptionView(destinationView:
-        //                            AnyView(EncryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Encrypt")
-        //            ListOptionView(destinationView:
-        //                            AnyView(DecryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Decrypt")
-        //            ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-        //                           imageName: "key",
-        //                           labelText: "Key Generation")
-        //            ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-        //                           imageName: "checkmark.seal",
-        //                           labelText: "NIP-05")
-        //        }
-        //    }
-        //    .navigationTitle("NIP-0034 Viewer")
-        //    .navigationBarTitleDisplayMode(.inline)
-        // }
-    // }
-
         Form {
             Section("NIP-0034 Viewer") {
-
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
                 }
@@ -219,119 +188,19 @@ struct QueryRelayDemoView: View {
             }
 
             if !events.isEmpty {
-                // Section("Results") {
-                  //  if !authorPubkey.isEmpty {
-                    //    Text("Note: send an event from this account and see it appear here.")
-                      //      .foregroundColor(.gray)
-                        //    .font(.footnote)
-                    // }
-                    //
-                    
-                    NavigationView {
-                        VStack {
-                            // List {
-                            //    ListOptionView(destinationView: AnyView(RelaysView()),
-                            //                   imageName: "network",
-                            //                   labelText: "Configure Relays")
-                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                            //                   imageName: "list.bullet.rectangle.portrait",
-                            //                   labelText: "NIP-0034 Viewer")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(LegacyDirectMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-04 Direct Message")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(EncryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Encrypt")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(DecryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Decrypt")
-                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                            //                   imageName: "key",
-                            //                   labelText: "Key Generation")
-                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                            //                   imageName: "checkmark.seal",
-                            //                   labelText: "NIP-05")
-                            // }
-                       // }
-                       // .navigationTitle("NIP-0034 Viewer")
-                       // .navigationBarTitleDisplayMode(.inline)
-                    // }
-                    List(events, id: \.id) { event in
-                        if !event.content.isEmpty {
-                            
-                            //    ListOptionView(destinationView: AnyView(RelaysView()),
-                            //                   imageName: "network",
-                            //                   labelText: "Configure Relays")
-                            //    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                            //                   imageName: "list.bullet.rectangle.portrait",
-                            //                   labelText: "NIP-0034 Viewer")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(LegacyDirectMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-04 Direct Message")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(EncryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Encrypt")
-                            //    ListOptionView(destinationView:
-                            //                    AnyView(DecryptMessageDemoView()),
-                            //                   imageName: "list.bullet",
-                            //                   labelText: "NIP-44 Decrypt")
-                            //    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                            //                   imageName: "key",
-                            //                   labelText: "Key Generation")
-                            //    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                            //                   imageName: "checkmark.seal",
-                            //                   labelText: "NIP-05")
-                            //
-                            Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                            Text("\(event.content)")
-                        } else {
-                            // Text("Empty content field for event \(event.id)")
-                            
-                                // ListOptionView(destinationView: AnyView(RelaysView()),
-                                //               imageName: "network",
-                                //               labelText: "Configure Relays")
-                                // ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                                //               imageName: "list.bullet.rectangle.portrait",
-                                //               labelText: "NIP-0034 Viewer")
-                                // ListOptionView(destinationView:
-                                //                AnyView(LegacyDirectMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-04 Direct Message")
-                                // ListOptionView(destinationView:
-                                //                AnyView(EncryptMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-44 Encrypt")
-                                // ListOptionView(destinationView:
-                                //                AnyView(DecryptMessageDemoView()),
-                                //               imageName: "list.bullet",
-                                //               labelText: "NIP-44 Decrypt")
-                                // ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                                //               imageName: "key",
-                                //               labelText: "Key Generation")
-                                // ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                                //               imageName: "checkmark.seal",
-                                //               labelText: "NIP-05")
-                            
-                            Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                        }
+                Section("Results") {
+                    if !authorPubkey.isEmpty {
+                        Text("Showing events for \(authorPubkey)")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
                     }
-                        }
-                    // }
+
+                    ForEach(events, id: \.id) { event in
+                        EventRowView(event: event)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
                 }
             }
         }
@@ -349,7 +218,7 @@ struct QueryRelayDemoView: View {
             }
         }
     }
-    
+
     private var currentFilter: Filter {
         let authors: [String]?
         if authorPubkey.isEmpty {
@@ -357,21 +226,19 @@ struct QueryRelayDemoView: View {
         } else {
             authors = [authorPubkey]
         }
-        return Filter(authors: authors, kinds: [selectedKind])!//
+        return Filter(authors: authors, kinds: [selectedKind])!
     }
-    
+
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
         }
-        
+
         subscriptionId = relayPool.subscribe(with: currentFilter)
-        
+
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
-            .map {
-                $0.event
-            }
+            .map { $0.event }
             .removeDuplicates()
             .sink { event in
                 events.insert(event, at: 0)

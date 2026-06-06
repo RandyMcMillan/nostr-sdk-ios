@@ -9,6 +9,62 @@ import SwiftUI
 import GnostrSDK
 import Combine
 
+private struct EventCardView: View {
+    let event: NostrEvent
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Kind \(event.kind.rawValue)")
+                        .font(.headline)
+                    Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Text("\(event.tags.count) tags")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Text(event.content.isEmpty ? "No content" : event.content)
+                .font(.body)
+                .lineLimit(4)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Pubkey")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(event.pubkey)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+
+                Text("ID")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(event.id)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.separator).opacity(0.15))
+        )
+    }
+}
+
 struct QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
@@ -18,7 +74,7 @@ struct QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
-//30617 30618 1617 1621 1630 1631 1632 1633
+    //30617 30618 1617 1621 1630 1631 1632 1633
     private let kindOptions = [
         //0: "Set Metadata",
         //1: "Text Note",
@@ -29,9 +85,7 @@ struct QueryRelayDemoView: View {
         //10000: "Mute List",
         //10003: "Bookmarks List",
         //30023: "Longform Content",
-        
         //nip-0034
-        
         30617: "Repository announcements",
         30618: "Repository state announcements",
         1617: "Patches",
@@ -40,51 +94,13 @@ struct QueryRelayDemoView: View {
         1631: "Status (Applied / Merged)",
         1632: "Status (Closed)",
         1633: "Status (Draft)"
-
     ]
 
     @State private var selectedKind = 30617
 
     var body: some View {
-        
-        //NavigationView {
-        //    VStack {
-        //        List {
-        //            ListOptionView(destinationView: AnyView(RelaysView()),
-        //                           imageName: "network",
-        //                           labelText: "Configure Relays")
-        //            ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-        //                           imageName: "list.bullet.rectangle.portrait",
-        //                           labelText: "NIP-0034 Viewer")
-        //            ListOptionView(destinationView:
-        //                            AnyView(LegacyDirectMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-04 Direct Message")
-        //            ListOptionView(destinationView:
-        //                            AnyView(EncryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Encrypt")
-        //            ListOptionView(destinationView:
-        //                            AnyView(DecryptMessageDemoView()),
-        //                           imageName: "list.bullet",
-        //                           labelText: "NIP-44 Decrypt")
-        //            ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-        //                           imageName: "key",
-        //                           labelText: "Key Generation")
-        //            ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-        //                           imageName: "checkmark.seal",
-        //                           labelText: "NIP-05")
-        //        }
-        //    }
-        //    .navigationTitle("NIP-0034 Viewer")
-        //    .navigationBarTitleDisplayMode(.inline)
-        //}
-    //}
-
-        
         Form {
             Section("NIP-0034 Viewer") {
-
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
                 }
@@ -106,42 +122,19 @@ struct QueryRelayDemoView: View {
                 Text("Query")
             }
 
-            NavigationView {
-                VStack {
-                    
             if !events.isEmpty {
                 Section("Results") {
                     if !authorPubkey.isEmpty {
-                        Text("Note: send an event from this account and see it appear here.")
-                            .foregroundColor(.gray)
+                        Text("Showing events for \(authorPubkey)")
                             .font(.footnote)
+                            .foregroundColor(.secondary)
                     }
-                    //
-                    
-                    
-                    //NavigationView {
-                      //  VStack {
 
-                    List(events, id: \.id) { event in
-                        if !event.content.isEmpty {
-                            Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                            Text("\(event.content)")
-                        } else {
-                            //Text("Empty content field for event \(event.id)")
-                            Text("")
-                            Text("event.id \(event.id)")
-                            Text("event.kind \(event.kind)")
-                            Text("event.tags \(event.tags)")
-                            Text("event.pubkey \(event.pubkey)")
-                            Text("")
-                        }
-                    }
-                        }
+                    ForEach(events, id: \.id) { event in
+                        EventCardView(event: event)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     }
                 }
             }
@@ -160,7 +153,7 @@ struct QueryRelayDemoView: View {
             }
         }
     }
-    
+
     private var currentFilter: Filter {
         let authors: [String]?
         if authorPubkey.isEmpty {
@@ -168,21 +161,19 @@ struct QueryRelayDemoView: View {
         } else {
             authors = [authorPubkey]
         }
-        return Filter(authors: authors, kinds: [selectedKind])!//
+        return Filter(authors: authors, kinds: [selectedKind])!
     }
-    
+
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
         }
-        
+
         subscriptionId = relayPool.subscribe(with: currentFilter)
-        
+
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
-            .map {
-                $0.event
-            }
+            .map { $0.event }
             .removeDuplicates()
             .sink { event in
                 events.insert(event, at: 0)
