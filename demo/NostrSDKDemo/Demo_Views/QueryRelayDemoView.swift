@@ -161,7 +161,7 @@ private struct EventCardView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-                Text(event.content.isEmpty ? "No content" : event.content)
+                Text(event.content.isEmpty ? "\"No content\"" : event.content)
                     .font(.body)
                     .lineLimit(4)
             }
