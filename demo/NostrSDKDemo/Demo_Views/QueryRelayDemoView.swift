@@ -12,11 +12,11 @@ import UIKit
 
 private struct TinyWebImageView: View {
     let url: URL
-    @State private var image: UIImage?
+    @StateObject private var loader = RemoteImageLoader()
 
     var body: some View {
         Group {
-            if let image {
+            if let image = loader.image {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
@@ -29,24 +29,48 @@ private struct TinyWebImageView: View {
         }
         .clipped()
         .task(id: url) {
-            await loadImage()
+            await loader.load(url: url)
         }
     }
+}
 
-    private func loadImage() async {
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            guard let loadedImage = UIImage(data: data) else {
-                print("[QueryRelayDemo] image decode failed url=\(url.absoluteString)")
-                return
-            }
+private final class RemoteImageLoader: ObservableObject {
+    static let cache = NSCache<NSURL, UIImage>()
 
+    @Published var image: UIImage?
+    private var task: Task<Void, Never>?
+
+    func load(url: URL) async {
+        if let cachedImage = Self.cache.object(forKey: url as NSURL) {
             await MainActor.run {
-                image = loadedImage
+                image = cachedImage
             }
-        } catch {
-            print("[QueryRelayDemo] image load failed url=\(url.absoluteString) error=\(error)")
+            return
         }
+
+        task?.cancel()
+        task = Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                try Task.checkCancellation()
+
+                guard let loadedImage = UIImage(data: data) else {
+                    print("[QueryRelayDemo] image decode failed url=\(url.absoluteString)")
+                    return
+                }
+
+                Self.cache.setObject(loadedImage, forKey: url as NSURL)
+
+                await MainActor.run {
+                    image = loadedImage
+                }
+            } catch is CancellationError {
+            } catch {
+                print("[QueryRelayDemo] image load failed url=\(url.absoluteString) error=\(error)")
+            }
+        }
+
+        await task?.value
     }
 }
 
