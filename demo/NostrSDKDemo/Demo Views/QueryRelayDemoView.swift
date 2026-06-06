@@ -8,6 +8,41 @@
 import SwiftUI
 import NostrSDK
 import Combine
+import WebKit
+
+private struct TinyWebImageView: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView(frame: .zero)
+        webView.isOpaque = false
+        webView.backgroundColor = .clear
+        webView.scrollView.isScrollEnabled = false
+        webView.scrollView.bounces = false
+        webView.scrollView.showsHorizontalScrollIndicator = false
+        webView.scrollView.showsVerticalScrollIndicator = false
+        return webView
+    }
+
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        let html = """
+        <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+          <style>
+            html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+            img { width: 100%; height: 100%; object-fit: cover; display: block; }
+          </style>
+        </head>
+        <body>
+          <img src="\(url.absoluteString)" />
+        </body>
+        </html>
+        """
+
+        webView.loadHTMLString(html, baseURL: url.deletingLastPathComponent())
+    }
+}
 
 private struct EventCardView: View {
     let event: NostrEvent
@@ -100,49 +135,20 @@ private struct EventCardView: View {
     @ViewBuilder
     private var profileImage: some View {
         if let pictureURL = metadata?.pictureURL {
-            AsyncImage(url: pictureURL) { phase in
-                switch phase {
-                case .empty:
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(.tertiarySystemFill))
-                        .frame(height: 160)
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 160)
-                        .clipped()
-                        .cornerRadius(12)
-                case .failure:
-                    EmptyView()
-                @unknown default:
-                    EmptyView()
-                }
-            }
+            TinyWebImageView(url: pictureURL)
+                .frame(maxWidth: .infinity)
+                .frame(height: 180)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
     }
 
     @ViewBuilder
     private var avatar: some View {
         if let pictureURL = metadata?.pictureURL {
-            AsyncImage(url: pictureURL) { phase in
-                switch phase {
-                case .empty:
-                    avatarPlaceholder
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 64, height: 64)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
-                case .failure:
-                    avatarPlaceholder
-                @unknown default:
-                    avatarPlaceholder
-                }
-            }
+            TinyWebImageView(url: pictureURL)
+                .frame(width: 72, height: 72)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
         } else {
             avatarPlaceholder
         }
@@ -151,7 +157,7 @@ private struct EventCardView: View {
     private var avatarPlaceholder: some View {
         Circle()
             .fill(Color(.tertiarySystemFill))
-            .frame(width: 64, height: 64)
+            .frame(width: 72, height: 72)
             .overlay(
                 Text(String(title.prefix(1)).uppercased())
                     .font(.caption)
@@ -250,24 +256,10 @@ private struct EventDetailView: View {
     @ViewBuilder
     private var banner: some View {
         if let bannerURL = metadata?.bannerPictureURL {
-            AsyncImage(url: bannerURL) { phase in
-                switch phase {
-                case .empty:
-                    bannerPlaceholder
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 140)
-                        .clipped()
-                        .cornerRadius(16)
-                case .failure:
-                    bannerPlaceholder
-                @unknown default:
-                    bannerPlaceholder
-                }
-            }
+            TinyWebImageView(url: bannerURL)
+                .frame(maxWidth: .infinity)
+                .frame(height: 140)
+                .cornerRadius(16)
         }
     }
 
@@ -280,23 +272,10 @@ private struct EventDetailView: View {
     @ViewBuilder
     private var detailAvatar: some View {
         if let pictureURL = metadata?.pictureURL {
-            AsyncImage(url: pictureURL) { phase in
-                switch phase {
-                case .empty:
-                    detailAvatarPlaceholder
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 96, height: 96)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
-                case .failure:
-                    detailAvatarPlaceholder
-                @unknown default:
-                    detailAvatarPlaceholder
-                }
-            }
+            TinyWebImageView(url: pictureURL)
+                .frame(width: 96, height: 96)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
         } else {
             detailAvatarPlaceholder
         }
@@ -430,8 +409,10 @@ struct QueryRelayDemoView: View {
             .removeDuplicates()
             .sink { event in
                 if let metadataEvent = event as? MetadataEvent {
+                    print("[QueryRelayDemo] metadata event pubkey=\(metadataEvent.pubkey) createdAt=\(metadataEvent.createdAt) displayName=\(metadataEvent.displayName ?? "nil") name=\(metadataEvent.name ?? "nil") pictureURL=\(metadataEvent.pictureURL?.absoluteString ?? "nil") bannerURL=\(metadataEvent.bannerPictureURL?.absoluteString ?? "nil")")
                     if metadataByPubkey[metadataEvent.pubkey]?.createdAt ?? 0 <= metadataEvent.createdAt {
                         metadataByPubkey[metadataEvent.pubkey] = metadataEvent
+                        print("[QueryRelayDemo] cached metadata pubkey=\(metadataEvent.pubkey)")
                     }
                     return
                 }
