@@ -372,10 +372,10 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        VStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("NIP-0034 Viewer")
-                    .font(.headline)
+                    .font(.subheadline.weight(.semibold))
 
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
@@ -398,7 +398,7 @@ struct QueryRelayDemoView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.top)
+            .padding(.top, 4)
 
             Divider()
 
