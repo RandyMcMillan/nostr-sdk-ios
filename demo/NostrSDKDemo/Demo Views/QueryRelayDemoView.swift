@@ -16,7 +16,7 @@ struct EventRowView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Kind \(event.kind.rawValue)")
+                    Text("Kind \(event.kind.rawValue.formatted(.number))")
                         .font(.headline)
                     Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
                         .font(.caption)
