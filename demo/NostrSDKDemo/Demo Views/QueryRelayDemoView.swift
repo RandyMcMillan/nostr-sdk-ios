@@ -185,14 +185,15 @@ private struct EventCardView: View {
     }
 
     private var avatarPlaceholder: some View {
-        Circle()
-            .fill(Color(.tertiarySystemFill))
-            .frame(width: 72, height: 72)
-            .overlay(
-                Text(String(title.prefix(1)).uppercased())
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            )
+        ZStack {
+            Circle()
+                .fill(Color(.tertiarySystemFill))
+            Image("GnostrIcon")
+                .resizable()
+                .scaledToFit()
+                .padding(12)
+        }
+        .frame(width: 72, height: 72)
     }
 
     private func shortPubkey(_ pubkey: String) -> String {
@@ -312,14 +313,15 @@ private struct EventDetailView: View {
     }
 
     private var detailAvatarPlaceholder: some View {
-        Circle()
-            .fill(Color(.tertiarySystemFill))
-            .frame(width: 96, height: 96)
-            .overlay(
-                Text(String(title.prefix(1)).uppercased())
-                    .font(.title3)
-                    .foregroundColor(.secondary)
-            )
+        ZStack {
+            Circle()
+                .fill(Color(.tertiarySystemFill))
+            Image("GnostrIcon")
+                .resizable()
+                .scaledToFit()
+                .padding(16)
+        }
+        .frame(width: 96, height: 96)
     }
 }
 
