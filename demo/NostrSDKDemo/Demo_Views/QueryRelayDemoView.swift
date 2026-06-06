@@ -32,6 +32,8 @@ private struct EventCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            profileImage
+
             HStack(alignment: .top, spacing: 12) {
                 avatar
 
@@ -93,6 +95,32 @@ private struct EventCardView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(Color(.separator).opacity(0.15))
         )
+    }
+
+    @ViewBuilder
+    private var profileImage: some View {
+        if let pictureURL = metadata?.pictureURL {
+            AsyncImage(url: pictureURL) { phase in
+                switch phase {
+                case .empty:
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color(.tertiarySystemFill))
+                        .frame(height: 160)
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 160)
+                        .clipped()
+                        .cornerRadius(12)
+                case .failure:
+                    EmptyView()
+                @unknown default:
+                    EmptyView()
+                }
+            }
+        }
     }
 
     @ViewBuilder
