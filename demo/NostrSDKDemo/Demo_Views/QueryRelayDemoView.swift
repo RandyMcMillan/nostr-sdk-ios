@@ -163,9 +163,11 @@ private struct EventCardView: View {
                 .font(.caption)
                 .foregroundColor(.secondary)
 
-                Text(event.content.isEmpty ? "\"No content\"" : event.content)
-                    .font(.body)
-                    .lineLimit(4)
+                if !event.content.isEmpty {
+                    Text(event.content)
+                        .font(.body)
+                        .lineLimit(4)
+                }
             }
 
         }
@@ -260,12 +262,14 @@ private struct EventDetailView: View {
                     }
                 }
 
-                Text(event.content.isEmpty ? "No content" : event.content)
-                    .font(.body)
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
+                if !event.content.isEmpty {
+                    Text(event.content)
+                        .font(.body)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                }
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ID: \(event.id)")
