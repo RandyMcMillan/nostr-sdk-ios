@@ -57,22 +57,14 @@ private struct EventCardView: View {
                 .font(.body)
                 .lineLimit(4)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Pubkey")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(event.pubkey)
-                    .font(.caption.monospaced())
-                    .foregroundColor(.secondary)
+            Text("Pubkey: \(event.pubkey)")
+                .font(.caption.monospaced())
+                .foregroundColor(.secondary)
 
-                Text("ID")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(event.id)
-                    .font(.caption.monospaced())
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-            }
+            Text("ID: \(event.id)")
+                .font(.caption.monospaced())
+                .foregroundColor(.secondary)
+                .lineLimit(1)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
