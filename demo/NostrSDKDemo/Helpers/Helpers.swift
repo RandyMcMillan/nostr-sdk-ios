@@ -9,6 +9,8 @@ import SwiftUI
 import GnostrSDK
 
 struct DemoHelper {
+    private static let defaultHexPublicKey = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+
     static var emptyString: Binding<String> {
         Binding.constant("")
     }
@@ -24,7 +26,11 @@ struct DemoHelper {
         return Binding.constant(relay)
     }
     static var validNpub: Binding<String> {
-        Binding.constant("npub15d9enu3v0yxyud4jk0pvxk3kmvrzymjpc6f0eq4ck44vr32qck7smrxq6k")
+        guard let publicKey = PublicKey(hex: defaultHexPublicKey) else {
+            fatalError("Invalid default public key hex")
+        }
+
+        return Binding.constant(publicKey.npub)
     }
     /// The Nostr SDK project and its maintainers take no responsibility of events signed with this private key which has been open sourced.
     /// Its purpose is for only testing and demos.
@@ -32,7 +38,7 @@ struct DemoHelper {
         Binding.constant("nsec1uwcvgs5clswpfxhm7nyfjmaeysn6us0yvjdexn9yjkv3k7zjhp2sv7rt36")
     }
     static var validHexPublicKey: Binding<String> {
-        Binding.constant("a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd")
+        Binding.constant(defaultHexPublicKey)
     }
     /// The Nostr SDK project and its maintainers take no responsibility of events signed with this private key which has been open sourced.
     /// Its purpose is for only testing and demos.
