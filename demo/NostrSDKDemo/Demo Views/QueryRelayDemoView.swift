@@ -126,7 +126,7 @@ struct QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
 
-    @State private var authorPubkey: String = ""
+    @State private var authorPubkey: String = DemoHelper.validHexPublicKey.wrappedValue
     @State private var events: [NostrEvent] = []
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
