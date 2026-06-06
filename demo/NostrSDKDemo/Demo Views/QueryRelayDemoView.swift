@@ -302,15 +302,19 @@ private struct EventDetailView: View {
                         }
                     }
                 }
-
-                Text("Signature: \(event.signature ?? "N/A")")
-                    .font(.caption.monospaced())
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding()
         }
         .navigationTitle("Event Details")
+        .safeAreaInset(edge: .bottom) {
+            Text("Signature: \(event.signature ?? "N/A")")
+                .font(.caption.monospaced())
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(.ultraThinMaterial)
+        }
     }
 
     @ViewBuilder
