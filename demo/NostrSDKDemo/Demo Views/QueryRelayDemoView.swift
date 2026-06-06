@@ -60,6 +60,9 @@ private struct EventCardView: View {
             Text("Pubkey: \(event.pubkey)")
                 .font(.caption.monospaced())
                 .foregroundColor(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .allowsTightening(true)
 
             Text("ID: \(event.id)")
                 .font(.caption.monospaced())
@@ -162,6 +165,9 @@ private struct EventDetailView: View {
                     Text("ID: \(event.id)")
                     Text("Kind: \(event.kind.rawValue)")
                     Text("Pubkey: \(event.pubkey)")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .allowsTightening(true)
                     Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
                     Text("Signature: \(event.signature ?? "N/A")")
                 }
