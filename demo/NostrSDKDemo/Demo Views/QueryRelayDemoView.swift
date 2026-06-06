@@ -74,6 +74,29 @@ private final class RemoteImageLoader: ObservableObject {
     }
 }
 
+private final class RemoteImagePrefetcher {
+    static let shared = RemoteImagePrefetcher()
+
+    func prefetch(url: URL?) {
+        guard let url else { return }
+        guard RemoteImageLoader.cache.object(forKey: url as NSURL) == nil else { return }
+
+        Task.detached(priority: .background) {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                guard let loadedImage = UIImage(data: data) else {
+                    print("[QueryRelayDemo] image decode failed url=\(url.absoluteString)")
+                    return
+                }
+
+                RemoteImageLoader.cache.setObject(loadedImage, forKey: url as NSURL)
+            } catch {
+                print("[QueryRelayDemo] image prefetch failed url=\(url.absoluteString) error=\(error)")
+            }
+        }
+    }
+}
+
 private struct EventCardView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
@@ -445,6 +468,8 @@ struct QueryRelayDemoView: View {
                     if metadataByPubkey[metadataEvent.pubkey]?.createdAt ?? 0 <= metadataEvent.createdAt {
                         metadataByPubkey[metadataEvent.pubkey] = metadataEvent
                         print("[QueryRelayDemo] cached metadata pubkey=\(metadataEvent.pubkey)")
+                        RemoteImagePrefetcher.shared.prefetch(url: metadataEvent.pictureURL)
+                        RemoteImagePrefetcher.shared.prefetch(url: metadataEvent.bannerPictureURL)
                     }
                     return
                 }
