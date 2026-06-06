@@ -152,6 +152,8 @@ private struct EventDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                banner
+
                 HStack(alignment: .top, spacing: 12) {
                     detailAvatar
 
@@ -214,6 +216,36 @@ private struct EventDetailView: View {
             .padding()
         }
         .navigationTitle("Event Details")
+    }
+
+    @ViewBuilder
+    private var banner: some View {
+        if let bannerURL = metadata?.bannerPictureURL {
+            AsyncImage(url: bannerURL) { phase in
+                switch phase {
+                case .empty:
+                    bannerPlaceholder
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 140)
+                        .clipped()
+                        .cornerRadius(16)
+                case .failure:
+                    bannerPlaceholder
+                @unknown default:
+                    bannerPlaceholder
+                }
+            }
+        }
+    }
+
+    private var bannerPlaceholder: some View {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(Color(.tertiarySystemFill))
+            .frame(height: 140)
     }
 
     @ViewBuilder
