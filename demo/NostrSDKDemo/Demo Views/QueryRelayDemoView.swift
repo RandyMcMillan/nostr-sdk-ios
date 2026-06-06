@@ -58,11 +58,12 @@ private struct EventCardView: View {
                 .lineLimit(4)
 
             Text("Pubkey: \(event.pubkey)")
-                .font(.caption.monospaced())
+                .font(.caption2.monospaced())
                 .foregroundColor(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .allowsTightening(true)
+                .truncationMode(.middle)
 
             Text("ID: \(event.id)")
                 .font(.caption.monospaced())
@@ -168,6 +169,8 @@ private struct EventDetailView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.7)
                         .allowsTightening(true)
+                        .truncationMode(.middle)
+                        .font(.caption2.monospaced())
                     Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
                     Text("Signature: \(event.signature ?? "N/A")")
                 }
