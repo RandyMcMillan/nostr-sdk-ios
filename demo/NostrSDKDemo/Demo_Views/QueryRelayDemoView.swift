@@ -102,7 +102,7 @@ private struct EventCardView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var title: String {
-        metadata?.displayName ?? metadata?.name ?? metadata?.nostrAddress ?? event.pubkey
+        metadata?.displayName ?? metadata?.name ?? "Unknown user"
     }
 
     private var subtitle: String? {
@@ -129,8 +129,8 @@ private struct EventCardView: View {
                     Text(event.id)
                         .layoutPriority(1)
                 }
-                .font(pubkeyFont)
-                .foregroundColor(.secondary)
+                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .foregroundColor(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.1)
                 //.allowsTightening(true)
@@ -265,6 +265,7 @@ private struct EventDetailView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ID: \(event.id)")
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     Text("Kind: \(event.kind.rawValue)")
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("Pubkey:")
