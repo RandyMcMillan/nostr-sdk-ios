@@ -28,11 +28,17 @@ struct KeyInputSectionView: View {
 
     var body: some View {
         HStack {
-            TextField(type.label,
-                      text: $key)
-                .font(.system(size: 16, weight: .regular, design: .monospaced))
-                .autocapitalization(.none)
-                .autocorrectionDisabled()
+            if type == .private {
+                SecureField(type.label, text: $key)
+                    .font(.system(size: 16, weight: .regular, design: .monospaced))
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled()
+            } else {
+                TextField(type.label, text: $key)
+                    .font(.system(size: 16, weight: .regular, design: .monospaced))
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled()
+            }
 
             if key.isEmpty {
                 EmptyView()
