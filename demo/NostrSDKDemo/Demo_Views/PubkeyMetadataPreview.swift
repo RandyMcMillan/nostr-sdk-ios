@@ -128,56 +128,73 @@ private final class RemoteImageLoader {
 
 struct PubkeyMetadataPreviewView: View {
     let metadata: MetadataEvent?
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var avatarSize: CGFloat {
+        horizontalSizeClass == .compact ? 48 : 56
+    }
+
+    private var titleFont: Font {
+        horizontalSizeClass == .compact ? .headline : .title3
+    }
+
+    private var aboutLineLimit: Int {
+        horizontalSizeClass == .compact ? 2 : 3
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ZStack(alignment: .bottomLeading) {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(.tertiarySystemFill))
-                    .frame(height: 124)
+        GeometryReader { proxy in
+            let bannerHeight = max(84, min(proxy.size.width * 0.25, horizontalSizeClass == .compact ? 104 : 120))
 
-                if let bannerPictureURL = metadata?.bannerPictureURL {
-                    CachedRemoteImageView(url: bannerPictureURL)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 124)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            VStack(alignment: .leading, spacing: 10) {
+                ZStack(alignment: .bottomLeading) {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(.tertiarySystemFill))
+                        .frame(height: bannerHeight)
+
+                    if let bannerPictureURL = metadata?.bannerPictureURL {
+                        CachedRemoteImageView(url: bannerPictureURL)
+                            .frame(width: proxy.size.width, height: bannerHeight)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+
+                    ZStack {
+                        Circle()
+                            .fill(Color(.secondarySystemBackground))
+
+                        if let pictureURL = metadata?.pictureURL {
+                            CachedRemoteImageView(url: pictureURL)
+                        } else {
+                            Image("GnostrIcon")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(12)
+                        }
+                    }
+                    .frame(width: avatarSize, height: avatarSize)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
+                    .padding(12)
                 }
 
-                ZStack {
-                    Circle()
-                        .fill(Color(.secondarySystemBackground))
+                VStack(alignment: .leading, spacing: 4) {
+                    if let metadata {
+                        if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
+                            Text(title)
+                                .font(titleFont)
+                        }
 
-                    if let pictureURL = metadata?.pictureURL {
-                        CachedRemoteImageView(url: pictureURL)
-                    } else {
-                        Image("GnostrIcon")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(12)
+                        if let about = metadata.about, !about.isEmpty {
+                            Text(about)
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                                .lineLimit(aboutLineLimit)
+                        }
                     }
                 }
-                .frame(width: 56, height: 56)
-                .clipShape(Circle())
-                .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
-                .padding(12)
+                .padding(.horizontal, 2)
             }
-
-            VStack(alignment: .leading, spacing: 4) {
-                if let metadata {
-                    if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
-                        Text(title)
-                            .font(.headline)
-                    }
-
-                    if let about = metadata.about, !about.isEmpty {
-                        Text(about)
-                            .font(.caption)
-                            .foregroundColor(.primary)
-                            .lineLimit(2)
-                    }
-                }
-            }
-            .padding(.horizontal, 2)
+            .frame(width: proxy.size.width, alignment: .leading)
         }
     }
 }

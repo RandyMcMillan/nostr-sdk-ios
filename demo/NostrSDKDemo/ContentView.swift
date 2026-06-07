@@ -74,19 +74,20 @@ struct ContentView_Previews: PreviewProvider {
 
 private struct SettingsView: View {
     @EnvironmentObject private var relayPool: RelayPool
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @StateObject private var metadataLoader = PubkeyMetadataLoader()
 
     @State private var privateKeyInput = DemoHelper.validHexPrivateKey.wrappedValue
-    @State private var name = ""
-    @State private var displayName = ""
-    @State private var about = ""
-    @State private var website = ""
-    @State private var pictureURL = ""
-    @State private var bannerURL = ""
-    @State private var nostrAddress = ""
+    @State private var name = "name"
+    @State private var displayName = "displayName"
+    @State private var about = "about"
+    @State private var website = "website"
+    @State private var pictureURL = "pictureURL"
+    @State private var bannerURL = "bannerURL"
+    @State private var nostrAddress = "nostrAddress"
     @State private var isBot = false
-    @State private var lud06 = ""
-    @State private var lud16 = ""
+    @State private var lud06 = "lud06"
+    @State private var lud16 = "lud16"
     @State private var populatedPubkey: String?
 
     private var privateKey: PrivateKey? {
@@ -96,6 +97,10 @@ private struct SettingsView: View {
 
     private var publicKeyHex: String? {
             privateKey.flatMap { Keypair(privateKey: $0)?.publicKey.hex }
+    }
+
+    private var titleLineLimit: Int {
+        horizontalSizeClass == .compact ? 1 : 2
     }
 
     var body: some View {
@@ -117,18 +122,16 @@ private struct SettingsView: View {
                 }
 
                 Section("User Metadata") {
-                    labeledTextField("Name", text: $name, prompt: "name")
-                    labeledTextField("Display Name", text: $displayName, prompt: "display name")
-                    labeledTextEditor("About", text: $about, prompt: "about")
-                    labeledTextField("Website", text: $website, prompt: "https://...")
-                    labeledTextField("Picture URL", text: $pictureURL, prompt: "https://...")
-                    labeledTextField("Banner URL", text: $bannerURL, prompt: "https://...")
-                    labeledTextField("NIP-05", text: $nostrAddress, prompt: "name@example.com")
-                    Toggle("Bot", isOn: $isBot)
-                        .tint(.accentColor)
-                        .foregroundColor(.primary)
-                    labeledTextField("LUD-06", text: $lud06, prompt: "lnurl...")
-                    labeledTextField("LUD-16", text: $lud16, prompt: "name@domain.com")
+                    SettingsMetadataEditorView(name: $name,
+                                               displayName: $displayName,
+                                               about: $about,
+                                               website: $website,
+                                               pictureURL: $pictureURL,
+                                               bannerURL: $bannerURL,
+                                               nostrAddress: $nostrAddress,
+                                               isBot: $isBot,
+                                               lud06: $lud06,
+                                               lud16: $lud16)
                 }
             }
             .navigationTitle("Settings")
@@ -151,61 +154,9 @@ private struct SettingsView: View {
     private var profileCard: some View {
             VStack(alignment: .leading, spacing: 14) {
                 PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
-
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text("Public Key")
-                            .font(.caption2.weight(.bold))
-                            .foregroundColor(.primary)
-                        Spacer(minLength: 0)
-                        if let publicKeyHex {
-                            Text(publicKeyHex)
-                                .font(.caption.monospaced())
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.6)
-                                .allowsTightening(true)
-                        } else {
-                            Text("Enter a valid private key")
-                                .font(.caption)
-                                .foregroundColor(.primary)
-                        }
-                    }
-
-                    if let metadata = metadataLoader.metadata {
-                        if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
-                            Text(title)
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                        }
-
-                        if let nostrAddress = metadata.nostrAddress {
-                            Text(nostrAddress)
-                                .font(.caption)
-                                .foregroundColor(.primary)
-                        }
-
-                        if let about = metadata.about, !about.isEmpty {
-                            Text(about)
-                                .font(.caption)
-                                .foregroundColor(.primary)
-                                .lineLimit(3)
-                        }
-
-                        if let website = metadata.websiteURL?.absoluteString {
-                            Text(website)
-                                .font(.caption.monospaced())
-                                .foregroundColor(.primary)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.6)
-                                .allowsTightening(true)
-                        }
-                    } else {
-                        Text("Profile preview appears after a valid private key is entered.")
-                            .font(.caption)
-                            .foregroundColor(.primary)
-                    }
-                }
+                SettingsProfileSummaryView(metadata: metadataLoader.metadata,
+                                          publicKeyHex: publicKeyHex,
+                                          titleLineLimit: titleLineLimit)
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
@@ -230,16 +181,16 @@ private struct SettingsView: View {
     }
 
     private func apply(metadata: MetadataEvent) {
-            name = metadata.name ?? ""
-            displayName = metadata.displayName ?? ""
-            about = metadata.about ?? ""
-            website = metadata.websiteURL?.absoluteString ?? ""
-            pictureURL = metadata.pictureURL?.absoluteString ?? ""
-            bannerURL = metadata.bannerPictureURL?.absoluteString ?? ""
-            nostrAddress = metadata.nostrAddress ?? ""
+            name = metadata.name ?? "metadata.name"
+            displayName = metadata.displayName ?? "metadata.displayName"
+            about = metadata.about ?? "metadata.about"
+            website = metadata.websiteURL?.absoluteString ?? "metadata.websiteURL?.absoluteString"
+            pictureURL = metadata.pictureURL?.absoluteString ?? "metadata.pictureURL?.absoluteString"
+            bannerURL = metadata.bannerPictureURL?.absoluteString ?? "metadata.bannerPictureURL?.absoluteString"
+            nostrAddress = metadata.nostrAddress ?? "metadata.nostrAddress"
             isBot = metadata.isBot ?? false
-            lud06 = metadata.lightningURLString ?? ""
-            lud16 = metadata.lightningAddress ?? ""
+            lud06 = metadata.lightningURLString ?? "metadata.lightningURLString"
+            lud16 = metadata.lightningAddress ?? "metadata.lightningAddress"
     }
 
     private func labeledTextField(_ label: String, text: Binding<String>, prompt: String) -> some View {
@@ -290,5 +241,197 @@ private struct SettingsView: View {
                     .foregroundColor(.primary)
                     .textSelection(.enabled)
             }
+    }
+}
+
+private struct SettingsMetadataEditorView: View {
+    @Binding var name: String
+    @Binding var displayName: String
+    @Binding var about: String
+    @Binding var website: String
+    @Binding var pictureURL: String
+    @Binding var bannerURL: String
+    @Binding var nostrAddress: String
+    @Binding var isBot: Bool
+    @Binding var lud06: String
+    @Binding var lud16: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ResponsiveTextFieldRow(label: "Name", text: $name, prompt: "name")
+            ResponsiveTextFieldRow(label: "Display Name", text: $displayName, prompt: "display name")
+            ResponsiveTextEditorRow(label: "About", text: $about, prompt: "about")
+            ResponsiveTextFieldRow(label: "Website", text: $website, prompt: "https://...")
+            ResponsiveTextFieldRow(label: "Picture URL", text: $pictureURL, prompt: "https://...")
+            ResponsiveTextFieldRow(label: "Banner URL", text: $bannerURL, prompt: "https://...")
+            ResponsiveTextFieldRow(label: "NIP-05", text: $nostrAddress, prompt: "name@example.com")
+            ResponsiveToggleRow(label: "Bot", isOn: $isBot)
+            ResponsiveTextFieldRow(label: "LUD-06", text: $lud06, prompt: "lnurl...")
+            ResponsiveTextFieldRow(label: "LUD-16", text: $lud16, prompt: "name@domain.com")
+        }
+    }
+}
+
+private struct ResponsiveTextFieldRow: View {
+    let label: String
+    @Binding var text: String
+    let prompt: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    Text(label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 120, alignment: .leading)
+                    TextField(prompt, text: $text)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.primary)
+                    TextField(prompt, text: $text)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+            }
+        }
+    }
+}
+
+private struct ResponsiveTextEditorRow: View {
+    let label: String
+    @Binding var text: String
+    let prompt: String
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top, spacing: 12) {
+                    Text(label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 120, alignment: .leading)
+                    editor
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                    Text(label)
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.primary)
+                    editor
+            }
+        }
+    }
+
+    private var editor: some View {
+        TextEditor(text: $text)
+            .frame(minHeight: 88)
+            .padding(6)
+            .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Color(.separator).opacity(0.15))
+            )
+            .overlay(
+                    Group {
+                        if text.isEmpty {
+                            Text(prompt)
+                                .foregroundColor(.primary)
+                                .padding(.leading, 12)
+                                .padding(.top, 14)
+                        }
+                    },
+                    alignment: .topLeading
+            )
+    }
+}
+
+private struct ResponsiveToggleRow: View {
+    let label: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        HStack {
+            Text(label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.primary)
+            Spacer(minLength: 0)
+            Toggle("", isOn: $isOn)
+                    .labelsHidden()
+                    .tint(.accentColor)
+        }
+    }
+}
+
+private struct SettingsProfileSummaryView: View {
+    let metadata: MetadataEvent?
+    let publicKeyHex: String?
+    let titleLineLimit: Int
+
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var aboutLineLimit: Int {
+        horizontalSizeClass == .compact ? 2 : 3
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("Public Key")
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.primary)
+                    Spacer(minLength: 0)
+                    if let publicKeyHex {
+                        Text(publicKeyHex)
+                            .font(.caption.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                            .allowsTightening(true)
+                    } else {
+                        Text("Enter a valid private key")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                    }
+            }
+
+            if let metadata {
+                    if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
+                        Text(title)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                            .lineLimit(titleLineLimit)
+                    }
+
+                    if let nostrAddress = metadata.nostrAddress {
+                        Text(nostrAddress)
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                    }
+
+                    if let about = metadata.about, !about.isEmpty {
+                        Text(about)
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                            .lineLimit(aboutLineLimit)
+                    }
+
+                    if let website = metadata.websiteURL?.absoluteString {
+                        Text(website)
+                            .font(.caption.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                            .allowsTightening(true)
+                    }
+            } else {
+                    Text("Profile preview appears after a valid private key is entered.")
+                        .font(.caption)
+                        .foregroundColor(.primary)
+            }
+        }
     }
 }
