@@ -162,16 +162,73 @@ private struct SettingsView: View {
     }
 
     private var profileCard: some View {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
 
-                if let publicKeyHex {
-                    labeledValue("Profile Key", value: publicKeyHex)
-                } else {
-                    Text("Profile preview appears after a valid private key is entered.")
-                        .font(.caption)
-                        .foregroundColor(.primary)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text("Public Key")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.primary)
+                        Spacer(minLength: 0)
+                        if let publicKeyHex {
+                            Text(publicKeyHex)
+                                .font(.caption.monospaced())
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                                .allowsTightening(true)
+                        } else {
+                            Text("Enter a valid private key")
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                        }
+                    }
+
+                    if let metadata = metadataLoader.metadata {
+                        if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
+                            Text(title)
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                        }
+
+                        if let nostrAddress = metadata.nostrAddress {
+                            Text(nostrAddress)
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                        }
+
+                        if let about = metadata.about, !about.isEmpty {
+                            Text(about)
+                                .font(.caption)
+                                .foregroundColor(.primary)
+                                .lineLimit(3)
+                        }
+
+                        if let website = metadata.websiteURL?.absoluteString {
+                            Text(website)
+                                .font(.caption.monospaced())
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                                .allowsTightening(true)
+                        }
+                    } else {
+                        Text("Profile preview appears after a valid private key is entered.")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                    }
                 }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(.secondarySystemBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color(.separator).opacity(0.15))
+                )
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)

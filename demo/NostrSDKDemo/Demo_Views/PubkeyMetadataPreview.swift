@@ -130,25 +130,39 @@ struct PubkeyMetadataPreviewView: View {
     let metadata: MetadataEvent?
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            ZStack {
-                Circle()
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack(alignment: .bottomLeading) {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color(.tertiarySystemFill))
+                    .frame(height: 124)
 
-                if let pictureURL = metadata?.pictureURL {
-                    CachedRemoteImageView(url: pictureURL)
-                } else {
-                    Image("GnostrIcon")
-                        .resizable()
-                        .scaledToFit()
-                        .padding(12)
+                if let bannerPictureURL = metadata?.bannerPictureURL {
+                    CachedRemoteImageView(url: bannerPictureURL)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 124)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
-            }
-            .frame(width: 56, height: 56)
-            .clipShape(Circle())
-            .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
 
-            VStack(alignment: .leading, spacing: 2) {
+                ZStack {
+                    Circle()
+                        .fill(Color(.secondarySystemBackground))
+
+                    if let pictureURL = metadata?.pictureURL {
+                        CachedRemoteImageView(url: pictureURL)
+                    } else {
+                        Image("GnostrIcon")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(12)
+                    }
+                }
+                .frame(width: 56, height: 56)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
+                .padding(12)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
                 if let metadata {
                     if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
                         Text(title)
@@ -163,6 +177,7 @@ struct PubkeyMetadataPreviewView: View {
                     }
                 }
             }
+            .padding(.horizontal, 2)
         }
     }
 }
