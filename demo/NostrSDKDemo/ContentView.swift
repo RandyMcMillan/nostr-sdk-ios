@@ -131,6 +131,7 @@ private struct SettingsView: View {
                             labeledTextField("Banner URL", text: $bannerURL, prompt: "https://...")
                             labeledTextField("NIP-05", text: $nostrAddress, prompt: "name@example.com")
                             Toggle("Bot", isOn: $isBot)
+                                .controlSize(.small)
                                 .tint(.accentColor)
                                 .foregroundColor(.primary)
                             labeledTextField("LUD-06", text: $lud06, prompt: "lnurl...")
@@ -143,6 +144,7 @@ private struct SettingsView: View {
                     }
                 }
                 .padding()
+                .controlSize(.small)
             }
             .navigationTitle("Settings")
             .onAppear {
