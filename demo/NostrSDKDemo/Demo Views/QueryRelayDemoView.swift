@@ -134,6 +134,10 @@ private struct EventCardView: View {
         values(for: "maintainers").first
     }
 
+    private var isPatch: Bool {
+        event.kind.rawValue == 1617
+    }
+
     private var cardTags: [TagItem] {
         [
             tagItem(label: "Repo", value: repoID),
@@ -157,7 +161,7 @@ private struct EventCardView: View {
                 .frame(width: 72)
                 .frame(maxHeight: .infinity, alignment: .top)
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("ID: \(event.id)")
                         .font(.system(size: 13, weight: .semibold, design: .monospaced))
@@ -172,6 +176,18 @@ private struct EventCardView: View {
                     Text(title)
                         .font(titleFont)
                         .padding(.top, 1)
+                }
+
+                if isPatch {
+                    Text("PATCH")
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(Color.accentColor.opacity(0.18))
+                        )
                 }
 
                 if let subtitle {
@@ -198,8 +214,18 @@ private struct EventCardView: View {
 
                 if !event.content.isEmpty {
                     Text(event.content)
-                        .font(.body)
-                        .lineLimit(4)
+                        .font(isPatch ? .callout.monospaced() : .body)
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color(.tertiarySystemFill))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color(.separator).opacity(isPatch ? 0.2 : 0.12))
+                        )
+                        .lineLimit(isPatch ? 6 : 4)
                 }
 
                 if let cloneURL {
@@ -224,11 +250,11 @@ private struct EventCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+                .fill(isPatch ? Color.accentColor.opacity(0.08) : Color(.secondarySystemBackground))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color(.separator).opacity(0.15))
+                .stroke(isPatch ? Color.accentColor.opacity(0.35) : Color(.separator).opacity(0.15))
         )
     }
 
@@ -331,6 +357,10 @@ private struct EventDetailView: View {
         values(for: "maintainers").first
     }
 
+    private var isPatch: Bool {
+        event.kind.rawValue == 1617
+    }
+
     private var detailTags: [TagItem] {
         [
             tagItem(label: "Repo", value: repoID),
@@ -357,6 +387,18 @@ private struct EventDetailView: View {
                         Text(title)
                             .font(.headline)
 
+                        if isPatch {
+                            Text("PATCH")
+                                .font(.caption2.weight(.bold))
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule(style: .continuous)
+                                        .fill(Color.accentColor.opacity(0.18))
+                                )
+                        }
+
                         if let nostrAddress = metadata?.nostrAddress {
                             Text(nostrAddress)
                                 .font(.caption)
@@ -373,11 +415,17 @@ private struct EventDetailView: View {
 
                 if !event.content.isEmpty {
                     Text(event.content)
-                        .font(.body)
+                        .font(isPatch ? .callout.monospaced() : .body)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color(.tertiarySystemFill))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color(.separator).opacity(0.12))
+                        )
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -386,6 +434,9 @@ private struct EventDetailView: View {
                     Text("Kind: \(event.kind.rawValue)")
                     if let repoID {
                         Text("Repository: \(repoID)")
+                    }
+                    if isPatch {
+                        Text("Patch event")
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("Clone:")
