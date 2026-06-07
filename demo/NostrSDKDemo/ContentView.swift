@@ -99,52 +99,37 @@ private struct SettingsView: View {
     }
 
     var body: some View {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+            Form {
+                Section("Profile") {
                     profileCard
+                }
 
-                    GroupBox {
-                        VStack(alignment: .leading, spacing: 12) {
-                            labeledTextField("Private Key", text: $privateKeyInput, prompt: "nsec or hex")
+                Section("Key") {
+                    labeledTextField("Private Key", text: $privateKeyInput, prompt: "nsec or hex")
 
-                            if let publicKeyHex {
-                                labeledValue("Public Key", value: publicKeyHex)
-                            } else {
-                                Text("Enter a valid private key to load profile metadata.")
-                                    .font(.caption)
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                    } label: {
-                        Text("Key")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                    }
-
-                    GroupBox {
-                        VStack(alignment: .leading, spacing: 12) {
-                            labeledTextField("Name", text: $name, prompt: "name")
-                            labeledTextField("Display Name", text: $displayName, prompt: "display name")
-                            labeledTextEditor("About", text: $about, prompt: "about")
-                            labeledTextField("Website", text: $website, prompt: "https://...")
-                            labeledTextField("Picture URL", text: $pictureURL, prompt: "https://...")
-                            labeledTextField("Banner URL", text: $bannerURL, prompt: "https://...")
-                            labeledTextField("NIP-05", text: $nostrAddress, prompt: "name@example.com")
-                            Toggle("Bot", isOn: $isBot)
-                                .controlSize(.small)
-                                .tint(.accentColor)
-                                .foregroundColor(.primary)
-                            labeledTextField("LUD-06", text: $lud06, prompt: "lnurl...")
-                            labeledTextField("LUD-16", text: $lud16, prompt: "name@domain.com")
-                        }
-                    } label: {
-                        Text("User Metadata")
-                            .font(.headline)
+                    if let publicKeyHex {
+                        labeledValue("Public Key", value: publicKeyHex)
+                    } else {
+                        Text("Enter a valid private key to load profile metadata.")
+                            .font(.caption)
                             .foregroundColor(.primary)
                     }
                 }
-                .padding()
-                .controlSize(.small)
+
+                Section("User Metadata") {
+                    labeledTextField("Name", text: $name, prompt: "name")
+                    labeledTextField("Display Name", text: $displayName, prompt: "display name")
+                    labeledTextEditor("About", text: $about, prompt: "about")
+                    labeledTextField("Website", text: $website, prompt: "https://...")
+                    labeledTextField("Picture URL", text: $pictureURL, prompt: "https://...")
+                    labeledTextField("Banner URL", text: $bannerURL, prompt: "https://...")
+                    labeledTextField("NIP-05", text: $nostrAddress, prompt: "name@example.com")
+                    Toggle("Bot", isOn: $isBot)
+                        .tint(.accentColor)
+                        .foregroundColor(.primary)
+                    labeledTextField("LUD-06", text: $lud06, prompt: "lnurl...")
+                    labeledTextField("LUD-16", text: $lud16, prompt: "name@domain.com")
+                }
             }
             .navigationTitle("Settings")
             .onAppear {
@@ -232,16 +217,7 @@ private struct SettingsView: View {
                         .stroke(Color(.separator).opacity(0.15))
                 )
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(.secondarySystemBackground))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(Color(.separator).opacity(0.15))
-            )
+            .padding(.vertical, 4)
     }
 
     private func refreshMetadata() {
