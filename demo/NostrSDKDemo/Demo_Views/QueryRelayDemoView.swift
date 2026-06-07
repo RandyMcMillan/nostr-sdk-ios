@@ -157,7 +157,7 @@ private struct EventCardView: View {
                 .frame(width: 72)
                 .frame(maxHeight: .infinity, alignment: .top)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text("ID: \(event.id)")
                         .font(.system(size: 13, weight: .semibold, design: .monospaced))
@@ -171,6 +171,7 @@ private struct EventCardView: View {
                 if let title {
                     Text(title)
                         .font(titleFont)
+                        .padding(.top, 1)
                 }
 
                 if let subtitle {
@@ -209,11 +210,12 @@ private struct EventCardView: View {
                 }
 
                 if cardTags.isEmpty == false {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         ForEach(cardTags, id: \.self) { item in
                             TagChipView(label: item.label, value: item.value)
                         }
                     }
+                    .padding(.top, 2)
                 }
             }
 
@@ -530,8 +532,8 @@ private struct TagChipView: View {
                     .multilineTextAlignment(.leading)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
