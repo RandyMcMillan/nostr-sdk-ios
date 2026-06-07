@@ -188,11 +188,7 @@ private struct EventCardView: View {
                 }
 
                 if cardTags.isEmpty == false {
-                    LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 88), spacing: 8, alignment: .leading)],
-                        alignment: .leading,
-                        spacing: 8
-                    ) {
+                    VStack(alignment: .leading, spacing: 8) {
                         ForEach(cardTags, id: \.self) { item in
                             TagChipView(label: item.label, value: item.value)
                         }
@@ -419,11 +415,7 @@ private struct EventDetailView: View {
                         Text("Tags")
                             .font(.headline)
 
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 120), spacing: 8, alignment: .leading)],
-                            alignment: .leading,
-                            spacing: 8
-                        ) {
+                        VStack(alignment: .leading, spacing: 8) {
                             ForEach(detailTags, id: \.self) { item in
                                 TagChipView(label: item.label, value: item.value)
                             }
@@ -512,14 +504,17 @@ private struct TagChipView: View {
     let value: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(label.uppercased())
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text("\(label):")
                 .font(.caption2.weight(.semibold))
                 .foregroundColor(.secondary)
+
             Text(value)
                 .font(.caption.monospaced())
                 .foregroundColor(.primary)
-                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
+                .layoutPriority(1)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
