@@ -691,24 +691,26 @@ struct QueryRelayDemoView: View {
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
 
-                Picker("Kind", selection: $selectedKind) {
-                    ForEach(kindOptions.keys.sorted(), id: \.self) { number in
-                        if let name = kindOptions[number] {
-                            Text("\(name) (\(String(number)))")
-                        } else {
-                            Text("\(String(number))")
+                HStack(alignment: .center, spacing: 12) {
+                    Picker("Kind", selection: $selectedKind) {
+                        ForEach(kindOptions.keys.sorted(), id: \.self) { number in
+                            if let name = kindOptions[number] {
+                                Text("\(name) (\(String(number)))")
+                            } else {
+                                Text("\(String(number))")
+                            }
                         }
                     }
-                }
-                .pickerStyle(.menu)
+                    .pickerStyle(.menu)
 
-                Button {
-                    updateSubscription()
-                } label: {
-                    Text("Query")
+                    Button {
+                        updateSubscription()
+                    } label: {
+                        Text("Query")
+                            .frame(minWidth: 72)
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.borderedProminent)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(.horizontal)
             .padding(.top, 4)
