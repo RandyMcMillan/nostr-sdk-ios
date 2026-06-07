@@ -214,7 +214,7 @@ private struct EventCardView: View {
 
                 if !event.content.isEmpty {
                     Text(event.content)
-                        .font(isPatch ? .callout.monospaced() : .body)
+                        .font(.callout.monospaced())
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
@@ -223,9 +223,9 @@ private struct EventCardView: View {
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color(.separator).opacity(isPatch ? 0.2 : 0.12))
+                                .stroke(Color(.separator).opacity(0.12))
                         )
-                        .lineLimit(isPatch ? 6 : 4)
+                        .lineLimit(6)
                 }
 
                 if let cloneURL {
@@ -250,11 +250,11 @@ private struct EventCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(isPatch ? Color.accentColor.opacity(0.08) : Color(.secondarySystemBackground))
+                .fill(Color(.secondarySystemBackground))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(isPatch ? Color.accentColor.opacity(0.35) : Color(.separator).opacity(0.15))
+                .stroke(Color(.separator).opacity(0.15))
         )
     }
 
@@ -415,7 +415,7 @@ private struct EventDetailView: View {
 
                 if !event.content.isEmpty {
                     Text(event.content)
-                        .font(isPatch ? .callout.monospaced() : .body)
+                        .font(.callout.monospaced())
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
@@ -434,9 +434,6 @@ private struct EventDetailView: View {
                     Text("Kind: \(event.kind.rawValue)")
                     if let repoID {
                         Text("Repository: \(repoID)")
-                    }
-                    if isPatch {
-                        Text("Patch event")
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("Clone:")
