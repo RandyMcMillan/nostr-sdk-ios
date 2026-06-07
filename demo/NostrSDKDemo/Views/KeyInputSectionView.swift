@@ -25,14 +25,28 @@ struct KeyInputSectionView: View {
     @Binding var isValid: Bool
 
     var type: KeyType
+    @State private var isRevealed = false
 
     var body: some View {
         HStack {
             if type == .private {
-                SecureField(type.label, text: $key)
-                    .font(.system(size: 16, weight: .regular, design: .monospaced))
-                    .autocapitalization(.none)
-                    .autocorrectionDisabled()
+                Group {
+                    if isRevealed {
+                        TextField(type.label, text: $key)
+                    } else {
+                        SecureField(type.label, text: $key)
+                    }
+                }
+                .font(.system(size: 16, weight: .regular, design: .monospaced))
+                .autocapitalization(.none)
+                .autocorrectionDisabled()
+                Button {
+                    isRevealed.toggle()
+                } label: {
+                    Image(systemName: isRevealed ? "eye.slash" : "eye")
+                        .foregroundColor(.primary)
+                }
+                .buttonStyle(.plain)
             } else {
                 TextField(type.label, text: $key)
                     .font(.system(size: 16, weight: .regular, design: .monospaced))
