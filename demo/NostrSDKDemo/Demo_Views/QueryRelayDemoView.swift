@@ -187,14 +187,6 @@ private struct EventCardView: View {
                         .lineLimit(1)
                 }
 
-                if cardTags.isEmpty == false {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ForEach(cardTags, id: \.self) { item in
-                            TagChipView(label: item.label, value: item.value)
-                        }
-                    }
-                }
-
                 HStack(spacing: 8) {
                     Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
                     Text("•")
@@ -214,6 +206,14 @@ private struct EventCardView: View {
                         .font(.caption)
                         .foregroundColor(.primary)
                         .lineLimit(1)
+                }
+
+                if cardTags.isEmpty == false {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(cardTags, id: \.self) { item in
+                            TagChipView(label: item.label, value: item.value)
+                        }
+                    }
                 }
             }
 
