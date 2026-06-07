@@ -194,8 +194,21 @@ struct PubkeyMetadataPreviewView: View {
                 }
                 .padding(.horizontal, 2)
             }
-            .frame(width: proxy.size.width, alignment: .leading)
+            .frame(width: proxy.size.width, height: 128.0*2, alignment: .leading)
+            .onAppear {
+                logDimensions(size: proxy.size, bannerHeight: bannerHeight)
+            }
+            .onChange(of: proxy.size.width) { _ in
+                logDimensions(size: proxy.size, bannerHeight: bannerHeight)
+            }
+            .onChange(of: proxy.size.height) { _ in
+                logDimensions(size: proxy.size, bannerHeight: bannerHeight)
+            }
         }
+    }
+
+    private func logDimensions(size: CGSize, bannerHeight: CGFloat) {
+        print("[PubkeyMetadataPreview] size=\(size) bannerHeight=\(bannerHeight)")
     }
 }
 
