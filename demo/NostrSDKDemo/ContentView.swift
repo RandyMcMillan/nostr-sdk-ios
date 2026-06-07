@@ -205,10 +205,17 @@ private struct SettingsView: View {
                 Text(label)
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
-                TextField(prompt, text: text)
-                    .textFieldStyle(.roundedBorder)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                if label.contains("Private Key") {
+                    SecureField(prompt, text: text)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                } else {
+                    TextField(prompt, text: text)
+                        .textFieldStyle(.roundedBorder)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                }
             }
     }
 
