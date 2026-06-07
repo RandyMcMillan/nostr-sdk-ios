@@ -29,13 +29,13 @@ struct GenerateKeyDemoView: View {
             Section("Private Key") {
                 Text(privateKey ?? noValueString)
             }
-            Section("Public Key") {
+            Section("32:Public Key") {
                 Text(publicKey ?? noValueString)
             }
-            Section("nsec") {
+            Section("35:nsec") {
                 Text(nsec ?? noValueString)
             }
-            Section("npub") {
+            Section("38:npub") {
                 Text(npub ?? noValueString)
             }
         }
