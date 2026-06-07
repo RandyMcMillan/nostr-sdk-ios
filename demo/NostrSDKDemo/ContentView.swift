@@ -105,23 +105,28 @@ private struct SettingsView: View {
 
     var body: some View {
             Form {
-                Section("Profile") {
-                    profileCard
-                }
+                //Section("SettingsView:108:") { //Profile leave blank
+                    //Spacer(minLength: 0)
+                    //profileCard
+                    //profileCard.frame(minHeight: 320)//how to make height greater?
 
-                Section("Key") {
-                    labeledTextField("Private Key", text: $privateKeyInput, prompt: "nsec or hex")
+                  //  Spacer(minLength: 0)
+                //}
+
+                Section("SettingsView:112:") { //Key leave blank
+                    labeledTextField("SettingsView:113:Private Key", text: $privateKeyInput, prompt: "nsec or hex")
 
                     if let publicKeyHex {
-                        labeledValue("Public Key", value: publicKeyHex)
+                        labeledValue("SettingsView:116:Public Key", value: publicKeyHex)
                     } else {
                         Text("Enter a valid private key to load profile metadata.")
                             .font(.caption)
                             .foregroundColor(.primary)
                     }
                 }
+                profileCard.frame(minHeight: 320)//how to make height greater?
 
-                Section("User Metadata") {
+                Section("SettingsView:124:User Metadata") {
                     SettingsMetadataEditorView(name: $name,
                                                displayName: $displayName,
                                                about: $about,
@@ -134,7 +139,7 @@ private struct SettingsView: View {
                                                lud16: $lud16)
                 }
             }
-            .navigationTitle("Settings")
+            //.navigationTitle("SettingsView:137") //leave blank
             .onAppear {
                 metadataLoader.attach(relayPool: relayPool)
                 refreshMetadata()
@@ -152,23 +157,25 @@ private struct SettingsView: View {
     }
 
     private var profileCard: some View {
-            VStack(alignment: .leading, spacing: 14) {
-                PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
-                SettingsProfileSummaryView(metadata: metadataLoader.metadata,
-                                          publicKeyHex: publicKeyHex,
-                                          titleLineLimit: titleLineLimit)
-                .padding(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color(.secondarySystemBackground))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color(.separator).opacity(0.15))
-                )
+            VStack(alignment: .leading, spacing: 0) {
+                //Spacer(minLength: 0)
+                PubkeyMetadataPreviewView(metadata: metadataLoader.metadata) //includes banner view
+                //Spacer(minLength: 0)
+                //SettingsProfileSummaryView(metadata: metadataLoader.metadata,
+                //                          publicKeyHex: publicKeyHex,
+                //                          titleLineLimit: titleLineLimit)
+                //.padding(0)
+                //.frame(maxWidth: .infinity, alignment: .leading)
+                //.background(
+                //    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                //        .fill(Color(.secondarySystemBackground))
+                //)
+                //.overlay(
+                //    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                //        .stroke(Color(.separator).opacity(0.15))
+                //)
             }
-            .padding(.vertical, 4)
+            //.padding(.vertical, 4)
     }
 
     private func refreshMetadata() {
@@ -379,24 +386,25 @@ private struct SettingsProfileSummaryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text("Public Key")
-                        .font(.caption2.weight(.bold))
-                        .foregroundColor(.primary)
-                    Spacer(minLength: 0)
-                    if let publicKeyHex {
-                        Text(publicKeyHex)
-                            .font(.caption.monospaced())
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.6)
-                            .allowsTightening(true)
-                    } else {
-                        Text("Enter a valid private key")
-                            .font(.caption)
-                            .foregroundColor(.primary)
-                    }
-            }
+            Spacer(minLength: 0)
+            //HStack(alignment: .firstTextBaseline, spacing: 8) {
+            //        Text("383:Public Key")
+            //            .font(.caption2.weight(.bold))
+            //            .foregroundColor(.primary)
+            //        Spacer(minLength: 0)
+            //        if let publicKeyHex {
+            //            Text(publicKeyHex)
+            //                .font(.caption.monospaced())
+            //                .foregroundColor(.primary)
+            //                .lineLimit(1)
+            //                .minimumScaleFactor(0.6)
+            //                .allowsTightening(true)
+            //        } else {
+            //            Text("Enter a valid private key")
+            //                .font(.caption)
+            //                .foregroundColor(.primary)
+            //        }
+            //}
 
             if let metadata {
                     if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
