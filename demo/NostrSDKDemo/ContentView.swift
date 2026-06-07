@@ -43,6 +43,9 @@ struct ContentView: View {
                     ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
                                    imageName: "checkmark.seal",
                                    labelText: "NIP-05")
+                    ListOptionView(destinationView: AnyView(SettingsView()),
+                                   imageName: "gearshape",
+                                   labelText: "Settings")
                 }
             }
             .navigationTitle("NIP-0034 Viewer")
@@ -55,5 +58,12 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+private struct SettingsView: View {
+    var body: some View {
+        Text("Settings")
+            .navigationTitle("Settings")
     }
 }
