@@ -692,6 +692,16 @@ struct QueryRelayDemoView: View {
                 .autocorrectionDisabled()
 
                 HStack(alignment: .center, spacing: 12) {
+                    Button {
+                        updateSubscription()
+                    } label: {
+                        Text("Query")
+                            .frame(minWidth: 72)
+                    }
+                    .buttonStyle(.borderedProminent)
+
+                    Spacer(minLength: 0)
+
                     Picker("Kind", selection: $selectedKind) {
                         ForEach(kindOptions.keys.sorted(), id: \.self) { number in
                             if let name = kindOptions[number] {
@@ -702,14 +712,6 @@ struct QueryRelayDemoView: View {
                         }
                     }
                     .pickerStyle(.menu)
-
-                    Button {
-                        updateSubscription()
-                    } label: {
-                        Text("Query")
-                            .frame(minWidth: 72)
-                    }
-                    .buttonStyle(.borderedProminent)
                 }
             }
             .padding(.horizontal)
