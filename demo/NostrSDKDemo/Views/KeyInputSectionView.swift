@@ -13,8 +13,8 @@ enum KeyType {
     case `private`
     var label: String {
         switch self {
-        case .public: return "Public Key"
-        case .private: return "Private Key"
+        case .public: return "16:Public Key"
+        case .private: return "17:Private Key"
         }
     }
 }
@@ -81,7 +81,7 @@ struct KeyInputSectionView: View {
 struct KeyInputSectionView_Previews: PreviewProvider {
     static var previews: some View {
         Form {
-            Section("Public") {
+            Section("84:Public") {
                 KeyInputSectionView(key: DemoHelper.emptyString,
                                     isValid: Binding.constant(true),
                                     type: .public)
@@ -95,7 +95,7 @@ struct KeyInputSectionView_Previews: PreviewProvider {
                                     isValid: Binding.constant(false),
                                     type: .public)
             }
-            Section("Private") {
+            Section("98:Private") {
                 KeyInputSectionView(key: DemoHelper.emptyString,
                                     isValid: Binding.constant(true),
                                     type: .private)
