@@ -43,10 +43,21 @@ struct ContentView: View {
                     ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
                                    imageName: "checkmark.seal",
                                    labelText: "NIP-05")
-                    ListOptionView(destinationView: AnyView(SettingsView()),
-                                   imageName: "gearshape",
-                                   labelText: "Settings")
                 }
+                NavigationLink(destination: SettingsView()) {
+                    Label("Settings", systemImage: "gearshape")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                }
+                .buttonStyle(.plain)
+                .background(Color(.secondarySystemBackground))
+                .overlay(
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundColor(Color(.separator).opacity(0.15)),
+                    alignment: .top
+                )
             }
             .navigationTitle("NIP-0034 Viewer")
             .navigationBarTitleDisplayMode(.inline)
