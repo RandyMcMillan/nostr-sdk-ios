@@ -139,12 +139,25 @@ private struct EventCardView: View {
     }
 
     private var cardTags: [TagItem] {
-        [
+        let primaryTags: [TagItem?] = [
             tagItem(label: "Repo", value: repoID),
+            tagItem(label: "Name", value: tagValue("name")),
+            tagItem(label: "Description", value: tagValue("description")),
             tagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
-            tagItem(label: "Web", value: shortDisplayValue(webURL))
+            tagItem(label: "Web", value: shortDisplayValue(webURL)),
+            tagItem(label: "Relays", value: relaysText),
+            tagItem(label: "Maintainers", value: maintainersText),
+            tagItem(label: "Alt", value: tagValue("alt"))
         ]
-        .compactMap { $0 }
+
+        let primaryLabels = Set(primaryTags.compactMap { $0?.label.lowercased() })
+        let extraTags = event.tags.compactMap { tag -> TagItem? in
+            let label = tag.name.capitalized
+            guard primaryLabels.contains(label.lowercased()) == false else { return nil }
+            return tagItem(label: label, value: tag.value)
+        }
+
+        return (primaryTags.compactMap { $0 } + extraTags).prefix(8).map { $0 }
     }
 
     private var titleFont: Font {
@@ -204,13 +217,21 @@ private struct EventCardView: View {
                         .lineLimit(1)
                 }
 
-                HStack(spacing: 8) {
+                HStack(alignment: .center, spacing: 8) {
                     Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
-                    Text("•")
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(Color.accentColor.opacity(0.12))
+                        )
                     Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
+                        .font(.caption)
+                        .foregroundColor(.primary)
+                    Spacer(minLength: 0)
                 }
-                .font(.caption)
-                .foregroundColor(.primary)
 
                 if !event.content.isEmpty {
                     Text(event.content)
@@ -413,52 +434,90 @@ private struct EventDetailView: View {
                     }
                 }
 
-                if !event.content.isEmpty {
-                    Text(event.content)
-                        .font(.callout.monospaced())
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(Color(.tertiarySystemFill))
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color(.separator).opacity(0.12))
-                        )
-                }
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text("ID")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.primary)
+                        Text(event.id)
+                            .font(.caption.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                            .allowsTightening(true)
+                    }
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("ID: \(event.id)")
-                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                    Text("Kind: \(event.kind.rawValue)")
+                    HStack(alignment: .center, spacing: 8) {
+                        Text("Kind \(event.kind.rawValue, format: .number.grouping(.never))")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(Color.accentColor.opacity(0.12))
+                            )
+                        Text(event.createdDate.formatted(date: .long, time: .shortened))
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                        Spacer(minLength: 0)
+                    }
+
                     if let repoID {
                         Text("Repository: \(repoID)")
+                            .font(.body.monospaced())
+                            .foregroundColor(.primary)
                     }
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("Clone:")
-                        Text(cloneURL ?? "—")
-                            .layoutPriority(1)
+
+                    if !event.content.isEmpty {
+                        Text(event.content)
+                            .font(.callout.monospaced())
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(Color(.tertiarySystemFill))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(Color(.separator).opacity(0.12))
+                            )
                     }
-                    .font(.body.monospaced())
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .allowsTightening(true)
-                    .fixedSize(horizontal: true, vertical: false)
+
+                    if let cloneURL {
+                        Text("Clone: \(cloneURL)")
+                            .font(.body.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
+                            .allowsTightening(true)
+                    }
                     if let webURL {
                         Text("Web: \(webURL)")
+                            .font(.body)
+                            .foregroundColor(.primary)
                     }
                     if let relaysText {
                         Text("Relays: \(relaysText)")
+                            .font(.body)
+                            .foregroundColor(.primary)
                     }
                     if let maintainersText {
                         Text("Maintainers: \(maintainersText)")
+                            .font(.body)
+                            .foregroundColor(.primary)
                     }
-                    Text("Created At: \(event.createdDate.formatted(date: .long, time: .complete))")
                 }
-                .font(.body)
-                .foregroundColor(.primary)
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(.secondarySystemBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color(.separator).opacity(0.15))
+                )
 
                 if detailTags.isEmpty == false {
                     VStack(alignment: .leading, spacing: 8) {
