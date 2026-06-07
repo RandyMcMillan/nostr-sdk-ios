@@ -504,17 +504,31 @@ private struct TagChipView: View {
     let value: String
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
-            Text("\(label):")
-                .font(.caption2.weight(.semibold))
-                .foregroundColor(.secondary)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text("\(label):")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.primary)
 
-            Text(value)
-                .font(.caption.monospaced())
-                .foregroundColor(.primary)
-                .fixedSize(horizontal: false, vertical: true)
-                .multilineTextAlignment(.leading)
-                .layoutPriority(1)
+                Text(value)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .allowsTightening(true)
+                    .layoutPriority(1)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(label):")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundColor(.primary)
+                Text(value)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
+            }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
