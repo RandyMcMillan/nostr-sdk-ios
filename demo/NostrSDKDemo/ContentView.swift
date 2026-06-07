@@ -89,6 +89,7 @@ private struct SettingsView: View {
     @State private var lud06 = "lud06"
     @State private var lud16 = "lud16"
     @State private var populatedPubkey: String?
+    @State private var isPrivateKeyRevealed = false
 
     private var privateKey: PrivateKey? {
             let trimmed = privateKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -114,7 +115,11 @@ private struct SettingsView: View {
                 //}
 
                 Section("SettingsView:112:") { //Key leave blank
-                    labeledTextField("SettingsView:113:Private Key", text: $privateKeyInput, prompt: "nsec or hex")
+                    labeledTextField("SettingsView:113:Private Key",
+                                     text: $privateKeyInput,
+                                     prompt: "nsec or hex",
+                                     secure: true,
+                                     isRevealed: $isPrivateKeyRevealed)
 
                     if let publicKeyHex {
                         labeledValue("SettingsView:116:Public Key", value: publicKeyHex)
@@ -200,16 +205,36 @@ private struct SettingsView: View {
             lud16 = metadata.lightningAddress ?? "metadata.lightningAddress"
     }
 
-    private func labeledTextField(_ label: String, text: Binding<String>, prompt: String) -> some View {
+    private func labeledTextField(_ label: String,
+                                  text: Binding<String>,
+                                  prompt: String,
+                                  secure: Bool = false,
+                                  isRevealed: Binding<Bool> = .constant(false)) -> some View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(label)
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
-                if label.contains("Private Key") {
-                    SecureField(prompt, text: text)
+                if secure {
+                    HStack(spacing: 8) {
+                        Group {
+                            if isRevealed.wrappedValue {
+                                TextField(prompt, text: text)
+                            } else {
+                                SecureField(prompt, text: text)
+                            }
+                        }
                         .textFieldStyle(.roundedBorder)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+
+                        Button {
+                            isRevealed.wrappedValue.toggle()
+                        } label: {
+                            Image(systemName: isRevealed.wrappedValue ? "eye.slash" : "eye")
+                                .foregroundColor(.primary)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 } else {
                     TextField(prompt, text: text)
                         .textFieldStyle(.roundedBorder)
