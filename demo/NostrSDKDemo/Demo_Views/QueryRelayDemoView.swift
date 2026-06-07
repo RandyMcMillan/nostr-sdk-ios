@@ -176,14 +176,14 @@ private struct EventCardView: View {
                 if let subtitle {
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.primary)
                         .lineLimit(2)
                 }
 
                 if let repoID {
                     Text(repoID)
                         .font(.caption.monospaced())
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.primary)
                         .lineLimit(1)
                 }
 
@@ -201,7 +201,7 @@ private struct EventCardView: View {
                     Text(event.createdDate.formatted(date: .abbreviated, time: .shortened))
                 }
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.primary)
 
                 if !event.content.isEmpty {
                     Text(event.content)
@@ -212,7 +212,7 @@ private struct EventCardView: View {
                 if let cloneURL {
                     Text(cloneURL)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.primary)
                         .lineLimit(1)
                 }
             }
@@ -358,13 +358,13 @@ private struct EventDetailView: View {
                         if let nostrAddress = metadata?.nostrAddress {
                             Text(nostrAddress)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.primary)
                         }
 
                         if let about = metadata?.about, !about.isEmpty {
                             Text(about)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.primary)
                         }
                     }
                 }
@@ -575,7 +575,7 @@ struct QueryRelayDemoView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Author Public Key")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.primary)
                 TextField(text: $authorPubkey) {
                     Text("Author Public Key (HEX)")
                 }
@@ -611,7 +611,7 @@ struct QueryRelayDemoView: View {
                     if !authorPubkey.isEmpty {
                         Text("Showing events for \(authorPubkey)")
                             .font(.footnote)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.primary)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 16))
                             .listRowSeparator(.hidden)

@@ -158,7 +158,7 @@ struct PubkeyMetadataPreviewView: View {
                     if let about = metadata.about, !about.isEmpty {
                         Text(about)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.primary)
                             .lineLimit(2)
                     }
                 }
