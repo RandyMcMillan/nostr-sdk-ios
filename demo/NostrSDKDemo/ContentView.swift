@@ -97,12 +97,17 @@ struct SomeView_Previews: PreviewProvider {
 
 struct ContentView: View {
 
+    @EnvironmentObject private var relayPool: RelayPool
+    @EnvironmentObject private var identityStore: DemoIdentityStore
     @State private var relay: Relay?
     @State private var selectedDestination: SidebarDestination = .connectRelay
     @State private var orientation: AppOrientation = .landscape
 
     var body: some View {
         layout
+            .onAppear {
+                identityStore.attach(relayPool: relayPool)
+            }
             #if os(macOS)
             .background(MacKeyEventMonitor(orientation: $orientation))
             #endif
@@ -340,15 +345,17 @@ private enum SidebarDestination: String, CaseIterable, Identifiable {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(RelayPool(relays: []))
+            .environmentObject(DemoIdentityStore())
     }
 }
 
 private struct SettingsView: View {
     @EnvironmentObject private var relayPool: RelayPool
+    @EnvironmentObject private var identityStore: DemoIdentityStore
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @StateObject private var metadataLoader = PubkeyMetadataLoader()
 
-    @State private var privateKeyInput = DemoHelper.validHexPrivateKey.wrappedValue
     @State private var name = "name"
     @State private var displayName = "displayName"
     @State private var about = "about"
@@ -362,15 +369,6 @@ private struct SettingsView: View {
     @State private var populatedPubkey: String?
     @State private var isPrivateKeyRevealed = false
 
-    private var privateKey: PrivateKey? {
-            let trimmed = privateKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
-            return PrivateKey(nsec: trimmed) ?? PrivateKey(hex: trimmed)
-    }
-
-    private var publicKeyHex: String? {
-            privateKey.flatMap { Keypair(privateKey: $0)?.publicKey.hex }
-    }
-
     private var titleLineLimit: Int {
         horizontalSizeClass == .compact ? 1 : 2
     }
@@ -381,12 +379,12 @@ private struct SettingsView: View {
                 //Spacer(minLength: 1)
                 Section("") {
                     labeledTextField("111:Private Key",
-                                     text: $privateKeyInput,
+                                     text: $identityStore.privateKeyInput,
                                      prompt: "nsec or hex",
                                      secure: true,
                                      isRevealed: $isPrivateKeyRevealed)
                     
-                    if let publicKeyHex {
+                    if let publicKeyHex = identityStore.publicKeyHex {
                         labeledTextField("118:Public Key",
                                          text: .constant(publicKeyHex),
                                          prompt: "npub or hex",
@@ -423,12 +421,12 @@ private struct SettingsView: View {
                 metadataLoader.attach(relayPool: relayPool)
                 refreshMetadata()
             }
-            .onChange(of: privateKeyInput) { _ in
+            .onChange(of: identityStore.privateKeyInput) { _ in
                 populatedPubkey = nil
                 refreshMetadata()
             }
             .onReceive(metadataLoader.$metadata) { metadata in
-                guard let metadata, let publicKeyHex else { return }
+                guard let metadata, let publicKeyHex = identityStore.publicKeyHex else { return }
                 guard populatedPubkey != publicKeyHex else { return }
                 populatedPubkey = publicKeyHex
                 apply(metadata: metadata)
@@ -437,8 +435,8 @@ private struct SettingsView: View {
     }
 
     private func refreshMetadata() {
-            guard let publicKeyHex else {
-                metadataLoader.update(publicKeyInput: privateKeyInput, isValid: false)
+            guard let publicKeyHex = identityStore.publicKeyHex else {
+                metadataLoader.update(publicKeyInput: identityStore.privateKeyInput, isValid: false)
                 return
             }
 
