@@ -893,8 +893,16 @@ struct QueryRelayDemoView: View {
     }
 
     private func kindLabel(for kind: Int, name: String) -> String {
-        let count = seenAuthorEventIDsByPubkey.values.reduce(0) { partial, kindsByPubkey in
-            partial + (kindsByPubkey[kind]?.count ?? 0)
+        let count: Int
+        switch selectedAuthorSource {
+        case .followed:
+            count = seenAuthorEventIDsByPubkey[selectedFollowedAuthorPubkey]?[kind]?.count ?? 0
+        case .seen:
+            count = seenAuthorEventIDsByPubkey[selectedSeenAuthorPubkey]?[kind]?.count ?? 0
+        case .selfPubkey:
+            count = seenAuthorEventIDsByPubkey.values.reduce(0) { partial, kindsByPubkey in
+                partial + (kindsByPubkey[kind]?.count ?? 0)
+            }
         }
         return "\(name) (\(kind)) (\(count))"
     }
