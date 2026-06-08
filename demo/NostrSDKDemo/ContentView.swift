@@ -95,49 +95,64 @@ struct SomeView_Previews: PreviewProvider {
 struct ContentView: View {
 
     @State private var relay: Relay?
+    @State private var sidebarWidth: CGFloat = 0
 
     var body: some View {
-        NavigationView {
-            VStack {
+        NavigationSplitView {
+            VStack(spacing: 0) {
                 List {
-                    ListOptionView(destinationView: AnyView(SomeView(relay: $relay)),
-                                   //imageName: "GnostrIcon",
-                                   imageName: "network",
-                                   labelText: "SomeView"//,
-                                   /*useAssetImage: true*/)
+                    //ListOptionView(destinationView: AnyView(SomeView(relay: $relay)),
+                    //               imageName: "GnostrIcon",
+                    //               labelText: "SomeView",
+                    //               useAssetImage: true,
+                    //               showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView: AnyView(ConnectRelayView(relay: $relay)),
                                    imageName: "network",
-                                   labelText: "Connect Relay")
+                                   labelText: "Connect Relay",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView: AnyView(RelaysView()),
                                    imageName: "network",
-                                   labelText: "Configure Relays")
+                                   labelText: "Configure Relays",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
                                    imageName: "list.bullet.rectangle.portrait",
-                                   labelText: "NIP-0034 Viewer")
+                                   labelText: "NIP-0034 Viewer",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView:
-                                    AnyView(LegacyDirectMessageDemoView()),
+                                   AnyView(LegacyDirectMessageDemoView()),
                                    imageName: "list.bullet",
-                                   labelText: "NIP-04 Direct Message")
+                                   labelText: "NIP-04 Direct Message",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView:
-                                    AnyView(EncryptMessageDemoView()),
+                                   AnyView(EncryptMessageDemoView()),
                                    imageName: "list.bullet",
-                                   labelText: "NIP-44 Encrypt")
+                                   labelText: "NIP-44 Encrypt",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView:
-                                    AnyView(DecryptMessageDemoView()),
+                                   AnyView(DecryptMessageDemoView()),
                                    imageName: "list.bullet",
-                                   labelText: "NIP-44 Decrypt")
+                                   labelText: "NIP-44 Decrypt",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
                                    imageName: "key",
-                                   labelText: "Key Generation")
+                                   labelText: "Key Generation",
+                                   showsLabel: showsSidebarLabels)
                     ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
                                    imageName: "checkmark.seal",
-                                   labelText: "NIP-05")
+                                   labelText: "NIP-05",
+                                   showsLabel: showsSidebarLabels)
                 }
+                .listStyle(.sidebar)
                 NavigationLink(destination: SettingsView()) {
-                    Label("49:Settings", systemImage: "gearshape")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
+                    HStack(spacing: showsSidebarLabels ? 12 : 0) {
+                        Image(systemName: "gearshape")
+                        if showsSidebarLabels {
+                            Text("49:Settings")
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
                 }
                 .buttonStyle(.plain)
                 .background(Color(.secondarySystemBackground))
@@ -148,9 +163,36 @@ struct ContentView: View {
                     alignment: .top
                 )
             }
-            //.navigationTitle("NIP-0034 Viewer")
-            //.navigationBarTitleDisplayMode(.inline)
+            .background(sidebarWidthReader)
+            .navigationSplitViewColumnWidth(min: 240, ideal: 280, max: 360)
+        } detail: {
+            Text("Select a demo from the sidebar.")
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
         }
+    }
+
+    private var showsSidebarLabels: Bool {
+        sidebarWidth == 0 || sidebarWidth > 180
+    }
+
+    private var sidebarWidthReader: some View {
+        GeometryReader { proxy in
+            Color.clear
+                .preference(key: SidebarWidthKey.self, value: proxy.size.width)
+        }
+        .onPreferenceChange(SidebarWidthKey.self) { width in
+            sidebarWidth = width
+        }
+    }
+}
+
+private struct SidebarWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 

@@ -12,19 +12,23 @@ struct ListOptionView: View {
     var imageName: String
     var labelText: String
     var useAssetImage: Bool = false
+    var showsLabel: Bool = true
 
     var body: some View {
         NavigationLink(destination: destinationView) {
-            Label {
-                Text(labelText)
-            } icon: {
+            HStack(spacing: showsLabel ? 12 : 0) {
                 if useAssetImage {
                     Image(imageName)
                         .renderingMode(.template)
                 } else {
                     Image(systemName: imageName)
                 }
+
+                if showsLabel {
+                    Text(labelText)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
