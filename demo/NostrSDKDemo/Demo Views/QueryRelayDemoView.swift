@@ -656,8 +656,10 @@ private struct TagChipView: View {
 struct QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
+    @EnvironmentObject private var identityStore: DemoIdentityStore
 
-    @State private var authorPubkey: String = DemoHelper.validHexPublicKey.wrappedValue
+    @State private var selectedFollowedAuthorPubkey: String = ""
+    @State private var selectedSeenAuthorPubkey: String = ""
     @State private var events: [NostrEvent] = []
     @State private var metadataByPubkey: [String: MetadataEvent] = [:]
     @State private var eventsCancellable: AnyCancellable?
@@ -665,6 +667,7 @@ struct QueryRelayDemoView: View {
     @State private var subscriptionId: String?
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
+    @State private var seenAuthorPubkeySet: Set<String> = []
 
     private let kindOptions = [
         30617: "Repository announcements",
@@ -682,14 +685,39 @@ struct QueryRelayDemoView: View {
     var body: some View {
         VStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Author Public Key")
+                Text("Followed Author")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
-                TextField(text: $authorPubkey) {
-                    Text("Author Public Key (HEX)")
+                Picker("Followed Author", selection: $selectedFollowedAuthorPubkey) {
+                    Text("Select followed author").tag("")
+                    ForEach(identityStore.followedPubkeys, id: \.self) { pubkey in
+                        Text(shortPubkey(pubkey)).tag(pubkey)
+                    }
                 }
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
+                .pickerStyle(.menu)
+                .disabled(identityStore.followedPubkeys.isEmpty)
+                if identityStore.followedPubkeys.isEmpty {
+                    Text("Enter a valid private key in Settings to load followed public keys.")
+                        .font(.caption)
+                        .foregroundColor(.primary)
+                }
+
+                Text("Seen Author")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.primary)
+                Picker("Seen Author", selection: $selectedSeenAuthorPubkey) {
+                    Text("Select seen author").tag("")
+                    ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
+                        Text(shortPubkey(pubkey)).tag(pubkey)
+                    }
+                }
+                .pickerStyle(.menu)
+                .disabled(seenAuthorPubkeys.isEmpty)
+                if seenAuthorPubkeys.isEmpty {
+                    Text("Seen authors appear after NIP-34 events load.")
+                        .font(.caption)
+                        .foregroundColor(.primary)
+                }
 
                 HStack(alignment: .center, spacing: 12) {
                     Button {
@@ -721,8 +749,8 @@ struct QueryRelayDemoView: View {
 
             List {
                 if !events.isEmpty {
-                    if !authorPubkey.isEmpty {
-                        Text("Showing events for \(authorPubkey)")
+                    if !currentAuthorPubkey.isEmpty {
+                        Text("Showing events for \(currentAuthorPubkey)")
                             .font(.footnote)
                             .foregroundColor(.primary)
                             .listRowBackground(Color.clear)
@@ -746,16 +774,35 @@ struct QueryRelayDemoView: View {
         }
         .navigationTitle("NIP-0034 Viewer")
         .onAppear {
+            sanitizeSelectedAuthors()
             updateSubscription()
             updateMetadataSubscription()
         }
-        .onChange(of: authorPubkey) { _ in
+        .onChange(of: identityStore.followedPubkeys) { _ in
+            sanitizeSelectedAuthors()
+        }
+        .onChange(of: identityStore.publicKeyHex) { _ in
+            updateSubscription()
+            updateMetadataSubscription()
+        }
+        .onChange(of: selectedFollowedAuthorPubkey) { newValue in
+            guard newValue.isEmpty == false else { return }
+            selectedSeenAuthorPubkey = ""
+            events = []
+            updateSubscription()
+            updateMetadataSubscription()
+        }
+        .onChange(of: selectedSeenAuthorPubkey) { newValue in
+            guard newValue.isEmpty == false else { return }
+            selectedFollowedAuthorPubkey = ""
             events = []
             updateSubscription()
             updateMetadataSubscription()
         }
         .onChange(of: selectedKind) { _ in
             events = []
+            seenAuthorPubkeySet = []
+            selectedSeenAuthorPubkey = ""
             updateSubscription()
             updateMetadataSubscription()
         }
@@ -771,12 +818,43 @@ struct QueryRelayDemoView: View {
 
     private var currentFilter: Filter {
         let authors: [String]?
-        if authorPubkey.isEmpty {
+        if currentAuthorPubkey.isEmpty {
             authors = nil
         } else {
-            authors = [authorPubkey]
+            authors = [currentAuthorPubkey]
         }
         return Filter(authors: authors, kinds: [selectedKind])!
+    }
+
+    private var currentAuthorPubkey: String {
+        if selectedFollowedAuthorPubkey.isEmpty == false {
+            return selectedFollowedAuthorPubkey
+        }
+        if selectedSeenAuthorPubkey.isEmpty == false {
+            return selectedSeenAuthorPubkey
+        }
+        return identityStore.publicKeyHex ?? ""
+    }
+
+    private var seenAuthorPubkeys: [String] {
+        seenAuthorPubkeySet.sorted()
+    }
+
+    private func shortPubkey(_ pubkey: String) -> String {
+        guard pubkey.count > 16 else { return pubkey }
+        return "\(pubkey.prefix(8))...\(pubkey.suffix(8))"
+    }
+
+    private func sanitizeSelectedAuthors() {
+        if selectedFollowedAuthorPubkey.isEmpty == false,
+           identityStore.followedPubkeys.contains(selectedFollowedAuthorPubkey) == false {
+            selectedFollowedAuthorPubkey = ""
+        }
+
+        if selectedSeenAuthorPubkey.isEmpty == false,
+           seenAuthorPubkeySet.contains(selectedSeenAuthorPubkey) == false {
+            selectedSeenAuthorPubkey = ""
+        }
     }
 
     private func updateSubscription() {
@@ -803,14 +881,15 @@ struct QueryRelayDemoView: View {
                 }
 
                 events.insert(event, at: 0)
+                seenAuthorPubkeySet.insert(event.pubkey)
                 updateMetadataSubscription()
             }
     }
 
     private func updateMetadataSubscription() {
         var pubkeys = Set(events.map(\.pubkey))
-        if authorPubkey.isEmpty == false {
-            pubkeys.insert(authorPubkey)
+        if currentAuthorPubkey.isEmpty == false {
+            pubkeys.insert(currentAuthorPubkey)
         }
 
         guard pubkeys != trackedMetadataPubkeys else {
@@ -837,5 +916,7 @@ struct QueryRelayView_Previews: PreviewProvider {
         NavigationView {
             QueryRelayDemoView()
         }
+        .environmentObject(RelayPool(relays: []))
+        .environmentObject(DemoIdentityStore())
     }
 }

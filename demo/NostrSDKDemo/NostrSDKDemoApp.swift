@@ -16,11 +16,13 @@ struct NostrSDKDemoApp: App {
         URL(string: "wss://relay.snort.social")!,
         URL(string: "ws://127.0.0.1:8080")!
     ])
+    @StateObject var identityStore = DemoIdentityStore()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(relayPool)
+                .environmentObject(identityStore)
         }
     }
 }
