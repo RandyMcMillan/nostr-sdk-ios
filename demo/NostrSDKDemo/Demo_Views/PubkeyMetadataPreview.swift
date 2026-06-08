@@ -144,9 +144,9 @@ struct PubkeyMetadataPreviewView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let bannerHeight = max(84, min(proxy.size.width * 0.25, horizontalSizeClass == .compact ? 104 : 120))
+            let bannerHeight = max(84, min(proxy.size.width * 0.99, horizontalSizeClass == .compact ? 88 : 96))
 
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .bottomLeading) {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color(.tertiarySystemFill))
@@ -168,13 +168,13 @@ struct PubkeyMetadataPreviewView: View {
                             Image("GnostrIcon")
                                 .resizable()
                                 .scaledToFit()
-                                .padding(12)
+                                .padding(0)
                         }
                     }
                     .frame(width: avatarSize, height: avatarSize)
                     .clipShape(Circle())
                     .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
-                    .padding(12)
+                    .padding(0)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -192,9 +192,9 @@ struct PubkeyMetadataPreviewView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 2)
+                .padding(.horizontal, 0)
             }
-            .frame(width: proxy.size.width, height: 128.0*2, alignment: .leading)
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .leading)
             .onAppear {
                 logDimensions(size: proxy.size, bannerHeight: bannerHeight)
             }

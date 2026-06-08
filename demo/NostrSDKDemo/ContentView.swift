@@ -7,6 +7,7 @@
 
 import SwiftUI
 import GnostrSDK 
+import UIKit
 
 struct ContentView: View {
 
@@ -106,32 +107,27 @@ private struct SettingsView: View {
 
     var body: some View {
             Form {
-                //Section("SettingsView:108:") { //Profile leave blank
-                    //Spacer(minLength: 0)
-                    //profileCard
-                    //profileCard.frame(minHeight: 320)//how to make height greater?
-
-                  //  Spacer(minLength: 0)
-                //}
-
-                Section("SettingsView:112:") { //Key leave blank
-                    labeledTextField("SettingsView:113:Private Key",
+                Section("") {
+                    labeledTextField("Private Key",
                                      text: $privateKeyInput,
                                      prompt: "nsec or hex",
                                      secure: true,
                                      isRevealed: $isPrivateKeyRevealed)
 
                     if let publicKeyHex {
-                        labeledValue("SettingsView:116:Public Key", value: publicKeyHex)
+                        labeledTextField("Public Key",
+                                         text: .constant(publicKeyHex),
+                                         prompt: "npub or hex",
+                                         secure: false,
+                                         isEnabled: false)
                     } else {
                         Text("Enter a valid private key to load profile metadata.")
                             .font(.caption)
                             .foregroundColor(.primary)
                     }
                 }
-                profileCard.frame(minHeight: 320)//how to make height greater?
 
-                Section("SettingsView:124:User Metadata") {
+                Section("User Metadata") {
                     SettingsMetadataEditorView(name: $name,
                                                displayName: $displayName,
                                                about: $about,
@@ -144,7 +140,13 @@ private struct SettingsView: View {
                                                lud16: $lud16)
                 }
             }
-            //.navigationTitle("SettingsView:137") //leave blank
+            //.navigationTitle("139:Settings")
+            //.navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    SettingsNavHeaderView(metadata: metadataLoader.metadata)
+                }
+            }
             .onAppear {
                 metadataLoader.attach(relayPool: relayPool)
                 refreshMetadata()
@@ -159,28 +161,6 @@ private struct SettingsView: View {
                 populatedPubkey = publicKeyHex
                 apply(metadata: metadata)
             }
-    }
-
-    private var profileCard: some View {
-            VStack(alignment: .leading, spacing: 0) {
-                //Spacer(minLength: 0)
-                PubkeyMetadataPreviewView(metadata: metadataLoader.metadata) //includes banner view
-                //Spacer(minLength: 0)
-                //SettingsProfileSummaryView(metadata: metadataLoader.metadata,
-                //                          publicKeyHex: publicKeyHex,
-                //                          titleLineLimit: titleLineLimit)
-                //.padding(0)
-                //.frame(maxWidth: .infinity, alignment: .leading)
-                //.background(
-                //    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                //        .fill(Color(.secondarySystemBackground))
-                //)
-                //.overlay(
-                //    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                //        .stroke(Color(.separator).opacity(0.15))
-                //)
-            }
-            //.padding(.vertical, 4)
     }
 
     private func refreshMetadata() {
@@ -209,7 +189,8 @@ private struct SettingsView: View {
                                   text: Binding<String>,
                                   prompt: String,
                                   secure: Bool = false,
-                                  isRevealed: Binding<Bool> = .constant(false)) -> some View {
+                                  isRevealed: Binding<Bool> = .constant(false),
+                                  isEnabled: Bool = true) -> some View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(label)
                     .font(.caption.weight(.semibold))
@@ -242,6 +223,7 @@ private struct SettingsView: View {
                         .autocorrectionDisabled()
                 }
             }
+            .disabled(isEnabled == false)
     }
 
     private func labeledTextEditor(_ label: String, text: Binding<String>, prompt: String) -> some View {
@@ -275,11 +257,133 @@ private struct SettingsView: View {
                 Text(label)
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
+
                 Text(value)
-                    .font(.caption.monospaced())
+                    .font(.system(size: 16, weight: .regular, design: .monospaced))
                     .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .allowsTightening(true)
                     .textSelection(.enabled)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(Color(.separator).opacity(0.15))
+                    )
             }
+    }
+}
+
+private struct SettingsNavHeaderView: View {
+    let metadata: MetadataEvent?
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Spacer(minLength: 10.0)
+            Spacer(minLength: 10.0)
+            Spacer(minLength: 10.0)
+            SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 256)
+            //HStack(spacing: 8) {
+                //SettingsAvatarView(metadata: metadata, size: 64)
+                //Text(metadata?.displayName ?? metadata?.name ?? "Settings")
+                //    .font(.caption.weight(.semibold))
+                //    .foregroundColor(.primary)
+                //    .lineLimit(1)
+            //}
+        }
+    }
+}
+
+private struct SettingsBannerImageView: View {
+    let url: URL?
+    let height: CGFloat
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(Color(.tertiarySystemFill))
+            .frame(height: height)
+            .overlay(alignment: .center) {
+                if let url {
+                    SettingsRemoteImageView(url: url)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: height)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+            }
+    }
+}
+
+private struct SettingsAvatarView: View {
+    let metadata: MetadataEvent?
+    let size: CGFloat
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color(.secondarySystemBackground))
+
+            if let pictureURL = metadata?.pictureURL {
+                SettingsRemoteImageView(url: pictureURL)
+            } else {
+                Image("GnostrIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .padding(size * 0.2)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+        .overlay(Circle().stroke(Color(.separator).opacity(0.2), lineWidth: 1))
+    }
+}
+
+private struct SettingsRemoteImageView: UIViewRepresentable {
+    let url: URL
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> UIImageView {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = .systemBackground
+        context.coordinator.load(url: url, into: imageView)
+        return imageView
+    }
+
+    func updateUIView(_ uiView: UIImageView, context: Context) {
+        context.coordinator.load(url: url, into: uiView)
+    }
+
+    final class Coordinator {
+        private var task: Task<Void, Never>?
+        private var currentURL: URL?
+
+        func load(url: URL, into imageView: UIImageView) {
+            currentURL = url
+
+            task?.cancel()
+            task = Task.detached(priority: .background) { [weak imageView] in
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    guard let image = UIImage(data: data) else { return }
+
+                    await MainActor.run {
+                        guard let imageView, self.currentURL == url else { return }
+                        imageView.image = image
+                    }
+                } catch {
+                }
+            }
+        }
     }
 }
 
@@ -397,7 +501,7 @@ private struct ResponsiveToggleRow: View {
             Text(label)
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
-            Spacer(minLength: 0)
+            //Spacer(minLength: 0)
             Toggle("", isOn: $isOn)
                     .labelsHidden()
                     .tint(.accentColor)
@@ -418,8 +522,8 @@ private struct SettingsProfileSummaryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Spacer(minLength: 0)
-            //HStack(alignment: .firstTextBaseline, spacing: 8) {
+            //Spacer(minLength: 0)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
             //        Text("383:Public Key")
             //            .font(.caption2.weight(.bold))
             //            .foregroundColor(.primary)
@@ -436,7 +540,7 @@ private struct SettingsProfileSummaryView: View {
             //                .font(.caption)
             //                .foregroundColor(.primary)
             //        }
-            //}
+            // //}
 
             if let metadata {
                     if let title = metadata.displayName ?? metadata.name ?? metadata.nostrAddress {
@@ -471,6 +575,7 @@ private struct SettingsProfileSummaryView: View {
                     Text("Profile preview appears after a valid private key is entered.")
                         .font(.caption)
                         .foregroundColor(.primary)
+            }
             }
         }
     }
