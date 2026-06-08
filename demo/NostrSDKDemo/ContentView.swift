@@ -127,22 +127,13 @@ struct ContentView: View {
             .padding(.vertical, 12)
             .background(Color(.clear))
 
-            //the intent is to have a slim stack of list icons
             List {
-                ForEach(SidebarDestination.allCases) { destination in
+                ForEach(SidebarDestination.sidebarCases) { destination in
                     Button {
                         selectedDestination = destination
                     } label: {
                         HStack(spacing: 12) {
-                            if destination.useAssetImage {
-                                Image(destination.imageName)
-                                    .renderingMode(.template)
-                            } else {
-                                Image(systemName: destination.imageName)
-                            }
-
-                            //Text(destination.labelText)
-                            //    .frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: destination.imageName)
                         }
                     }
                     .buttonStyle(.plain)
@@ -150,7 +141,22 @@ struct ContentView: View {
                 }
             }
             .listStyle(.sidebar)
+
+            Spacer(minLength: 0)
+
+            Button {
+                selectedDestination = .settings
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: SidebarDestination.settings.imageName)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(.plain)
+            .background(selectedDestination == .settings ? Color(.tertiarySystemFill) : Color.clear)
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     @ViewBuilder
@@ -224,6 +230,10 @@ private enum SidebarDestination: String, CaseIterable, Identifiable {
 
     var useAssetImage: Bool {
         false
+    }
+
+    static var sidebarCases: [SidebarDestination] {
+        allCases.filter { $0 != .settings }
     }
 }
 
