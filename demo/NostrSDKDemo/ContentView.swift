@@ -98,7 +98,7 @@ struct ContentView: View {
     @State private var sidebarWidth: CGFloat = 0
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: .constant(.all)) {
             VStack(spacing: 0) {
                 List {
                     //ListOptionView(destinationView: AnyView(SomeView(relay: $relay)),
