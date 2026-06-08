@@ -675,7 +675,7 @@ struct QueryRelayDemoView: View {
     @State private var seenPrimeSubscriptionId: String?
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
-    @State private var seenAuthorKindsByPubkey: [String: [Int: Int]] = [:]
+    @State private var seenAuthorEventIDsByPubkey: [String: [Int: Set<String>]] = [:]
 
     private let kindOptions = [
         30617: "Repository announcements",
@@ -873,19 +873,23 @@ struct QueryRelayDemoView: View {
     }
 
     private var seenAuthorPubkeys: [String] {
-        seenAuthorKindsByPubkey.keys.sorted { lhs, rhs in
-            let lhsCount = seenAuthorKindsByPubkey[lhs]?.values.reduce(0, +) ?? 0
-            let rhsCount = seenAuthorKindsByPubkey[rhs]?.values.reduce(0, +) ?? 0
+        seenAuthorEventIDsByPubkey.keys.sorted { lhs, rhs in
+            let lhsCount = seenAuthorCounts(for: lhs).reduce(0, +)
+            let rhsCount = seenAuthorCounts(for: rhs).reduce(0, +)
             if lhsCount != rhsCount { return lhsCount > rhsCount }
             return lhs < rhs
         }
     }
 
     private func seenAuthorLabel(for pubkey: String) -> String {
-        let counts = kindOptions.keys.sorted().map { kind in
-            String(seenAuthorKindsByPubkey[pubkey]?[kind] ?? 0)
-        }.joined(separator: ",")
+        let counts = seenAuthorCounts(for: pubkey).map(String.init).joined(separator: ",")
         return "\(pubkey) (\(counts))"
+    }
+
+    private func seenAuthorCounts(for pubkey: String) -> [Int] {
+        kindOptions.keys.sorted().map { kind in
+            seenAuthorEventIDsByPubkey[pubkey]?[kind]?.count ?? 0
+        }
     }
 
     private func sanitizeSelectedAuthors() {
@@ -898,12 +902,20 @@ struct QueryRelayDemoView: View {
         }
 
         if selectedSeenAuthorPubkey.isEmpty == false,
-           seenAuthorKindsByPubkey[selectedSeenAuthorPubkey] == nil {
+           seenAuthorEventIDsByPubkey[selectedSeenAuthorPubkey] == nil {
             selectedSeenAuthorPubkey = ""
             if selectedAuthorSource == .seen {
                 selectedAuthorSource = .selfPubkey
             }
         }
+    }
+
+    private func recordSeenEvent(_ event: NostrEvent) {
+        var kindsByPubkey = seenAuthorEventIDsByPubkey[event.pubkey] ?? [:]
+        var eventIDs = kindsByPubkey[event.kind.rawValue] ?? []
+        eventIDs.insert(event.id)
+        kindsByPubkey[event.kind.rawValue] = eventIDs
+        seenAuthorEventIDsByPubkey[event.pubkey] = kindsByPubkey
     }
 
     private func updateSubscription() {
@@ -923,7 +935,7 @@ struct QueryRelayDemoView: View {
                 let event = relayEvent.event
 
                 if relayEvent.subscriptionId == seenPrimeSubscriptionId {
-                    seenAuthorKindsByPubkey[event.pubkey, default: [:]][event.kind.rawValue, default: 0] += 1
+                    recordSeenEvent(event)
                     return
                 }
 
