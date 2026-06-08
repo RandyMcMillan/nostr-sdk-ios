@@ -95,114 +95,135 @@ struct SomeView_Previews: PreviewProvider {
 struct ContentView: View {
 
     @State private var relay: Relay?
-    @State private var sidebarWidth: CGFloat = 0
+    @State private var selectedDestination: SidebarDestination = .connectRelay
 
     var body: some View {
-        NavigationSplitView(columnVisibility: .constant(.all)) {
-            VStack(spacing: 0) {
-                List {
-                    //ListOptionView(destinationView: AnyView(SomeView(relay: $relay)),
-                    //               imageName: "GnostrIcon",
-                    //               labelText: "SomeView",
-                    //               useAssetImage: true,
-                    //               showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView: AnyView(ConnectRelayView(relay: $relay)),
-                                   imageName: "network",
-                                   labelText: "Connect Relay",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView: AnyView(RelaysView()),
-                                   imageName: "network",
-                                   labelText: "Configure Relays",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView: AnyView(QueryRelayDemoView()),
-                                   imageName: "list.bullet.rectangle.portrait",
-                                   labelText: "NIP-0034 Viewer",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView:
-                                   AnyView(LegacyDirectMessageDemoView()),
-                                   imageName: "list.bullet",
-                                   labelText: "NIP-04 Direct Message",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView:
-                                   AnyView(EncryptMessageDemoView()),
-                                   imageName: "list.bullet",
-                                   labelText: "NIP-44 Encrypt",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView:
-                                   AnyView(DecryptMessageDemoView()),
-                                   imageName: "list.bullet",
-                                   labelText: "NIP-44 Decrypt",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView: AnyView(GenerateKeyDemoView()),
-                                   imageName: "key",
-                                   labelText: "Key Generation",
-                                   showsLabel: showsSidebarLabels)
-                    ListOptionView(destinationView: AnyView(NIP05VerficationDemoView()),
-                                   imageName: "checkmark.seal",
-                                   labelText: "NIP-05",
-                                   showsLabel: showsSidebarLabels)
-                }
-                .listStyle(.sidebar)
-                NavigationLink(destination: SettingsView()) {
-                    HStack(spacing: showsSidebarLabels ? 12 : 0) {
-                        Image(systemName: "gearshape")
-                        if showsSidebarLabels {
-                            Text("49:Settings")
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                }
-                .buttonStyle(.plain)
-                .background(Color(.secondarySystemBackground))
-                .overlay(
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundColor(Color(.separator).opacity(0.15)),
-                    alignment: .top
-                )
+        HStack(spacing: 0) {
+            sidebar
+                .frame(minWidth: 64, maxWidth: 64, minHeight: 64)
+
+            Divider()
+
+            NavigationStack {
+                detailView(for: selectedDestination)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemBackground))
             }
-            .background(sidebarWidthReader)
-            .navigationSplitViewColumnWidth(min: 240, ideal: 280, max: 360)
-        } detail: {
-            Text("Select a demo from the sidebar.")
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemBackground))
         }
-        .toolbar(removing: .sidebarToggle)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+    }
+
+    private var sidebar: some View {
+        VStack(spacing: 0) {
+            HStack {
                 Image("GnostrIcon")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)
                     .accessibilityHidden(true)
+
+                Spacer(minLength: 0)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(.magenta))
+
+            //the intent is to have a slim stack of list icons
+            List {
+                ForEach(SidebarDestination.allCases) { destination in
+                    Button {
+                        selectedDestination = destination
+                    } label: {
+                        HStack(spacing: 12) {
+                            if destination.useAssetImage {
+                                Image(destination.imageName)
+                                    .renderingMode(.template)
+                            } else {
+                                Image(systemName: destination.imageName)
+                            }
+
+                            //Text(destination.labelText)
+                            //    .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(selectedDestination == destination ? Color(.tertiarySystemFill) : Color.clear)
+                }
+            }
+            .listStyle(.sidebar)
         }
     }
 
-    private var showsSidebarLabels: Bool {
-        sidebarWidth == 0 || sidebarWidth > 180
-    }
-
-    private var sidebarWidthReader: some View {
-        GeometryReader { proxy in
-            Color.clear
-                .preference(key: SidebarWidthKey.self, value: proxy.size.width)
-        }
-        .onPreferenceChange(SidebarWidthKey.self) { width in
-            sidebarWidth = width
+    @ViewBuilder
+    private func detailView(for destination: SidebarDestination) -> some View {
+        switch destination {
+        case .connectRelay:
+            ConnectRelayView(relay: $relay)
+        case .configureRelays:
+            RelaysView()
+        case .nip0034Viewer:
+            QueryRelayDemoView()
+        case .nip04DirectMessage:
+            LegacyDirectMessageDemoView()
+        case .nip44Encrypt:
+            EncryptMessageDemoView()
+        case .nip44Decrypt:
+            DecryptMessageDemoView()
+        case .keyGeneration:
+            GenerateKeyDemoView()
+        case .nip05:
+            NIP05VerficationDemoView()
+        case .settings:
+            SettingsView()
         }
     }
 }
 
-private struct SidebarWidthKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
+private enum SidebarDestination: String, CaseIterable, Identifiable {
+    case connectRelay
+    case configureRelays
+    case nip0034Viewer
+    case nip04DirectMessage
+    case nip44Encrypt
+    case nip44Decrypt
+    case keyGeneration
+    case nip05
+    case settings
 
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+    var id: String { rawValue }
+
+    var labelText: String {
+        switch self {
+        case .connectRelay: "Connect Relay"
+        case .configureRelays: "Configure Relays"
+        case .nip0034Viewer: "NIP-0034 Viewer"
+        case .nip04DirectMessage: "NIP-04 Direct Message"
+        case .nip44Encrypt: "NIP-44 Encrypt"
+        case .nip44Decrypt: "NIP-44 Decrypt"
+        case .keyGeneration: "Key Generation"
+        case .nip05: "NIP-05"
+        case .settings: "49:Settings"
+        }
+    }
+
+    var imageName: String {
+        switch self {
+        case .connectRelay, .configureRelays:
+            "network"
+        case .nip0034Viewer:
+            "list.bullet.rectangle.portrait"
+        case .nip04DirectMessage, .nip44Encrypt, .nip44Decrypt:
+            "list.bullet"
+        case .keyGeneration:
+            "key"
+        case .nip05:
+            "checkmark.seal"
+        case .settings:
+            "gearshape"
+        }
+    }
+
+    var useAssetImage: Bool {
+        false
     }
 }
 
