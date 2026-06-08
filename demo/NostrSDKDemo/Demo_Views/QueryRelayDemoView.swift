@@ -693,76 +693,82 @@ struct QueryRelayDemoView: View {
     var body: some View {
         VStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 10) {
-                Text("Followed Author")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.primary)
-                Menu {
-                    Button("Select self") {
-                        selectedFollowedAuthorPubkey = ""
-                        selectedAuthorSource = .selfPubkey
-                        events = []
-                        updateSubscription()
-                        updateMetadataSubscription()
-                    }
-                    ForEach(identityStore.followedPubkeys, id: \.self) { pubkey in
-                        Button(pubkey) {
-                            selectedFollowedAuthorPubkey = pubkey
-                            selectedSeenAuthorPubkey = ""
-                            selectedAuthorSource = .followed
-                            events = []
-                            updateSubscription()
-                            updateMetadataSubscription()
+                HStack(alignment: .top, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Followed Author")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.primary)
+                        Menu {
+                            Button("Select self") {
+                                selectedFollowedAuthorPubkey = ""
+                                selectedAuthorSource = .selfPubkey
+                                events = []
+                                updateSubscription()
+                                updateMetadataSubscription()
+                            }
+                            ForEach(identityStore.followedPubkeys, id: \.self) { pubkey in
+                                Button(pubkey) {
+                                    selectedFollowedAuthorPubkey = pubkey
+                                    selectedSeenAuthorPubkey = ""
+                                    selectedAuthorSource = .followed
+                                    events = []
+                                    updateSubscription()
+                                    updateMetadataSubscription()
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                Text(selectedFollowedAuthorPubkey.isEmpty ? "Select followed author" : selectedFollowedAuthorPubkey)
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.down")
+                            }
+                            .padding(.vertical, 8)
+                        }
+                        .disabled(identityStore.followedPubkeys.isEmpty)
+                        if identityStore.followedPubkeys.isEmpty {
+                            Text("Enter a valid private key in Settings to load followed public keys.")
+                                .font(.caption)
+                                .foregroundColor(.primary)
                         }
                     }
-                } label: {
-                    HStack {
-                        Text(selectedFollowedAuthorPubkey.isEmpty ? "Select followed author" : selectedFollowedAuthorPubkey)
-                        Spacer(minLength: 0)
-                        Image(systemName: "chevron.down")
-                    }
-                    .padding(.vertical, 8)
-                }
-                .disabled(identityStore.followedPubkeys.isEmpty)
-                if identityStore.followedPubkeys.isEmpty {
-                    Text("Enter a valid private key in Settings to load followed public keys.")
-                        .font(.caption)
-                        .foregroundColor(.primary)
-                }
 
-                Text("Seen Author")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.primary)
-                Menu {
-                    Button("Select self") {
-                        selectedSeenAuthorPubkey = ""
-                        selectedAuthorSource = .selfPubkey
-                        events = []
-                        updateSubscription()
-                        updateMetadataSubscription()
-                    }
-                    ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
-                        Button(seenAuthorLabel(for: pubkey)) {
-                            selectedSeenAuthorPubkey = pubkey
-                            selectedFollowedAuthorPubkey = ""
-                            selectedAuthorSource = .seen
-                            events = []
-                            updateSubscription()
-                            updateMetadataSubscription()
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Seen Author")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.primary)
+                        Menu {
+                            Button("Select self") {
+                                selectedSeenAuthorPubkey = ""
+                                selectedAuthorSource = .selfPubkey
+                                events = []
+                                updateSubscription()
+                                updateMetadataSubscription()
+                            }
+                            ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
+                                Button(seenAuthorLabel(for: pubkey)) {
+                                    selectedSeenAuthorPubkey = pubkey
+                                    selectedFollowedAuthorPubkey = ""
+                                    selectedAuthorSource = .seen
+                                    events = []
+                                    updateSubscription()
+                                    updateMetadataSubscription()
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : seenAuthorLabel(for: selectedSeenAuthorPubkey))
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.down")
+                            }
+                            .padding(.vertical, 8)
+                        }
+                        .disabled(seenAuthorPubkeys.isEmpty)
+                        if seenAuthorPubkeys.isEmpty {
+                            Text("Seen authors appear after NIP-34 events load.")
+                                .font(.caption)
+                                .foregroundColor(.primary)
                         }
                     }
-                } label: {
-                    HStack {
-                        Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : seenAuthorLabel(for: selectedSeenAuthorPubkey))
-                        Spacer(minLength: 0)
-                        Image(systemName: "chevron.down")
-                    }
-                    .padding(.vertical, 8)
-                }
-                .disabled(seenAuthorPubkeys.isEmpty)
-                if seenAuthorPubkeys.isEmpty {
-                    Text("Seen authors appear after NIP-34 events load.")
-                        .font(.caption)
-                        .foregroundColor(.primary)
                 }
 
                 HStack(alignment: .center, spacing: 12) {
