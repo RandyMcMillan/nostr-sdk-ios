@@ -340,6 +340,12 @@ private struct EventCardView: View {
     }
 }
 
+private enum AuthorSource {
+    case selfPubkey
+    case followed
+    case seen
+}
+
 private struct EventDetailView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
@@ -660,6 +666,7 @@ struct QueryRelayDemoView: View {
 
     @State private var selectedFollowedAuthorPubkey: String = ""
     @State private var selectedSeenAuthorPubkey: String = ""
+    @State private var selectedAuthorSource: AuthorSource = .selfPubkey
     @State private var events: [NostrEvent] = []
     @State private var metadataByPubkey: [String: MetadataEvent] = [:]
     @State private var eventsCancellable: AnyCancellable?
@@ -696,6 +703,16 @@ struct QueryRelayDemoView: View {
                 }
                 .pickerStyle(.menu)
                 .disabled(identityStore.followedPubkeys.isEmpty)
+                .onChange(of: selectedFollowedAuthorPubkey) { newValue in
+                    if newValue.isEmpty == false {
+                        selectedAuthorSource = .followed
+                    } else if selectedAuthorSource == .followed {
+                        selectedAuthorSource = .selfPubkey
+                    }
+                    events = []
+                    updateSubscription()
+                    updateMetadataSubscription()
+                }
                 if identityStore.followedPubkeys.isEmpty {
                     Text("Enter a valid private key in Settings to load followed public keys.")
                         .font(.caption)
@@ -713,6 +730,16 @@ struct QueryRelayDemoView: View {
                 }
                 .pickerStyle(.menu)
                 .disabled(seenAuthorPubkeys.isEmpty)
+                .onChange(of: selectedSeenAuthorPubkey) { newValue in
+                    if newValue.isEmpty == false {
+                        selectedAuthorSource = .seen
+                    } else if selectedAuthorSource == .seen {
+                        selectedAuthorSource = .selfPubkey
+                    }
+                    events = []
+                    updateSubscription()
+                    updateMetadataSubscription()
+                }
                 if seenAuthorPubkeys.isEmpty {
                     Text("Seen authors appear after NIP-34 events load.")
                         .font(.caption)
@@ -785,24 +812,11 @@ struct QueryRelayDemoView: View {
             updateSubscription()
             updateMetadataSubscription()
         }
-        .onChange(of: selectedFollowedAuthorPubkey) { newValue in
-            guard newValue.isEmpty == false else { return }
-            selectedSeenAuthorPubkey = ""
-            events = []
-            updateSubscription()
-            updateMetadataSubscription()
-        }
-        .onChange(of: selectedSeenAuthorPubkey) { newValue in
-            guard newValue.isEmpty == false else { return }
-            selectedFollowedAuthorPubkey = ""
-            events = []
-            updateSubscription()
-            updateMetadataSubscription()
-        }
         .onChange(of: selectedKind) { _ in
             events = []
             seenAuthorPubkeySet = []
             selectedSeenAuthorPubkey = ""
+            selectedAuthorSource = selectedFollowedAuthorPubkey.isEmpty ? .selfPubkey : .followed
             updateSubscription()
             updateMetadataSubscription()
         }
@@ -827,13 +841,14 @@ struct QueryRelayDemoView: View {
     }
 
     private var currentAuthorPubkey: String {
-        if selectedFollowedAuthorPubkey.isEmpty == false {
+        switch selectedAuthorSource {
+        case .followed:
             return selectedFollowedAuthorPubkey
-        }
-        if selectedSeenAuthorPubkey.isEmpty == false {
+        case .seen:
             return selectedSeenAuthorPubkey
+        case .selfPubkey:
+            return identityStore.publicKeyHex ?? ""
         }
-        return identityStore.publicKeyHex ?? ""
     }
 
     private var seenAuthorPubkeys: [String] {
@@ -849,11 +864,17 @@ struct QueryRelayDemoView: View {
         if selectedFollowedAuthorPubkey.isEmpty == false,
            identityStore.followedPubkeys.contains(selectedFollowedAuthorPubkey) == false {
             selectedFollowedAuthorPubkey = ""
+            if selectedAuthorSource == .followed {
+                selectedAuthorSource = .selfPubkey
+            }
         }
 
         if selectedSeenAuthorPubkey.isEmpty == false,
            seenAuthorPubkeySet.contains(selectedSeenAuthorPubkey) == false {
             selectedSeenAuthorPubkey = ""
+            if selectedAuthorSource == .seen {
+                selectedAuthorSource = .selfPubkey
+            }
         }
     }
 
