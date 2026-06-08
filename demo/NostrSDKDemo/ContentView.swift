@@ -9,6 +9,9 @@ import SwiftUI
 import GnostrSDK 
 import UIKit
 import Combine
+#if os(macOS)
+import AppKit
+#endif
 
 struct SomeView: View {
 
@@ -96,18 +99,43 @@ struct ContentView: View {
 
     @State private var relay: Relay?
     @State private var selectedDestination: SidebarDestination = .connectRelay
+    @State private var orientation: AppOrientation = .landscape
 
     var body: some View {
-        HStack(spacing: 0) {
-            sidebar
-                .frame(minWidth: 64, maxWidth: 64, minHeight: 64)
+        layout
+            #if os(macOS)
+            .background(MacKeyEventMonitor(orientation: $orientation))
+            #endif
+    }
 
-            Divider()
+    @ViewBuilder
+    private var layout: some View {
+        switch orientation {
+        case .landscape:
+            HStack(spacing: 0) {
+                sidebar
+                    .frame(width: 64)
 
-            NavigationStack {
-                detailView(for: selectedDestination)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemBackground))
+                Divider()
+
+                NavigationStack {
+                    detailView(for: selectedDestination)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.systemBackground))
+                }
+            }
+        case .portrait:
+            VStack(spacing: 0) {
+                sidebar
+                    .frame(height: 280)
+
+                Divider()
+
+                NavigationStack {
+                    detailView(for: selectedDestination)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.systemBackground))
+                }
             }
         }
     }
@@ -183,6 +211,78 @@ struct ContentView: View {
         }
     }
 }
+
+private enum AppOrientation {
+    case portrait
+    case landscape
+}
+
+#if os(macOS)
+private struct MacKeyEventMonitor: NSViewRepresentable {
+    @Binding var orientation: AppOrientation
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(orientation: $orientation)
+    }
+
+    func makeNSView(context: Context) -> NSView {
+        context.coordinator.installMonitor()
+        return NSView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        context.coordinator.orientation = $orientation
+    }
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        coordinator.removeMonitor()
+    }
+
+    final class Coordinator {
+        var orientation: Binding<AppOrientation>
+        private var monitor: Any?
+
+        init(orientation: Binding<AppOrientation>) {
+            self.orientation = orientation
+        }
+
+        func installMonitor() {
+            guard monitor == nil else { return }
+
+            monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+                self?.log(event: event)
+
+                guard let self, event.modifierFlags.contains(.command) else {
+                    return event
+                }
+
+                switch event.keyCode {
+                case 123:
+                    self.orientation.wrappedValue = .portrait
+                    return nil
+                case 124:
+                    self.orientation.wrappedValue = .landscape
+                    return nil
+                default:
+                    return event
+                }
+            }
+        }
+
+        func removeMonitor() {
+            if let monitor {
+                NSEvent.removeMonitor(monitor)
+            }
+            monitor = nil
+        }
+
+        private func log(event: NSEvent) {
+            let modifiers = event.modifierFlags.intersection([.command, .shift, .option, .control, .capsLock])
+            print("[MacKeyEvent] type=\(event.type.rawValue) keyCode=\(event.keyCode) characters=\(event.charactersIgnoringModifiers ?? "nil") modifiers=\(modifiers.rawValue)")
+        }
+    }
+}
+#endif
 
 private enum SidebarDestination: String, CaseIterable, Identifiable {
     case connectRelay
@@ -465,7 +565,7 @@ private struct SettingsNavHeaderView: View {
                 Spacer(minLength: 10.0)
                 SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 256)
                 HStack(spacing: 8) {
-                SettingsAvatarView(metadata: metadata, size: 64)
+                //SettingsAvatarView(metadata: metadata, size: 64)
                 //Text(metadata?.displayName ?? metadata?.name ?? "Settings")
                 //    .font(.caption.weight(.semibold))
                 //    .foregroundColor(.primary)
