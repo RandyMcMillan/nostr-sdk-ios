@@ -125,7 +125,7 @@ struct ContentView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Color(.magenta))
+            .background(Color(.clear))
 
             //the intent is to have a slim stack of list icons
             List {
