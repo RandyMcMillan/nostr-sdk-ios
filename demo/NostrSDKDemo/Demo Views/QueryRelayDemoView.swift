@@ -675,7 +675,7 @@ struct QueryRelayDemoView: View {
     @State private var seenPrimeSubscriptionId: String?
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
-    @State private var seenAuthorKindsByPubkey: [String: Set<Int>] = [:]
+    @State private var seenAuthorKindsByPubkey: [String: [Int: Int]] = [:]
 
     private let kindOptions = [
         30617: "Repository announcements",
@@ -874,16 +874,18 @@ struct QueryRelayDemoView: View {
 
     private var seenAuthorPubkeys: [String] {
         seenAuthorKindsByPubkey.keys.sorted { lhs, rhs in
-            let lhsCount = seenAuthorKindsByPubkey[lhs]?.count ?? 0
-            let rhsCount = seenAuthorKindsByPubkey[rhs]?.count ?? 0
+            let lhsCount = seenAuthorKindsByPubkey[lhs]?.values.reduce(0, +) ?? 0
+            let rhsCount = seenAuthorKindsByPubkey[rhs]?.values.reduce(0, +) ?? 0
             if lhsCount != rhsCount { return lhsCount > rhsCount }
             return lhs < rhs
         }
     }
 
     private func seenAuthorLabel(for pubkey: String) -> String {
-        let count = seenAuthorKindsByPubkey[pubkey]?.count ?? 0
-        return "\(pubkey) (\(count))"
+        let counts = kindOptions.keys.sorted().map { kind in
+            String(seenAuthorKindsByPubkey[pubkey]?[kind] ?? 0)
+        }.joined(separator: ",")
+        return "\(pubkey) (\(counts))"
     }
 
     private func sanitizeSelectedAuthors() {
@@ -921,7 +923,7 @@ struct QueryRelayDemoView: View {
                 let event = relayEvent.event
 
                 if relayEvent.subscriptionId == seenPrimeSubscriptionId {
-                    seenAuthorKindsByPubkey[event.pubkey, default: []].insert(event.kind.rawValue)
+                    seenAuthorKindsByPubkey[event.pubkey, default: [:]][event.kind.rawValue, default: 0] += 1
                     return
                 }
 
