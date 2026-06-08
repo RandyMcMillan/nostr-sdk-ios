@@ -11,10 +11,20 @@ struct ListOptionView: View {
     var destinationView: AnyView
     var imageName: String
     var labelText: String
+    var useAssetImage: Bool = false
 
     var body: some View {
         NavigationLink(destination: destinationView) {
-            Label(labelText, systemImage: imageName)
+            Label {
+                Text(labelText)
+            } icon: {
+                if useAssetImage {
+                    Image(imageName)
+                        .renderingMode(.template)
+                } else {
+                    Image(systemName: imageName)
+                }
+            }
         }
     }
 }

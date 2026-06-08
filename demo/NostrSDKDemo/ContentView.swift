@@ -8,6 +8,89 @@
 import SwiftUI
 import GnostrSDK 
 import UIKit
+import Combine
+
+struct SomeView: View {
+
+    @Binding var relay: Relay?
+
+    @State private var relayURLString = "wss://nos.lol"
+    @State private var relayError: String?
+    @State private var state: Relay.State = .notConnected
+    @State private var stateCancellable: AnyCancellable?
+
+    var body: some View {
+        VStack(spacing: 12) {
+            if relay?.state == .connected {
+                Text("Connected to: \(relayURLString)")
+                    .font(.footnote)
+                Button(role: .destructive) {
+                    relay?.disconnect()
+                } label: {
+                    Text("Disconnect")
+                }
+            } else {
+                TextField(text: $relayURLString) {
+                    Text("wss://nos.lol")
+                }
+                .textFieldStyle(.roundedBorder)
+                .autocapitalization(.none)
+                .autocorrectionDisabled()
+
+                Button("Connect") {
+                    attemptRelayConnect()
+                }
+                Text(relayError ?? status(state))
+            }
+        }
+        .padding()
+        .onAppear {
+            attemptRelayConnect()
+        }
+    }
+
+    private func attemptRelayConnect() {
+        if let relayURL = URL(string: relayURLString.lowercased()) {
+            do {
+                relay = try Relay(url: relayURL)
+                relay?.connect()
+                stateCancellable = relay?.$state
+                    .receive(on: DispatchQueue.main)
+                    .sink { newState in
+                        state = newState
+                    }
+            } catch {
+                relayError = error.localizedDescription
+            }
+        } else {
+            relayError = "Invalid URL String"
+        }
+    }
+
+    private func status(_ state: Relay.State?) -> String {
+        guard let state else {
+            return "No status"
+        }
+        switch state {
+        case .notConnected:
+            return "Not connected"
+        case .connecting:
+            return "Connecting"
+        case .connected:
+            return "Connected"
+        case .error(let error):
+            return error.localizedDescription
+        }
+    }
+}
+
+struct SomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            ConnectRelayView(relay: DemoHelper.previewRelay)
+        }
+    }
+}
 
 struct ContentView: View {
 
@@ -17,6 +100,11 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 List {
+                    ListOptionView(destinationView: AnyView(SomeView(relay: $relay)),
+                                   //imageName: "GnostrIcon",
+                                   imageName: "network",
+                                   labelText: "SomeView"//,
+                                   /*useAssetImage: true*/)
                     ListOptionView(destinationView: AnyView(ConnectRelayView(relay: $relay)),
                                    imageName: "network",
                                    labelText: "Connect Relay")
@@ -46,7 +134,7 @@ struct ContentView: View {
                                    labelText: "NIP-05")
                 }
                 NavigationLink(destination: SettingsView()) {
-                    Label("Settings", systemImage: "gearshape")
+                    Label("49:Settings", systemImage: "gearshape")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 12)
@@ -60,11 +148,10 @@ struct ContentView: View {
                     alignment: .top
                 )
             }
-            .navigationTitle("NIP-0034 Viewer")
-            .navigationBarTitleDisplayMode(.inline)
+            //.navigationTitle("NIP-0034 Viewer")
+            //.navigationBarTitleDisplayMode(.inline)
         }
     }
-
 }
 
 struct ContentView_Previews: PreviewProvider {
@@ -106,16 +193,18 @@ private struct SettingsView: View {
     }
 
     var body: some View {
-            Form {
+        Form {
+            Section("110:") {//}
+                //Spacer(minLength: 1)
                 Section("") {
-                    labeledTextField("Private Key",
+                    labeledTextField("111:Private Key",
                                      text: $privateKeyInput,
                                      prompt: "nsec or hex",
                                      secure: true,
                                      isRevealed: $isPrivateKeyRevealed)
-
+                    
                     if let publicKeyHex {
-                        labeledTextField("Public Key",
+                        labeledTextField("118:Public Key",
                                          text: .constant(publicKeyHex),
                                          prompt: "npub or hex",
                                          secure: false,
@@ -126,7 +215,7 @@ private struct SettingsView: View {
                             .foregroundColor(.primary)
                     }
                 }
-
+                
                 Section("User Metadata") {
                     SettingsMetadataEditorView(name: $name,
                                                displayName: $displayName,
@@ -161,6 +250,7 @@ private struct SettingsView: View {
                 populatedPubkey = publicKeyHex
                 apply(metadata: metadata)
             }
+        }
     }
 
     private func refreshMetadata() {
@@ -285,17 +375,20 @@ private struct SettingsNavHeaderView: View {
 
     var body: some View {
         VStack(spacing: 4) {
+            //Spacer(minLength: 10.0)
+            //Spacer(minLength: 10.0)
             Spacer(minLength: 10.0)
-            Spacer(minLength: 10.0)
-            Spacer(minLength: 10.0)
-            SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 256)
-            //HStack(spacing: 8) {
-                //SettingsAvatarView(metadata: metadata, size: 64)
+            HStack(spacing: 1) {
+                Spacer(minLength: 10.0)
+                SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 256)
+                HStack(spacing: 8) {
+                SettingsAvatarView(metadata: metadata, size: 64)
                 //Text(metadata?.displayName ?? metadata?.name ?? "Settings")
                 //    .font(.caption.weight(.semibold))
                 //    .foregroundColor(.primary)
                 //    .lineLimit(1)
-            //}
+                }
+            }
         }
     }
 }
