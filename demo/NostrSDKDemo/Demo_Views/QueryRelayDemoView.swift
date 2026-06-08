@@ -705,7 +705,7 @@ struct QueryRelayDemoView: View {
                         updateMetadataSubscription()
                     }
                     ForEach(identityStore.followedPubkeys, id: \.self) { pubkey in
-                        Button(shortPubkey(pubkey)) {
+                        Button(pubkey) {
                             selectedFollowedAuthorPubkey = pubkey
                             selectedSeenAuthorPubkey = ""
                             selectedAuthorSource = .followed
@@ -716,7 +716,7 @@ struct QueryRelayDemoView: View {
                     }
                 } label: {
                     HStack {
-                        Text(selectedFollowedAuthorPubkey.isEmpty ? "Select followed author" : shortPubkey(selectedFollowedAuthorPubkey))
+                        Text(selectedFollowedAuthorPubkey.isEmpty ? "Select followed author" : selectedFollowedAuthorPubkey)
                         Spacer(minLength: 0)
                         Image(systemName: "chevron.down")
                     }
@@ -741,7 +741,7 @@ struct QueryRelayDemoView: View {
                         updateMetadataSubscription()
                     }
                     ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
-                        Button(shortPubkey(pubkey)) {
+                        Button(pubkey) {
                             selectedSeenAuthorPubkey = pubkey
                             selectedFollowedAuthorPubkey = ""
                             selectedAuthorSource = .seen
@@ -752,7 +752,7 @@ struct QueryRelayDemoView: View {
                     }
                 } label: {
                     HStack {
-                        Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : shortPubkey(selectedSeenAuthorPubkey))
+                        Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : selectedSeenAuthorPubkey)
                         Spacer(minLength: 0)
                         Image(systemName: "chevron.down")
                     }
@@ -874,11 +874,6 @@ struct QueryRelayDemoView: View {
 
     private var seenAuthorPubkeys: [String] {
         seenAuthorPubkeySet.sorted()
-    }
-
-    private func shortPubkey(_ pubkey: String) -> String {
-        guard pubkey.count > 16 else { return pubkey }
-        return "\(pubkey.prefix(8))...\(pubkey.suffix(8))"
     }
 
     private func sanitizeSelectedAuthors() {
