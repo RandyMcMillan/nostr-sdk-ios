@@ -675,7 +675,7 @@ struct QueryRelayDemoView: View {
     @State private var seenPrimeSubscriptionId: String?
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
-    @State private var seenAuthorPubkeySet: Set<String> = []
+    @State private var seenAuthorKindsByPubkey: [String: Set<Int>] = [:]
 
     private let kindOptions = [
         30617: "Repository announcements",
@@ -741,7 +741,7 @@ struct QueryRelayDemoView: View {
                         updateMetadataSubscription()
                     }
                     ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
-                        Button(pubkey) {
+                        Button(seenAuthorLabel(for: pubkey)) {
                             selectedSeenAuthorPubkey = pubkey
                             selectedFollowedAuthorPubkey = ""
                             selectedAuthorSource = .seen
@@ -752,7 +752,7 @@ struct QueryRelayDemoView: View {
                     }
                 } label: {
                     HStack {
-                        Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : selectedSeenAuthorPubkey)
+                        Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : seenAuthorLabel(for: selectedSeenAuthorPubkey))
                         Spacer(minLength: 0)
                         Image(systemName: "chevron.down")
                     }
@@ -873,7 +873,17 @@ struct QueryRelayDemoView: View {
     }
 
     private var seenAuthorPubkeys: [String] {
-        seenAuthorPubkeySet.sorted()
+        seenAuthorKindsByPubkey.keys.sorted { lhs, rhs in
+            let lhsCount = seenAuthorKindsByPubkey[lhs]?.count ?? 0
+            let rhsCount = seenAuthorKindsByPubkey[rhs]?.count ?? 0
+            if lhsCount != rhsCount { return lhsCount > rhsCount }
+            return lhs < rhs
+        }
+    }
+
+    private func seenAuthorLabel(for pubkey: String) -> String {
+        let count = seenAuthorKindsByPubkey[pubkey]?.count ?? 0
+        return "\(pubkey) (\(count))"
     }
 
     private func sanitizeSelectedAuthors() {
@@ -886,7 +896,7 @@ struct QueryRelayDemoView: View {
         }
 
         if selectedSeenAuthorPubkey.isEmpty == false,
-           seenAuthorPubkeySet.contains(selectedSeenAuthorPubkey) == false {
+           seenAuthorKindsByPubkey[selectedSeenAuthorPubkey] == nil {
             selectedSeenAuthorPubkey = ""
             if selectedAuthorSource == .seen {
                 selectedAuthorSource = .selfPubkey
@@ -911,7 +921,7 @@ struct QueryRelayDemoView: View {
                 let event = relayEvent.event
 
                 if relayEvent.subscriptionId == seenPrimeSubscriptionId {
-                    seenAuthorPubkeySet.insert(event.pubkey)
+                    seenAuthorKindsByPubkey[event.pubkey, default: []].insert(event.kind.rawValue)
                     return
                 }
 
