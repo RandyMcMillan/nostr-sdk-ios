@@ -964,6 +964,7 @@ struct QueryRelayDemoView: View {
                     return
                 }
 
+                recordSeenEvent(event)
                 if events.contains(where: { $0.id == event.id }) == false {
                     events.insert(event, at: 0)
                 }
