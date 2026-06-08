@@ -672,6 +672,7 @@ struct QueryRelayDemoView: View {
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
     @State private var subscriptionId: String?
+    @State private var seenPrimeSubscriptionId: String?
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
     @State private var seenAuthorPubkeySet: Set<String> = []
@@ -695,24 +696,33 @@ struct QueryRelayDemoView: View {
                 Text("Followed Author")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
-                Picker("Followed Author", selection: $selectedFollowedAuthorPubkey) {
-                    Text("Select followed author").tag("")
-                    ForEach(identityStore.followedPubkeys, id: \.self) { pubkey in
-                        Text(shortPubkey(pubkey)).tag(pubkey)
-                    }
-                }
-                .pickerStyle(.menu)
-                .disabled(identityStore.followedPubkeys.isEmpty)
-                .onChange(of: selectedFollowedAuthorPubkey) { newValue in
-                    if newValue.isEmpty == false {
-                        selectedAuthorSource = .followed
-                    } else if selectedAuthorSource == .followed {
+                Menu {
+                    Button("Select self") {
+                        selectedFollowedAuthorPubkey = ""
                         selectedAuthorSource = .selfPubkey
+                        events = []
+                        updateSubscription()
+                        updateMetadataSubscription()
                     }
-                    events = []
-                    updateSubscription()
-                    updateMetadataSubscription()
+                    ForEach(identityStore.followedPubkeys, id: \.self) { pubkey in
+                        Button(shortPubkey(pubkey)) {
+                            selectedFollowedAuthorPubkey = pubkey
+                            selectedSeenAuthorPubkey = ""
+                            selectedAuthorSource = .followed
+                            events = []
+                            updateSubscription()
+                            updateMetadataSubscription()
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(selectedFollowedAuthorPubkey.isEmpty ? "Select followed author" : shortPubkey(selectedFollowedAuthorPubkey))
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.down")
+                    }
+                    .padding(.vertical, 8)
                 }
+                .disabled(identityStore.followedPubkeys.isEmpty)
                 if identityStore.followedPubkeys.isEmpty {
                     Text("Enter a valid private key in Settings to load followed public keys.")
                         .font(.caption)
@@ -722,24 +732,33 @@ struct QueryRelayDemoView: View {
                 Text("Seen Author")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.primary)
-                Picker("Seen Author", selection: $selectedSeenAuthorPubkey) {
-                    Text("Select seen author").tag("")
-                    ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
-                        Text(shortPubkey(pubkey)).tag(pubkey)
-                    }
-                }
-                .pickerStyle(.menu)
-                .disabled(seenAuthorPubkeys.isEmpty)
-                .onChange(of: selectedSeenAuthorPubkey) { newValue in
-                    if newValue.isEmpty == false {
-                        selectedAuthorSource = .seen
-                    } else if selectedAuthorSource == .seen {
+                Menu {
+                    Button("Select self") {
+                        selectedSeenAuthorPubkey = ""
                         selectedAuthorSource = .selfPubkey
+                        events = []
+                        updateSubscription()
+                        updateMetadataSubscription()
                     }
-                    events = []
-                    updateSubscription()
-                    updateMetadataSubscription()
+                    ForEach(seenAuthorPubkeys, id: \.self) { pubkey in
+                        Button(shortPubkey(pubkey)) {
+                            selectedSeenAuthorPubkey = pubkey
+                            selectedFollowedAuthorPubkey = ""
+                            selectedAuthorSource = .seen
+                            events = []
+                            updateSubscription()
+                            updateMetadataSubscription()
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text(selectedSeenAuthorPubkey.isEmpty ? "Select seen author" : shortPubkey(selectedSeenAuthorPubkey))
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.down")
+                    }
+                    .padding(.vertical, 8)
                 }
+                .disabled(seenAuthorPubkeys.isEmpty)
                 if seenAuthorPubkeys.isEmpty {
                     Text("Seen authors appear after NIP-34 events load.")
                         .font(.caption)
@@ -802,6 +821,7 @@ struct QueryRelayDemoView: View {
         .navigationTitle("NIP-0034 Viewer")
         .onAppear {
             sanitizeSelectedAuthors()
+            primeSeenAuthors()
             updateSubscription()
             updateMetadataSubscription()
         }
@@ -814,8 +834,6 @@ struct QueryRelayDemoView: View {
         }
         .onChange(of: selectedKind) { _ in
             events = []
-            seenAuthorPubkeySet = []
-            selectedSeenAuthorPubkey = ""
             selectedAuthorSource = selectedFollowedAuthorPubkey.isEmpty ? .selfPubkey : .followed
             updateSubscription()
             updateMetadataSubscription()
@@ -823,6 +841,9 @@ struct QueryRelayDemoView: View {
         .onDisappear {
             if let subscriptionId {
                 relayPool.closeSubscription(with: subscriptionId)
+            }
+            if let seenPrimeSubscriptionId {
+                relayPool.closeSubscription(with: seenPrimeSubscriptionId)
             }
             if let metadataSubscriptionId {
                 relayPool.closeSubscription(with: metadataSubscriptionId)
@@ -887,9 +908,18 @@ struct QueryRelayDemoView: View {
 
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
-            .map { $0.event }
-            .removeDuplicates()
-            .sink { event in
+            .sink { relayEvent in
+                guard relayEvent.subscriptionId == subscriptionId || relayEvent.subscriptionId == seenPrimeSubscriptionId else {
+                    return
+                }
+
+                let event = relayEvent.event
+
+                if relayEvent.subscriptionId == seenPrimeSubscriptionId {
+                    seenAuthorPubkeySet.insert(event.pubkey)
+                    return
+                }
+
                 if let metadataEvent = event as? MetadataEvent {
                     print("[QueryRelayDemo] metadata event pubkey=\(metadataEvent.pubkey) createdAt=\(metadataEvent.createdAt) displayName=\(metadataEvent.displayName ?? "nil") name=\(metadataEvent.name ?? "nil") pictureURL=\(metadataEvent.pictureURL?.absoluteString ?? "nil") bannerURL=\(metadataEvent.bannerPictureURL?.absoluteString ?? "nil")")
                     if metadataByPubkey[metadataEvent.pubkey]?.createdAt ?? 0 <= metadataEvent.createdAt {
@@ -901,10 +931,25 @@ struct QueryRelayDemoView: View {
                     return
                 }
 
-                events.insert(event, at: 0)
+                if events.contains(where: { $0.id == event.id }) == false {
+                    events.insert(event, at: 0)
+                }
                 seenAuthorPubkeySet.insert(event.pubkey)
                 updateMetadataSubscription()
             }
+    }
+
+    private func primeSeenAuthors() {
+        if let seenPrimeSubscriptionId {
+            relayPool.closeSubscription(with: seenPrimeSubscriptionId)
+        }
+
+        guard let filter = Filter(kinds: Array(kindOptions.keys.sorted())) else {
+            seenPrimeSubscriptionId = nil
+            return
+        }
+
+        seenPrimeSubscriptionId = relayPool.subscribe(with: filter)
     }
 
     private func updateMetadataSubscription() {
