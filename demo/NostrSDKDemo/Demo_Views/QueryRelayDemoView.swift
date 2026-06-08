@@ -834,7 +834,6 @@ struct QueryRelayDemoView: View {
         }
         .onChange(of: selectedKind) { _ in
             events = []
-            selectedAuthorSource = selectedFollowedAuthorPubkey.isEmpty ? .selfPubkey : .followed
             updateSubscription()
             updateMetadataSubscription()
         }
