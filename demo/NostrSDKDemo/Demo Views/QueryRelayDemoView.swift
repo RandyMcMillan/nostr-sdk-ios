@@ -779,7 +779,7 @@ struct QueryRelayDemoView: View {
                     Picker("Kind", selection: $selectedKind) {
                         ForEach(kindOptions.keys.sorted(), id: \.self) { number in
                             if let name = kindOptions[number] {
-                                Text("\(name) (\(String(number)))")
+                                Text(kindLabel(for: number, name: name))
                             } else {
                                 Text("\(String(number))")
                             }
@@ -890,6 +890,13 @@ struct QueryRelayDemoView: View {
         kindOptions.keys.sorted().map { kind in
             seenAuthorEventIDsByPubkey[pubkey]?[kind]?.count ?? 0
         }
+    }
+
+    private func kindLabel(for kind: Int, name: String) -> String {
+        let count = seenAuthorEventIDsByPubkey.values.reduce(0) { partial, kindsByPubkey in
+            partial + (kindsByPubkey[kind]?.count ?? 0)
+        }
+        return "\(name) (\(kind)) (\(count))"
     }
 
     private func sanitizeSelectedAuthors() {
