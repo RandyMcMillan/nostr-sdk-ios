@@ -934,7 +934,6 @@ struct QueryRelayDemoView: View {
                 if events.contains(where: { $0.id == event.id }) == false {
                     events.insert(event, at: 0)
                 }
-                seenAuthorPubkeySet.insert(event.pubkey)
                 updateMetadataSubscription()
             }
     }
