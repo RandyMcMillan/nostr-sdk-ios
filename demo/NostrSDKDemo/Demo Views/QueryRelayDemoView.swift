@@ -715,7 +715,12 @@ private struct MaintainerProfileView: View {
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
                             ForEach(events, id: \.id) { event in
-                                EventCardView(event: event, metadata: metadataLoader.metadata)
+                                NavigationLink(destination: EventDetailView(event: event,
+                                                                            metadata: metadataLoader.metadata,
+                                                                            referencedRepositoryAnnouncement: nil)) {
+                                    EventCardView(event: event, metadata: metadataLoader.metadata)
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
