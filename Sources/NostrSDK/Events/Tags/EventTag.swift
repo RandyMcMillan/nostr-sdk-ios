@@ -62,7 +62,11 @@ enum EventTagError: Error {
     case invalidInput
 }
 
-/// Represents an "e" tag which is an event tag.
+/// Represents an "e" tag, which is an event edge in the graph.
+///
+/// The tag carries the target event id plus optional relay, marker, and author data.
+/// Use it as a relational edge, not just a label: `root`, `reply`, and `mention`
+/// describe how the target fits into the thread or traversal path.
 ///
 /// See [NIP-10](https://github.com/nostr-protocol/nips/blob/master/10.md#marked-e-tags-preferred) for a description of marked "e" tags.
 public struct EventTag: RelayProviding, RelayURLValidating, Equatable {
@@ -151,6 +155,10 @@ public struct EventTag: RelayProviding, RelayURLValidating, Equatable {
 }
 
 /// Interprets threaded tags on events.
+///
+/// Threaded events are graph walks over `e` and `p` edges:
+/// `e` tags define the thread structure, while `p` tags preserve the pubkey
+/// neighborhood so clients can traverse from a reply to its author set.
 /// See [NIP-10](https://github.com/nostr-protocol/nips/blob/master/10.md).
 public protocol ThreadedEventTagInterpreting: NostrEvent {}
 public extension ThreadedEventTagInterpreting {
@@ -233,6 +241,10 @@ public extension ThreadedEventTagInterpreting {
 }
 
 /// Builds tags on a threaded event.
+///
+/// This preserves the relational shape of the graph when replying:
+/// root/reply markers are ordered for compatibility, and the parent author's
+/// `p` tags are copied so downstream clients can continue traversal.
 /// See [NIP-10](https://github.com/nostr-protocol/nips/blob/master/10.md).
 public protocol ThreadedEventTagBuilding: NostrEventBuilding, RelayURLValidating {}
 public extension ThreadedEventTagBuilding {

@@ -7,7 +7,13 @@
 
 import Foundation
 
-/// This event attaches labels to label targets. This allows for labeling of events, people, relays, or topics.
+/// This event attaches labels to label targets.
+///
+/// Labels are meta-edges in the graph: they can point at events, pubkeys,
+/// relays, coordinates, or topics, and the mark/namespace decides how to group
+/// or interpret the relationship.
+///
+/// This allows for labeling of events, people, relays, or topics.
 /// This supports several use cases, including distributed moderation, collection management, license assignment, and content classification.
 ///
 /// See [NIP-32 Labeling](https://github.com/nostr-protocol/nips/blob/master/32.md).

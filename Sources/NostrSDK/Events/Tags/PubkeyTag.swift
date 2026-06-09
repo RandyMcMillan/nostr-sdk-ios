@@ -7,6 +7,10 @@
 
 import Foundation
 
+/// Represents a `p` tag, which is the pubkey edge in the graph.
+///
+/// The tag points at a person or service identity and can carry an optional relay
+/// hint plus a petname. Use it for traversal, not display-only text.
 public struct PubkeyTag: RelayProviding, RelayURLValidating, Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.tag == rhs.tag

@@ -12,6 +12,9 @@ enum EventCoordinatesError: Error {
 }
 
 /// Coordinates to an addressable or normal replaceable event.
+///
+/// This is the stable address node in the graph: `kind + pubkey + identifier`
+/// (plus an optional relay hint) becomes the join key for replaceable content.
 /// See [NIP-01 Tags](https://github.com/nostr-protocol/nips/blob/master/01.md#tags).
 public struct EventCoordinates: PubkeyProviding, RelayProviding, RelayURLValidating, Equatable, Hashable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
@@ -71,6 +74,9 @@ public struct EventCoordinates: PubkeyProviding, RelayProviding, RelayURLValidat
     }
 
     /// Initializes coordinates to a replaceable event from a ``Tag``.
+    ///
+    /// The raw tag is the persisted join row; this wrapper just exposes the
+    /// structured pieces that clients traverse by kind, author, and identifier.
     /// For an addressable event, a tag value of `<kind integer>:<32-bytes lowercase hex of a pubkey>:<d tag value>` is expected.
     /// For a normal replaceable event, a tag value of `<kind integer>:<32-bytes lowercase hex of a pubkey>:` is expected.
     ///

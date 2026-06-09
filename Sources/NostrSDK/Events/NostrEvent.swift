@@ -136,21 +136,33 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     }
 
     /// Pubkeys referenced in this event.
+    ///
+    /// Treat this as the pubkey edge projection of the event graph: each `p` tag
+    /// points to a related author, participant, recipient, or maintainer.
     public var referencedPubkeys: [String] {
         allValues(forTagName: .pubkey)
     }
 
     /// Events referenced in this event.
+    ///
+    /// Treat this as the event edge projection of the graph: each `e` tag points
+    /// to another event node, usually as a reply, mention, repost, deletion, or bookmark.
     public var referencedEventIds: [String] {
         allValues(forTagName: .event)
     }
 
     /// Event coordinates referenced in this event.
+    ///
+    /// These are the addressable-event joins in the graph: `a`/`d`-style coordinates
+    /// carry the stable identity for replaceable or addressable nodes.
     public var referencedEventCoordinates: [EventCoordinates] {
         tags.compactMap { EventCoordinates(eventCoordinatesTag: $0) }
     }
 
     /// All tags with the provided name.
+    ///
+    /// Tags are the underlying join rows of the event graph; higher-level accessors
+    /// simply project them into event, pubkey, coordinate, relay, or label edges.
     public func allTags(withTagName tagName: TagName) -> [Tag] {
         tags.filter { $0.name == tagName.rawValue }
     }
@@ -166,6 +178,9 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     }
     
     /// All values for tags with the provided name.
+    ///
+    /// Use this when the tag family is being treated as a relationship list rather
+    /// than display text, for example `p`, `e`, `t`, or `d`-style joins.
     /// - Parameter tag: The tag name to filter.
     /// - Returns: The values associated with the tags of the provided name.
     public func allValues(forTagName tag: TagName) -> [String] {
