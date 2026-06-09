@@ -345,7 +345,8 @@ struct HostedRepositoriesView: View {
             }
 
             Section {
-                HostedReposHeaderView()
+                HostedReposHeaderView(availableCount: availableSeenRepositories.count,
+                                      unavailableCount: unavailableSeenRepositories.count)
             }
 
             Section("Hosted Repositories") {
@@ -499,23 +500,20 @@ struct HostedRepositoriesView: View {
 }
 
 private struct HostedReposHeaderView: View {
+    let availableCount: Int
+    let unavailableCount: Int
+
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "folder.fill")
-                .font(.title2)
-                .foregroundStyle(.primary)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Local Repos")
-                    .font(.headline)
-                //Text("Cloned repositories and their availability.")
-                //    .font(.caption)
-                //    .foregroundColor(.secondary)
+        ContextAwareHeaderView(
+            title: "Hosted Repos",
+            subtitle: "Cloned repositories and their availability.",
+            systemImage: "folder.fill",
+            accessory: {
+            VStack(alignment: .trailing, spacing: 6) {
+                HeaderMetricPill(value: "\(availableCount)", label: "available")
+                HeaderMetricPill(value: "\(unavailableCount)", label: "pending")
             }
-
-            Spacer(minLength: 0)
-        }
-        .padding(.vertical, 6)
+        })
     }
 }
 
