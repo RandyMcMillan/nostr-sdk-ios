@@ -1055,20 +1055,40 @@ private struct MaintainerProfileView: View {
 
         var body: some View {
             ScrollView {
-                EventCardView(event: event,
-                              metadata: metadata,
-                              eventByID: eventByID,
-                              eventByCoordinate: eventByCoordinate,
-                              repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
-                    .padding()
+                VStack(spacing: 0) {
+                    ContextAwareHeaderView(
+                        title: "30617 Event",
+                        subtitle: "Repository announcement details.",
+                        systemImage: "doc.text.magnifyingglass",
+                        bannerHeight: 180
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+
+                    EventCardView(event: event,
+                                  metadata: metadata,
+                                  eventByID: eventByID,
+                                  eventByCoordinate: eventByCoordinate,
+                                  repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+                        .padding()
+                }
             }
-            .navigationTitle("30617 Event")
         }
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                ContextAwareHeaderView(
+                    title: metadataLoader.metadata?.displayName ?? metadataLoader.metadata?.name ?? "Maintainer",
+                    subtitle: metadataLoader.metadata?.about ?? "Repository announcements for this maintainer.",
+                    systemImage: "person.crop.circle",
+                    bannerURL: metadataLoader.metadata?.bannerPictureURL,
+                    bannerHeight: 180
+                )
+                .padding(.horizontal)
+                .padding(.top, 8)
+
                 PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
                     .frame(height: 240)
 
@@ -1091,7 +1111,6 @@ private struct MaintainerProfileView: View {
             }
             .padding()
         }
-        .navigationTitle("Maintainer")
         .onAppear {
             refresh()
         }
@@ -1317,7 +1336,17 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 0) {
+            ContextAwareHeaderView(
+            title: "NIP-0034 Viewer",
+            subtitle: "Browse repository announcements and related events.",
+            systemImage: "list.bullet.rectangle.portrait",
+            bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
+
+            VStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top, spacing: 12) {
                     VStack(alignment: .leading, spacing: 10) {
@@ -1450,7 +1479,7 @@ struct QueryRelayDemoView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
         }
-        .navigationTitle("NIP-0034 Viewer")
+        }
         .onAppear {
             sanitizeSelectedAuthors()
             primeSeenAuthors()

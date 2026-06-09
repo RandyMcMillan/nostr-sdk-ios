@@ -19,30 +19,41 @@ struct ConnectRelayView: View {
     @State private var stateCancellable: AnyCancellable?
 
     var body: some View {
-        VStack(spacing: 12) {
-            if relay?.state == .connected {
-                Text("Connected to: \(relayURLString)")
-                    .font(.footnote)
-                Button(role: .destructive) {
-                    relay?.disconnect()
-                } label: {
-                    Text("Disconnect")
-                }
-            } else {
-                TextField(text: $relayURLString) {
-                    Text("wss://nos.lol")
-                }
-                .textFieldStyle(.roundedBorder)
-                .autocapitalization(.none)
-                .autocorrectionDisabled()
+        VStack(spacing: 0) {
+            ContextAwareHeaderView(
+                title: "Connect Relay",
+                subtitle: "Connect to a Nostr relay.",
+                systemImage: "network",
+                bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
 
-                Button("Connect") {
-                    attemptRelayConnect()
+            VStack(spacing: 12) {
+                if relay?.state == .connected {
+                    Text("Connected to: \(relayURLString)")
+                        .font(.footnote)
+                    Button(role: .destructive) {
+                        relay?.disconnect()
+                    } label: {
+                        Text("Disconnect")
+                    }
+                } else {
+                    TextField(text: $relayURLString) {
+                        Text("wss://nos.lol")
+                    }
+                    .textFieldStyle(.roundedBorder)
+                    .autocapitalization(.none)
+                    .autocorrectionDisabled()
+
+                    Button("Connect") {
+                        attemptRelayConnect()
+                    }
+                    Text(relayError ?? status(state))
                 }
-                Text(relayError ?? status(state))
             }
+            .padding()
         }
-        .padding()
         .onAppear {
             attemptRelayConnect()
         }

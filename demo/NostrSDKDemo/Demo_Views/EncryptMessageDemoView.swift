@@ -23,43 +23,54 @@ struct EncryptMessageDemoView: View, EventCreating {
     @State private var encryptedMessage: String = ""
 
     var body: some View {
-        Form {
-            Text("Encrypt Demo")
-            Section("Recipient") {
-                KeyInputSectionView(key: $recipientPublicKey,
-                                    isValid: $recipientPublicKeyIsValid,
-                                    type: .public)
-            }
-            if recipientPublicKeyIsValid {
-                Section("Recipient Metadata") {
-                    PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
+        VStack(spacing: 0) {
+            ContextAwareHeaderView(
+                title: "NIP-44 Encrypt",
+                subtitle: "Encrypt a message for a recipient.",
+                systemImage: "lock.fill",
+                bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
+
+            Form {
+                Text("Encrypt Demo")
+                Section("Recipient") {
+                    KeyInputSectionView(key: $recipientPublicKey,
+                                        isValid: $recipientPublicKeyIsValid,
+                                        type: .public)
                 }
-            }
-            Section("Sender") {
-                KeyInputSectionView(key: $senderPrivateKey,
-                                    isValid: $senderPrivateKeyIsValid,
-                                    type: .private)
-            }
-            Section("Message") {
-                TextField("Enter a message.", text: $message)
-            }
-            Button("Encrypt") {
-                guard let recipientPublicKey = publicKey(),
-                      let senderKeyPair = keypair() else {
-                    return
+                if recipientPublicKeyIsValid {
+                    Section("Recipient Metadata") {
+                        PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
+                    }
                 }
-                do {
-                    encryptedMessage = try encrypt(plaintext: message, privateKeyA: senderKeyPair.privateKey, publicKeyB: recipientPublicKey)
-                } catch {
-                    encryptedMessage = ""
-                    print(error.localizedDescription)
+                Section("Sender") {
+                    KeyInputSectionView(key: $senderPrivateKey,
+                                        isValid: $senderPrivateKeyIsValid,
+                                        type: .private)
                 }
-            }
-            .disabled(!ready())
-            
-            if encryptedMessage != "" {
-                Section("Encrypted Message") {
-                    TextField("Encrypted Message", text: $encryptedMessage)
+                Section("Message") {
+                    TextField("Enter a message.", text: $message)
+                }
+                Button("Encrypt") {
+                    guard let recipientPublicKey = publicKey(),
+                          let senderKeyPair = keypair() else {
+                        return
+                    }
+                    do {
+                        encryptedMessage = try encrypt(plaintext: message, privateKeyA: senderKeyPair.privateKey, publicKeyB: recipientPublicKey)
+                    } catch {
+                        encryptedMessage = ""
+                        print(error.localizedDescription)
+                    }
+                }
+                .disabled(!ready())
+
+                if encryptedMessage != "" {
+                    Section("Encrypted Message") {
+                        TextField("Encrypted Message", text: $encryptedMessage)
+                    }
                 }
             }
         }

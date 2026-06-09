@@ -524,22 +524,32 @@ struct RepoView: View {
     let repository: DemoRepositoryHostStore.HostedRepository
 
     var body: some View {
-        Form {
-            Section("Repository") {
-                LabeledContent("Name") {
-                    Text(repository.displayName)
-                }
-                LabeledContent("Remote") {
-                    Text(repository.remoteURL.absoluteString)
-                        .multilineTextAlignment(.trailing)
-                        .textSelection(.enabled)
-                }
-                LabeledContent("Local") {
-                    Text(repository.localURL.path)
-                        .multilineTextAlignment(.trailing)
+        VStack(spacing: 0) {
+            ContextAwareHeaderView(
+                title: repository.displayName,
+                subtitle: repository.remoteURL.absoluteString,
+                systemImage: "folder.fill",
+                bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
+
+            Form {
+                Section("Repository") {
+                    LabeledContent("Name") {
+                        Text(repository.displayName)
+                    }
+                    LabeledContent("Remote") {
+                        Text(repository.remoteURL.absoluteString)
+                            .multilineTextAlignment(.trailing)
+                            .textSelection(.enabled)
+                    }
+                    LabeledContent("Local") {
+                        Text(repository.localURL.path)
+                            .multilineTextAlignment(.trailing)
+                    }
                 }
             }
         }
-        .navigationTitle(repository.displayName)
     }
 }
