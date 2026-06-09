@@ -360,10 +360,6 @@ struct HostedRepositoriesView: View {
                                         .foregroundColor(.secondary)
                                         .lineLimit(2)
                                         .textSelection(.enabled)
-                                    Text(repository.localURL.path)
-                                        .font(.caption2.monospaced())
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -389,38 +385,18 @@ struct HostedRepositoriesView: View {
                     Text("No seen repositories yet.")
                         .foregroundColor(.secondary)
                 } else {
-                    ForEach(seenRepositories, id: \.self) { repositoryURL in
-                        HStack {
-                            availabilityIcon(for: repositoryURL)
-                            Text(repositoryURL.absoluteString)
-                                .foregroundColor(repositoryHostStore.failedRepositoryURLs.contains(repositoryURL) ? .red : .primary)
-                                .textSelection(.enabled)
-                            Spacer()
-                            if hasHostedRepository(repositoryURL) {
-                                Button(role: .destructive) {
-                                    repositoryHostStore.removeHostedRepository(repositoryURL)
-                                } label: {
-                                    Text("Remove")
-                                }
-                            } else {
-                                Button("Add") {
-                                    add(repositoryURL)
-                                }
+                    if availableSeenRepositories.isEmpty == false {
+                        Section("Available") {
+                            ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
+                                seenRepositoryRow(for: repositoryURL)
                             }
                         }
-                        .swipeActions(edge: .trailing) {
-                            if hasHostedRepository(repositoryURL) {
-                                Button(role: .destructive) {
-                                    repositoryHostStore.removeHostedRepository(repositoryURL)
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
-                            } else {
-                                Button(role: .destructive) {
-                                    repositoryHostStore.removeSeen(repositoryURL)
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
+                    }
+
+                    if unavailableSeenRepositories.isEmpty == false {
+                        Section("Unavailable") {
+                            ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
+                                seenRepositoryRow(for: repositoryURL)
                             }
                         }
                     }
@@ -436,6 +412,14 @@ struct HostedRepositoriesView: View {
             .sorted { $0.absoluteString < $1.absoluteString }
     }
 
+    private var availableSeenRepositories: [URL] {
+        seenRepositories.filter { availability(for: $0) == .available }
+    }
+
+    private var unavailableSeenRepositories: [URL] {
+        seenRepositories.filter { availability(for: $0) != .available }
+    }
+
     private func hasHostedRepository(_ repositoryURL: URL) -> Bool {
         repositoryHostStore.repositories.contains(where: { $0.remoteURL == repositoryURL })
     }
@@ -446,22 +430,66 @@ struct HostedRepositoriesView: View {
     }
 
     @ViewBuilder
-    private func availabilityIcon(for repositoryURL: URL) -> some View {
+    private func seenRepositoryRow(for repositoryURL: URL) -> some View {
+        HStack {
+            availabilityIcon(for: repositoryURL)
+            Text(repositoryURL.absoluteString)
+                .foregroundColor(rowColor(for: repositoryURL))
+                .textSelection(.enabled)
+            Spacer()
+            if hasHostedRepository(repositoryURL) {
+                Button(role: .destructive) {
+                    repositoryHostStore.removeHostedRepository(repositoryURL)
+                } label: {
+                    Text("Remove")
+                }
+            } else {
+                Button("Add") {
+                    add(repositoryURL)
+                }
+            }
+        }
+        .swipeActions(edge: .trailing) {
+            if hasHostedRepository(repositoryURL) {
+                Button(role: .destructive) {
+                    repositoryHostStore.removeHostedRepository(repositoryURL)
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                }
+            } else {
+                Button(role: .destructive) {
+                    repositoryHostStore.removeSeen(repositoryURL)
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                }
+            }
+        }
+    }
+
+    private func availability(for repositoryURL: URL) -> DemoRepositoryHostStore.RepositoryAvailability {
         if repositoryHostStore.checkingRepositoryURLs.contains(repositoryURL) {
+            return .checking
+        }
+
+        return repositoryHostStore.repositoryAvailabilityByURL[repositoryURL] ?? .checking
+    }
+
+    private func rowColor(for repositoryURL: URL) -> Color {
+        .primary
+    }
+
+    @ViewBuilder
+    private func availabilityIcon(for repositoryURL: URL) -> some View {
+        switch availability(for: repositoryURL) {
+        case .available:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+        case .checking:
             Image(systemName: "questionmark.circle.fill")
                 .foregroundStyle(.yellow)
-        } else {
-            switch repositoryHostStore.repositoryAvailabilityByURL[repositoryURL] {
-            case .available:
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-            case .unavailable:
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.red)
-            case .checking, .none:
-                Image(systemName: "questionmark.circle.fill")
-                    .foregroundStyle(.yellow)
-            }
+        case .unavailable:
+            Image(systemName: "xmark.circle.fill")
+                .foregroundStyle(.red)
         }
     }
 }
