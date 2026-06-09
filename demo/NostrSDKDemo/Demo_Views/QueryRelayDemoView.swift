@@ -113,11 +113,26 @@ private func eventCoordinateIndex(for events: [NostrEvent]) -> [String: NostrEve
     }
 }
 
+private func repoEventIndex(for events: [NostrEvent]) -> [String: [Int: NostrEvent]] {
+    events.reduce(into: [:]) { result, event in
+        guard let repoID = event.tags.first(where: { $0.name == "d" })?.value else {
+            return
+        }
+
+        var eventsByKind = result[repoID] ?? [:]
+        if eventsByKind[event.kind.rawValue]?.createdAt ?? 0 <= event.createdAt {
+            eventsByKind[event.kind.rawValue] = event
+            result[repoID] = eventsByKind
+        }
+    }
+}
+
 private struct EventCardView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
     let eventByID: [String: NostrEvent]
     let eventByCoordinate: [String: NostrEvent]
+    let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
@@ -129,6 +144,7 @@ private struct EventCardView: View {
     }
 
     private enum TagTarget: Hashable {
+        case repo(String)
         case pubkey(String)
         case event(String)
         case coordinate(String)
@@ -383,6 +399,20 @@ private struct EventCardView: View {
     private func tagRow(for item: TagItem) -> some View {
         if let target = item.target {
             switch target {
+            case .repo(let repoID):
+                if let linkedEvent = repositoryEvent(for: repoID) {
+                    NavigationLink(destination: EventDetailView(event: linkedEvent,
+                                                                metadata: metadata,
+                                                                eventByID: eventByID,
+                                                                eventByCoordinate: eventByCoordinate,
+                                                                repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
+                                                                referencedRepositoryAnnouncement: nil)) {
+                        TagChipView(label: item.label, value: item.value)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    TagChipView(label: item.label, value: item.value)
+                }
             case .pubkey(let pubkey):
                 NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
                     TagChipView(label: item.label, value: item.value)
@@ -394,6 +424,7 @@ private struct EventCardView: View {
                                                                 metadata: metadata,
                                                                 eventByID: eventByID,
                                                                 eventByCoordinate: eventByCoordinate,
+                                                                repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                                 referencedRepositoryAnnouncement: nil)) {
                         TagChipView(label: item.label, value: item.value)
                     }
@@ -407,6 +438,7 @@ private struct EventCardView: View {
                                                                 metadata: metadata,
                                                                 eventByID: eventByID,
                                                                 eventByCoordinate: eventByCoordinate,
+                                                                repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                                 referencedRepositoryAnnouncement: nil)) {
                         TagChipView(label: item.label, value: item.value)
                     }
@@ -431,6 +463,8 @@ private struct EventCardView: View {
 
     private func linkTarget(forTagName tagName: String, value: String) -> TagTarget? {
         switch tagName {
+        case "d":
+            return .repo(value)
         case TagName.pubkey.rawValue:
             return .pubkey(value)
         case TagName.event.rawValue:
@@ -445,6 +479,10 @@ private struct EventCardView: View {
             return .url(url)
         }
     }
+
+    private func repositoryEvent(for repoID: String) -> NostrEvent? {
+        repoEventByRepoIDAndKind[repoID]?[30617] ?? repoEventByRepoIDAndKind[repoID]?[30618]
+    }
 }
 
 private enum AuthorSource {
@@ -458,6 +496,7 @@ private struct EventDetailView: View {
     let metadata: MetadataEvent?
     let eventByID: [String: NostrEvent]
     let eventByCoordinate: [String: NostrEvent]
+    let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]]
     let referencedRepositoryAnnouncement: NostrEvent?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -470,6 +509,7 @@ private struct EventDetailView: View {
     }
 
     private enum TagTarget: Hashable {
+        case repo(String)
         case pubkey(String)
         case event(String)
         case coordinate(String)
@@ -709,6 +749,20 @@ private struct EventDetailView: View {
     private func tagRow(for item: TagItem) -> some View {
         if let target = item.target {
             switch target {
+            case .repo(let repoID):
+                if let linkedEvent = repositoryEvent(for: repoID) {
+                    NavigationLink(destination: EventDetailView(event: linkedEvent,
+                                                                metadata: metadata,
+                                                                eventByID: eventByID,
+                                                                eventByCoordinate: eventByCoordinate,
+                                                                repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
+                                                                referencedRepositoryAnnouncement: referencedRepositoryAnnouncement)) {
+                        TagChipView(label: item.label, value: item.value)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    TagChipView(label: item.label, value: item.value)
+                }
             case .pubkey(let pubkey):
                 NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
                     TagChipView(label: item.label, value: item.value)
@@ -720,6 +774,7 @@ private struct EventDetailView: View {
                                                                 metadata: metadata,
                                                                 eventByID: eventByID,
                                                                 eventByCoordinate: eventByCoordinate,
+                                                                repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                                 referencedRepositoryAnnouncement: nil)) {
                         TagChipView(label: item.label, value: item.value)
                     }
@@ -733,6 +788,7 @@ private struct EventDetailView: View {
                                                                 metadata: metadata,
                                                                 eventByID: eventByID,
                                                                 eventByCoordinate: eventByCoordinate,
+                                                                repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                                 referencedRepositoryAnnouncement: nil)) {
                         TagChipView(label: item.label, value: item.value)
                     }
@@ -757,6 +813,8 @@ private struct EventDetailView: View {
 
     private func linkTarget(forTagName tagName: String, value: String) -> TagTarget? {
         switch tagName {
+        case "d":
+            return .repo(value)
         case TagName.pubkey.rawValue:
             return .pubkey(value)
         case TagName.event.rawValue:
@@ -770,6 +828,10 @@ private struct EventDetailView: View {
             guard let url = URL(string: value), url.scheme != nil else { return nil }
             return .url(url)
         }
+    }
+
+    private func repositoryEvent(for repoID: String) -> NostrEvent? {
+        repoEventByRepoIDAndKind[repoID]?[30617] ?? repoEventByRepoIDAndKind[repoID]?[30618]
     }
 
     @ViewBuilder
@@ -844,11 +906,13 @@ private struct MaintainerProfileView: View {
                                                                             metadata: metadataLoader.metadata,
                                                                             eventByID: eventsByID,
                                                                             eventByCoordinate: eventsByCoordinate,
+                                                                            repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                                             referencedRepositoryAnnouncement: nil)) {
                                     EventCardView(event: event,
                                                   metadata: metadataLoader.metadata,
                                                   eventByID: eventsByID,
-                                                  eventByCoordinate: eventsByCoordinate)
+                                                  eventByCoordinate: eventsByCoordinate,
+                                                  repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -1191,11 +1255,13 @@ struct QueryRelayDemoView: View {
                                                                     metadata: metadataByPubkey[event.pubkey],
                                                                     eventByID: eventsByID,
                                                                     eventByCoordinate: eventsByCoordinate,
+                                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                                     referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: event))) {
                             EventCardView(event: event,
                                           metadata: metadataByPubkey[event.pubkey],
                                           eventByID: eventsByID,
-                                          eventByCoordinate: eventsByCoordinate)
+                                          eventByCoordinate: eventsByCoordinate,
+                                          repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
                         }
                         .buttonStyle(.plain)
                         .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
