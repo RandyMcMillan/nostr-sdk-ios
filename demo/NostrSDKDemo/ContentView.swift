@@ -427,6 +427,16 @@ private struct SettingsView: View {
                                                lud06: $lud06,
                                                lud16: $lud16)
                 }
+
+                Section("Git Settings") {
+                    NavigationLink(destination: HostedRepositoriesView()) {
+                        Text("Hosted Repositories")
+                    }
+
+                    Text("Repository priming runs at app launch and collects clone tags from NIP-34 events.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
             //.navigationTitle("139:Settings")
             //.navigationBarTitleDisplayMode(.large)
