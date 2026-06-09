@@ -604,22 +604,15 @@ private struct SettingsNavHeaderView: View {
     let metadata: MetadataEvent?
 
     var body: some View {
-        VStack(spacing: 4) {
-            //Spacer(minLength: 10.0)
-            //Spacer(minLength: 10.0)
-            Spacer(minLength: 10.0)
-            HStack(spacing: 1) {
-                Spacer(minLength: 10.0)
-                SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 256)
-                HStack(spacing: 8) {
-                //SettingsAvatarView(metadata: metadata, size: 64)
-                //Text(metadata?.displayName ?? metadata?.name ?? "Settings")
-                //    .font(.caption.weight(.semibold))
-                //    .foregroundColor(.primary)
-                //    .lineLimit(1)
-                }
-            }
-        }
+        ContextAwareHeaderView(
+            title: metadata?.displayName ?? metadata?.name ?? "Settings",
+            subtitle: metadata?.about ?? "Profile, relays, and git settings.",
+            systemImage: "gearshape",
+            hero: {
+            SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 180)
+        }, accessory: {
+            SettingsAvatarView(metadata: metadata, size: 52)
+        })
     }
 }
 
