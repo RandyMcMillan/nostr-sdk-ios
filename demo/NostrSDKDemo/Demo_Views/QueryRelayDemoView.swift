@@ -202,6 +202,17 @@ private struct EventCardView: View {
         event.kind.rawValue == 1617
     }
 
+    private var relatedRepositoryEventTitle: String {
+        switch event.kind.rawValue {
+        case 1631:
+            return "Related patch"
+        case 30618:
+            return "Related repository announcement"
+        default:
+            return "Related event"
+        }
+    }
+
     private var cardTags: [TagItem] {
         // Promote the semantic fields first, then append any remaining raw tags.
         let primaryTags: [TagItem?] = [
@@ -693,6 +704,31 @@ private struct EventDetailView: View {
                     }
                     if let maintainersText {
                         MaintainersTagValueView(pubkeys: maintainerPubkeys)
+                    }
+                    if let referencedRepositoryAnnouncement {
+                        NavigationLink(destination: EventDetailView(event: referencedRepositoryAnnouncement,
+                                                                    metadata: metadata,
+                                                                    eventByID: eventByID,
+                                                                    eventByCoordinate: eventByCoordinate,
+                                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
+                                                                    referencedRepositoryAnnouncement: nil)) {
+                            HStack {
+                                Text(relatedRepositoryEventTitle)
+                                    .font(.caption.weight(.semibold))
+                                Spacer(minLength: 0)
+                                Text(referencedRepositoryAnnouncement.id)
+                                    .font(.caption.monospaced())
+                                    .lineLimit(1)
+                            }
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .fill(Color(.tertiarySystemFill))
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(14)
@@ -1438,8 +1474,15 @@ struct QueryRelayDemoView: View {
     }
 
     private func referencedRepositoryAnnouncement(for event: NostrEvent) -> NostrEvent? {
-        guard event.kind.rawValue == 30618, let repoID = repoID(for: event) else { return nil }
-        return repoEventByRepoIDAndKind[repoID]?[30617]
+        guard let repoID = repoID(for: event) else { return nil }
+        switch event.kind.rawValue {
+        case 1631:
+            return repoEventByRepoIDAndKind[repoID]?[1617]
+        case 30618:
+            return repoEventByRepoIDAndKind[repoID]?[30617]
+        default:
+            return nil
+        }
     }
 
     private func repoID(for event: NostrEvent) -> String? {
