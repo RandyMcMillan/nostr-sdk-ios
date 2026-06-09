@@ -102,6 +102,7 @@ struct ContentView: View {
     @State private var relay: Relay?
     @State private var selectedDestination: SidebarDestination = .connectRelay
     @State private var navigationPath = NavigationPath()
+    @State private var navigationResetToken = UUID()
     @State private var orientation: AppOrientation = .landscape
 
     var body: some View {
@@ -129,6 +130,7 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color(.systemBackground))
                 }
+                .id(navigationResetToken)
             }
         case .portrait:
             VStack(spacing: 0) {
@@ -142,6 +144,7 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color(.systemBackground))
                 }
+                .id(navigationResetToken)
             }
         }
     }
@@ -165,6 +168,7 @@ struct ContentView: View {
                 ForEach(SidebarDestination.sidebarCases) { destination in
                     Button {
                         navigationPath = NavigationPath()
+                        navigationResetToken = UUID()
                         selectedDestination = destination
                     } label: {
                         HStack(spacing: 12) {
@@ -181,6 +185,7 @@ struct ContentView: View {
 
             Button {
                 navigationPath = NavigationPath()
+                navigationResetToken = UUID()
                 selectedDestination = .settings
             } label: {
                 HStack(spacing: 12) {
