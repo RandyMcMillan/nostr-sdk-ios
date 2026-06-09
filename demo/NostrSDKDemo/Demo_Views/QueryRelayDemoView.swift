@@ -942,6 +942,68 @@ private struct MaintainerProfileView: View {
     @State private var subscriptionId: String?
     @State private var trackedPubkey: String?
 
+    private struct SummaryCard: View {
+        let event: NostrEvent
+        let title: String
+
+        private var repoID: String? {
+            event.tags.first(where: { $0.name == "d" })?.value
+        }
+
+        private var summary: String? {
+            if let name = event.tags.first(where: { $0.name == "name" })?.value, name.isEmpty == false {
+                return name
+            }
+            if let description = event.tags.first(where: { $0.name == "description" })?.value, description.isEmpty == false {
+                return description
+            }
+            if event.content.isEmpty == false {
+                return event.content
+            }
+            return nil
+        }
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(title)
+                        .font(.caption.weight(.semibold))
+                    Spacer(minLength: 0)
+                    Text("Kind \(event.kind.rawValue)")
+                        .font(.caption2.monospaced())
+                }
+
+                if let repoID {
+                    Text(repoID)
+                        .font(.caption2.monospaced())
+                        .lineLimit(1)
+                }
+
+                if let summary {
+                    Text(summary)
+                        .font(.caption)
+                        .lineLimit(3)
+                }
+
+                Text(event.id)
+                    .font(.caption2.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            .foregroundColor(.primary)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(Color(.separator).opacity(0.15))
+            )
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -1001,11 +1063,7 @@ private struct MaintainerProfileView: View {
                                                     eventByCoordinate: eventsByCoordinate,
                                                     repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
                                                     referencedRepositoryAnnouncement: nil)) {
-            EventCardView(event: event,
-                          metadata: metadataLoader.metadata,
-                          eventByID: eventsByID,
-                          eventByCoordinate: eventsByCoordinate,
-                          repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+            SummaryCard(event: event, title: "30617: Repo Announcement")
         }
         .buttonStyle(.plain)
     }
