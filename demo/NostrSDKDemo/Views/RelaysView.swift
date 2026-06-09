@@ -105,7 +105,7 @@ struct RelaysView: View {
                             relay.statusImage
 
                             Button(role: .destructive) {
-                                pool.remove(relay: relay)
+                                disconnect(relay)
                             } label: {
                                 Label("Disconnect", systemImage: "xmark.circle.fill")
                             }
@@ -132,7 +132,7 @@ struct RelaysView: View {
                                 Spacer()
                                 if contains(relayURL) {
                                     Button(role: .destructive) {
-                                        pool.removeRelay(withURL: relayURL)
+                                        disconnect(relayURL)
                                     } label: {
                                         Text("Remove")
                                     }
@@ -151,7 +151,7 @@ struct RelaysView: View {
                                     }
                                 } else {
                                     Button(role: .destructive) {
-                                        pool.removeRelay(withURL: relayURL)
+                                        disconnect(relayURL)
                                     } label: {
                                         Label("Remove", systemImage: "trash")
                                     }
@@ -185,8 +185,18 @@ struct RelaysView: View {
         pool.add(relay: relay)
         relayDirectory.removeSeen(relayURL)
     }
+
+    private func disconnect(_ relay: Relay) {
+        relayDirectory.record(seen: [relay.url])
+        pool.remove(relay: relay)
+    }
+
+    private func disconnect(_ relayURL: URL) {
+        relayDirectory.record(seen: [relayURL])
+        pool.removeRelay(withURL: relayURL)
+    }
     
     private func remove(at offsets: IndexSet) {
-        offsets.map { relays[$0] }.forEach { pool.remove(relay: $0) }
+        offsets.map { relays[$0] }.forEach { disconnect($0) }
     }
 }
