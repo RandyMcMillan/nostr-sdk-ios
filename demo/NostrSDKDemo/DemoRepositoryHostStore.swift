@@ -336,77 +336,65 @@ struct HostedRepositoriesView: View {
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
 
     var body: some View {
-        List {
-            if let lastErrorMessage = repositoryHostStore.lastErrorMessage {
-                Section {
-                    Text(lastErrorMessage)
-                        .foregroundColor(.red)
-                }
-            }
-
-            Section("Hosted Repositories") {
-                if repositoryHostStore.repositories.isEmpty {
-                    Text("No hosted repositories yet.")
-                        .foregroundColor(.secondary)
-                } else {
-                    ForEach(repositoryHostStore.repositories) { repository in
-                        HStack(alignment: .center, spacing: 10) {
-                            NavigationLink(destination: RepoView(repository: repository)) {
-                                VStack(alignment: .leading, spacing: 0) {
-                                    Text(repository.displayName)
-                                        .font(.headline)
-                                        .lineLimit(1)
-                                        .textSelection(.enabled)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            Spacer(minLength: 8)
-                            Button {
-                                repositoryHostStore.removeHostedRepository(repository.remoteURL)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(.red)
-                                    .padding(8)
-                                    .background(.red.opacity(0.12), in: Circle())
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Remove repository")
-                        }
-                        .padding(.vertical, 2)
-                    }
-                }
-            }
-
-            Section("Seen Repositories") {
-                if seenRepositories.isEmpty {
-                    Text("No seen repositories yet.")
-                        .foregroundColor(.secondary)
-                } else {
-                    if availableSeenRepositories.isEmpty == false {
-                        Section("Available") {
-                            ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
-                                seenRepositoryRow(for: repositoryURL)
-                            }
-                        }
-                    }
-
-                    if unavailableSeenRepositories.isEmpty == false {
-                        Section("Unavailable") {
-                            ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
-                                seenRepositoryRow(for: repositoryURL)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
+        VStack(spacing: 0) {
             HostedReposHeaderView(availableCount: availableSeenRepositories.count,
                                   unavailableCount: unavailableSeenRepositories.count)
                 .padding(.horizontal)
                 .padding(.top, 8)
+
+            ZStack(alignment: .topTrailing) {
+                List {
+                    if let lastErrorMessage = repositoryHostStore.lastErrorMessage {
+                        Section {
+                            Text(lastErrorMessage)
+                                .foregroundColor(.red)
+                        }
+                    }
+
+                    if repositoryHostStore.repositories.isEmpty {
+                        Text("No hosted repositories yet.")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(repositoryHostStore.repositories) { repository in
+                            NavigationLink(destination: RepoView(repository: repository)) {
+                                Text(repository.displayName)
+                                    .font(.headline)
+                                    .lineLimit(1)
+                                    .textSelection(.enabled)
+                            }
+                        }
+                        .onDelete(perform: removeHostedRepositories)
+                    }
+
+                    Section("Seen Repositories") {
+                        if seenRepositories.isEmpty {
+                            Text("No seen repositories yet.")
+                                .foregroundColor(.secondary)
+                        } else {
+                            if availableSeenRepositories.isEmpty == false {
+                                Section("Available") {
+                                    ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
+                                        seenRepositoryRow(for: repositoryURL)
+                                    }
+                                }
+                            }
+
+                            if unavailableSeenRepositories.isEmpty == false {
+                                Section("Unavailable") {
+                                    ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
+                                        seenRepositoryRow(for: repositoryURL)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                EditButton()
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
+            }
         }
-        //.navigationTitle("Hosted Repos")
     }
 
     private var seenRepositories: [URL] {
@@ -430,6 +418,13 @@ struct HostedRepositoriesView: View {
     private func add(_ repositoryURL: URL) {
         guard hasHostedRepository(repositoryURL) == false else { return }
         repositoryHostStore.cloneRepository(from: repositoryURL)
+    }
+
+    private func removeHostedRepositories(at offsets: IndexSet) {
+        let hostedRepositories = repositoryHostStore.repositories.sorted { $0.remoteURL.absoluteString < $1.remoteURL.absoluteString }
+        offsets
+            .map { hostedRepositories[$0] }
+            .forEach { repositoryHostStore.removeHostedRepository($0.remoteURL) }
     }
 
     @ViewBuilder
@@ -503,7 +498,7 @@ private struct HostedReposHeaderView: View {
 
     var body: some View {
         ContextAwareHeaderView(
-            title: "Hosted Repos",
+            title: "Hosted Repositories",
             subtitle: "Cloned repositories and their availability.",
             systemImage: "folder.fill",
             accessory: {
