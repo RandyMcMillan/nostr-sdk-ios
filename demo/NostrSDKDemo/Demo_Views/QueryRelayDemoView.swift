@@ -132,7 +132,7 @@ private struct EventCardView: View {
     let metadata: MetadataEvent?
     let eventByID: [String: NostrEvent]
     let eventByCoordinate: [String: NostrEvent]
-    let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
+    let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]]
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
@@ -149,6 +149,18 @@ private struct EventCardView: View {
         case event(String)
         case coordinate(String)
         case url(URL)
+    }
+
+    init(event: NostrEvent,
+         metadata: MetadataEvent?,
+         eventByID: [String: NostrEvent],
+         eventByCoordinate: [String: NostrEvent],
+         repoEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
+        self.event = event
+        self.metadata = metadata
+        self.eventByID = eventByID
+        self.eventByCoordinate = eventByCoordinate
+        self.repoEventByRepoIDAndKind = repoEventByRepoIDAndKind
     }
 
     private var title: String? {
@@ -902,19 +914,7 @@ private struct MaintainerProfileView: View {
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
                             ForEach(events, id: \.id) { event in
-                                NavigationLink(destination: EventDetailView(event: event,
-                                                                            metadata: metadataLoader.metadata,
-                                                                            eventByID: eventsByID,
-                                                                            eventByCoordinate: eventsByCoordinate,
-                                                                            repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
-                                                                            referencedRepositoryAnnouncement: nil)) {
-                                    EventCardView(event: event,
-                                                  metadata: metadataLoader.metadata,
-                                                  eventByID: eventsByID,
-                                                  eventByCoordinate: eventsByCoordinate,
-                                                  repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
-                                }
-                                .buttonStyle(.plain)
+                                maintainerEventRow(for: event)
                             }
                         }
                     }
@@ -934,6 +934,35 @@ private struct MaintainerProfileView: View {
                 relayPool.closeSubscription(with: subscriptionId)
             }
         }
+    }
+
+    private var eventsByID: [String: NostrEvent] {
+        eventIndex(for: events)
+    }
+
+    private var eventsByCoordinate: [String: NostrEvent] {
+        eventCoordinateIndex(for: events)
+    }
+
+    private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] {
+        repoEventIndex(for: events)
+    }
+
+    @ViewBuilder
+    private func maintainerEventRow(for event: NostrEvent) -> some View {
+        NavigationLink(destination: EventDetailView(event: event,
+                                                    metadata: metadataLoader.metadata,
+                                                    eventByID: eventsByID,
+                                                    eventByCoordinate: eventsByCoordinate,
+                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
+                                                    referencedRepositoryAnnouncement: nil)) {
+            EventCardView(event: event,
+                          metadata: metadataLoader.metadata,
+                          eventByID: eventsByID,
+                          eventByCoordinate: eventsByCoordinate,
+                          repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+        }
+        .buttonStyle(.plain)
     }
 
     private func refresh() {
@@ -982,13 +1011,6 @@ private struct MaintainerProfileView: View {
         return PublicKey(hex: value)?.hex
     }
 
-    private var eventsByID: [String: NostrEvent] {
-        eventIndex(for: events)
-    }
-
-    private var eventsByCoordinate: [String: NostrEvent] {
-        eventCoordinateIndex(for: events)
-    }
 }
 
 private struct TagChipView: View {
@@ -1251,19 +1273,7 @@ struct QueryRelayDemoView: View {
                     }
 
                     ForEach(events, id: \.id) { event in
-                        NavigationLink(destination: EventDetailView(event: event,
-                                                                    metadata: metadataByPubkey[event.pubkey],
-                                                                    eventByID: eventsByID,
-                                                                    eventByCoordinate: eventsByCoordinate,
-                                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
-                                                                    referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: event))) {
-                            EventCardView(event: event,
-                                          metadata: metadataByPubkey[event.pubkey],
-                                          eventByID: eventsByID,
-                                          eventByCoordinate: eventsByCoordinate,
-                                          repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
-                        }
-                        .buttonStyle(.plain)
+                        queryEventRow(for: event)
                         .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -1493,6 +1503,23 @@ struct QueryRelayDemoView: View {
 
     private var eventsByCoordinate: [String: NostrEvent] {
         eventCoordinateIndex(for: events)
+    }
+
+    @ViewBuilder
+    private func queryEventRow(for event: NostrEvent) -> some View {
+        NavigationLink(destination: EventDetailView(event: event,
+                                                    metadata: metadataByPubkey[event.pubkey],
+                                                    eventByID: eventsByID,
+                                                    eventByCoordinate: eventsByCoordinate,
+                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
+                                                    referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: event))) {
+            EventCardView(event: event,
+                          metadata: metadataByPubkey[event.pubkey],
+                          eventByID: eventsByID,
+                          eventByCoordinate: eventsByCoordinate,
+                          repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+        }
+        .buttonStyle(.plain)
     }
 }
 
