@@ -33,6 +33,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     @Published private(set) var repositories: [HostedRepository] = []
     @Published private(set) var seenRepositoryURLs: Set<URL> = []
     @Published private(set) var cloningRemoteURLs: Set<URL> = []
+    @Published private(set) var failedRepositoryURLs: Set<URL> = []
     @Published private(set) var lastErrorMessage: String?
 
     private var cancellables = Set<AnyCancellable>()
@@ -71,6 +72,7 @@ final class DemoRepositoryHostStore: ObservableObject {
 
     func removeSeen(_ repositoryURL: URL) {
         seenRepositoryURLs.remove(repositoryURL)
+        failedRepositoryURLs.remove(repositoryURL)
     }
 
     func removeHostedRepository(_ repositoryURL: URL) {
@@ -109,6 +111,7 @@ final class DemoRepositoryHostStore: ObservableObject {
                 }
             } catch {
                 await MainActor.run {
+                    self.failedRepositoryURLs.insert(remoteURL)
                     self.lastErrorMessage = error.localizedDescription
                 }
             }
@@ -120,6 +123,7 @@ final class DemoRepositoryHostStore: ObservableObject {
             let hostedRepository = HostedRepository(remoteURL: remoteURL, localURL: localURL)
             repositories.removeAll { $0.remoteURL == remoteURL }
             repositories.insert(hostedRepository, at: 0)
+            failedRepositoryURLs.remove(remoteURL)
             lastErrorMessage = nil
         }
     }
@@ -225,6 +229,7 @@ struct HostedRepositoriesView: View {
                     ForEach(seenRepositories, id: \.self) { repositoryURL in
                         HStack {
                             Text(repositoryURL.absoluteString)
+                                .foregroundColor(repositoryHostStore.failedRepositoryURLs.contains(repositoryURL) ? .red : .primary)
                                 .textSelection(.enabled)
                             Spacer()
                             if hasHostedRepository(repositoryURL) {
