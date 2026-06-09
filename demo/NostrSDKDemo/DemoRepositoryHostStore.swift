@@ -191,7 +191,7 @@ struct HostedRepositoriesView: View {
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(repositoryHostStore.repositories) { repository in
-                        HStack(alignment: .top) {
+                        HStack(alignment: .top, spacing: 12) {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(repository.displayName)
                                     .font(.headline)
@@ -205,23 +205,18 @@ struct HostedRepositoriesView: View {
                                     .lineLimit(2)
                             }
                             Spacer(minLength: 12)
-                            Button(role: .destructive) {
+                            Button {
                                 repositoryHostStore.removeHostedRepository(repository.remoteURL)
                             } label: {
-                                Text("Remove")
+                                Image(systemName: "trash")
+                                    .foregroundStyle(.red)
+                                    .padding(8)
+                                    .background(.red.opacity(0.12), in: Circle())
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Remove repository")
                         }
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                repositoryHostStore.removeHostedRepository(repository.remoteURL)
-                            } label: {
-                                Label("Remove", systemImage: "trash")
-                            }
-                        }
-                    }
-                    .onDelete { offsets in
-                        offsets.map { repositoryHostStore.repositories[$0].remoteURL }
-                            .forEach { repositoryHostStore.removeHostedRepository($0) }
+                        .padding(.vertical, 4)
                     }
                 }
             }
