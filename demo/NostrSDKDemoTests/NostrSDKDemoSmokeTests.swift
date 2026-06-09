@@ -43,11 +43,13 @@ private enum RepoURLs {
     static let cloneTag = scp
 
     static let ssh = URL(string: "ssh://git@github.com/\(owner)/\(repo).git")!
+    static let nostr = URL(string: "nostr://npub15qydau2hjma6ngxkl2cyar74wzyjshvl65za5k5rl69264ar2exs5cyejr/relay.ngit.dev/ngit")!
 
     static let expectedForms: [ExpectedForm] = [
         .init(rawValue: https.absoluteString, expected: https),
         .init(rawValue: ssh.absoluteString, expected: ssh),
-        .init(rawValue: scp, expected: ssh)
+        .init(rawValue: scp, expected: ssh),
+        .init(rawValue: nostr.absoluteString, expected: nostr)
     ]
 
     private static let https = URL(string: "https://github.com/\(owner)/\(repo).git")!
