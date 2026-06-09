@@ -132,15 +132,6 @@ private struct EventCardView: View {
         case event(String)
         case coordinate(String)
         case url(URL)
-        let tagName: String
-        let target: TagTarget?
-    }
-
-    private enum TagTarget: Hashable {
-        case pubkey(String)
-        case event(String)
-        case coordinate(String)
-        case url(URL)
     }
 
     private var title: String? {
