@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		14B00A3D2E6E7F8E00000001 /* DemoIdentityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A3C2E6E7F8E00000001 /* DemoIdentityStore.swift */; };
 		14B00A3E2E6E7F8E00000001 /* DemoAppPrimeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A3F2E6E7F8E00000001 /* DemoAppPrimeStore.swift */; };
+		14B00A402E6E7F8E00000001 /* DemoRepositoryHostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A412E6E7F8E00000001 /* DemoRepositoryHostStore.swift */; };
 		1F73BD012D24432B00C49147 /* EncryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */; };
 		1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */; };
 		3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */; };
@@ -32,6 +33,7 @@
 /* Begin PBXFileReference section */
 		14B00A3C2E6E7F8E00000001 /* DemoIdentityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoIdentityStore.swift; sourceTree = "<group>"; };
 		14B00A3F2E6E7F8E00000001 /* DemoAppPrimeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoAppPrimeStore.swift; sourceTree = "<group>"; };
+		14B00A412E6E7F8E00000001 /* DemoRepositoryHostStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoRepositoryHostStore.swift; sourceTree = "<group>"; };
 		1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptMessageDemoView.swift; sourceTree = "<group>"; };
 		1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptMessageDemoView.swift; sourceTree = "<group>"; };
 		3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyDirectMessageDemoView.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 				F78221BD2A87EF99008D5AE8 /* Views */,
 				14B00A3C2E6E7F8E00000001 /* DemoIdentityStore.swift */,
 				14B00A3F2E6E7F8E00000001 /* DemoAppPrimeStore.swift */,
+				14B00A412E6E7F8E00000001 /* DemoRepositoryHostStore.swift */,
 				F7CB362B2A35127B0098F35C /* NostrSDKDemoApp.swift */,
 				F7CB362D2A35127B0098F35C /* ContentView.swift */,
 				F7CB362F2A35127C0098F35C /* Assets.xcassets */,
@@ -228,6 +231,7 @@
 				F7CB362E2A35127B0098F35C /* ContentView.swift in Sources */,
 				14B00A3D2E6E7F8E00000001 /* DemoIdentityStore.swift in Sources */,
 				14B00A3E2E6E7F8E00000001 /* DemoAppPrimeStore.swift in Sources */,
+				14B00A402E6E7F8E00000001 /* DemoRepositoryHostStore.swift in Sources */,
 				1F73BD012D24432B00C49147 /* EncryptMessageDemoView.swift in Sources */,
 				F7CB362C2A35127B0098F35C /* NostrSDKDemoApp.swift in Sources */,
 				F7CB36472A3B74380098F35C /* NIP05VerificationDemoView.swift in Sources */,

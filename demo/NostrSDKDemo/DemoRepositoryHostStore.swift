@@ -77,14 +77,13 @@ final class DemoRepositoryHostStore: ObservableObject {
         }
     }
 
-    private func localCloneURL(for remoteURL: URL) throws -> URL {
+    nonisolated private func localCloneURL(for remoteURL: URL) throws -> URL {
         let rootURL = try cloneRootURL()
         return rootURL.appendingPathComponent(safeDirectoryName(for: remoteURL), isDirectory: true)
     }
 
-    private func cloneRootURL() throws -> URL {
-        let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-        else {
+    nonisolated private func cloneRootURL() throws -> URL {
+        guard let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             throw NSError(domain: "DemoRepositoryHostStore", code: 1, userInfo: [NSLocalizedDescriptionKey: "Application Support directory not available"])
         }
 
@@ -96,7 +95,7 @@ final class DemoRepositoryHostStore: ObservableObject {
         return rootURL
     }
 
-    private func safeDirectoryName(for remoteURL: URL) -> String {
+    nonisolated private func safeDirectoryName(for remoteURL: URL) -> String {
         let candidate = [remoteURL.host, remoteURL.path]
             .compactMap { $0 }
             .joined(separator: "-")

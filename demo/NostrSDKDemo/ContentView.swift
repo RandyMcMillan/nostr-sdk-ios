@@ -100,6 +100,7 @@ struct ContentView: View {
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
+    @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @State private var relay: Relay?
     @State private var selectedDestination: SidebarDestination = .connectRelay
     @State private var navigationPath = NavigationPath()
@@ -209,6 +210,8 @@ struct ContentView: View {
             ConnectRelayView(relay: $relay)
         case .configureRelays:
             RelaysView()
+        case .hostedRepositories:
+            HostedRepositoriesView()
         case .nip0034Viewer:
             QueryRelayDemoView()
         case .nip04DirectMessage:
@@ -302,6 +305,7 @@ private struct MacKeyEventMonitor: NSViewRepresentable {
 private enum SidebarDestination: String, CaseIterable, Identifiable {
     case connectRelay
     case configureRelays
+    case hostedRepositories
     case nip0034Viewer
     case nip04DirectMessage
     case nip44Encrypt
@@ -316,6 +320,7 @@ private enum SidebarDestination: String, CaseIterable, Identifiable {
         switch self {
         case .connectRelay: "Connect Relay"
         case .configureRelays: "Configure Relays"
+        case .hostedRepositories: "Hosted Repos"
         case .nip0034Viewer: "NIP-0034 Viewer"
         case .nip04DirectMessage: "NIP-04 Direct Message"
         case .nip44Encrypt: "NIP-44 Encrypt"
@@ -330,6 +335,8 @@ private enum SidebarDestination: String, CaseIterable, Identifiable {
         switch self {
         case .connectRelay, .configureRelays:
             "network"
+        case .hostedRepositories:
+            "folder"
         case .nip0034Viewer:
             "list.bullet.rectangle.portrait"
         case .nip04DirectMessage, .nip44Encrypt, .nip44Decrypt:
@@ -359,6 +366,7 @@ struct ContentView_Previews: PreviewProvider {
             .environmentObject(DemoIdentityStore())
             .environmentObject(RelayDirectoryStore())
             .environmentObject(DemoAppPrimeStore())
+            .environmentObject(DemoRepositoryHostStore())
     }
 }
 
@@ -366,6 +374,7 @@ private struct SettingsView: View {
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
+    @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @StateObject private var metadataLoader = PubkeyMetadataLoader()
 

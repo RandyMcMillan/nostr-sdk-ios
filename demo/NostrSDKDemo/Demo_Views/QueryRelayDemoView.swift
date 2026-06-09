@@ -127,12 +127,27 @@ private func repoEventIndex(for events: [NostrEvent]) -> [String: [Int: NostrEve
     }
 }
 
+private func normalizedCloneURL(from value: String) -> URL? {
+    if let url = URL(string: value), url.scheme != nil {
+        return url
+    }
+
+    guard value.contains("@"), value.contains(":"), value.contains("://") == false else {
+        return nil
+    }
+
+    let components = value.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+    guard components.count == 2 else { return nil }
+    return URL(string: "ssh://\(components[0])/\(components[1])")
+}
+
 private struct EventCardView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
     let eventByID: [String: NostrEvent]
     let eventByCoordinate: [String: NostrEvent]
     let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]]
+    @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
@@ -148,6 +163,7 @@ private struct EventCardView: View {
         case pubkey(String)
         case event(String)
         case coordinate(String)
+        case clone(URL)
         case url(URL)
     }
 
@@ -436,6 +452,15 @@ private struct EventCardView: View {
                 } else {
                     TagChipView(label: item.label, value: item.value)
                 }
+            case .clone(let url):
+                Button {
+                    repositoryHostStore.cloneRepository(from: url)
+                } label: {
+                    TagChipView(label: item.label,
+                                value: repositoryHostStore.isCloning(url) ? "Cloning..." : item.value)
+                }
+                .buttonStyle(.plain)
+                .disabled(repositoryHostStore.isCloning(url))
             case .pubkey(let pubkey):
                 NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
                     TagChipView(label: item.label, value: item.value)
@@ -494,7 +519,10 @@ private struct EventCardView: View {
             return .event(value)
         case TagName.eventCoordinates.rawValue:
             return .coordinate(value)
-        case TagName.webURL.rawValue, "clone", "web":
+        case "clone":
+            guard let url = normalizedCloneURL(from: value) else { return nil }
+            return .clone(url)
+        case TagName.webURL.rawValue, "web":
             guard let url = URL(string: value) else { return nil }
             return .url(url)
         default:
@@ -521,6 +549,7 @@ private struct EventDetailView: View {
     let eventByCoordinate: [String: NostrEvent]
     let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]]
     let referencedRepositoryAnnouncement: NostrEvent?
+    @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
@@ -536,6 +565,7 @@ private struct EventDetailView: View {
         case pubkey(String)
         case event(String)
         case coordinate(String)
+        case clone(URL)
         case url(URL)
     }
 
@@ -820,6 +850,15 @@ private struct EventDetailView: View {
                 } else {
                     TagChipView(label: item.label, value: item.value)
                 }
+            case .clone(let url):
+                Button {
+                    repositoryHostStore.cloneRepository(from: url)
+                } label: {
+                    TagChipView(label: item.label,
+                                value: repositoryHostStore.isCloning(url) ? "Cloning..." : item.value)
+                }
+                .buttonStyle(.plain)
+                .disabled(repositoryHostStore.isCloning(url))
             case .pubkey(let pubkey):
                 NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
                     TagChipView(label: item.label, value: item.value)
@@ -878,7 +917,10 @@ private struct EventDetailView: View {
             return .event(value)
         case TagName.eventCoordinates.rawValue:
             return .coordinate(value)
-        case TagName.webURL.rawValue, "clone", "web":
+        case "clone":
+            guard let url = normalizedCloneURL(from: value) else { return nil }
+            return .clone(url)
+        case TagName.webURL.rawValue, "web":
             guard let url = URL(string: value) else { return nil }
             return .url(url)
         default:
@@ -1245,6 +1287,7 @@ struct QueryRelayDemoView: View {
     @EnvironmentObject private var identityStore: DemoIdentityStore
     @EnvironmentObject private var relayDirectory: RelayDirectoryStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
+    @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
 
     @State private var selectedFollowedAuthorPubkey: String = ""
     @State private var selectedSeenAuthorPubkey: String = ""
@@ -1690,5 +1733,6 @@ struct QueryRelayView_Previews: PreviewProvider {
         .environmentObject(DemoIdentityStore())
         .environmentObject(RelayDirectoryStore())
         .environmentObject(DemoAppPrimeStore())
+        .environmentObject(DemoRepositoryHostStore())
     }
 }
