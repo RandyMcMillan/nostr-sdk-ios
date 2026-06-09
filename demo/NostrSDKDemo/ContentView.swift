@@ -101,6 +101,7 @@ struct ContentView: View {
     @EnvironmentObject private var identityStore: DemoIdentityStore
     @State private var relay: Relay?
     @State private var selectedDestination: SidebarDestination = .connectRelay
+    @State private var navigationPath = NavigationPath()
     @State private var orientation: AppOrientation = .landscape
 
     var body: some View {
@@ -123,7 +124,7 @@ struct ContentView: View {
 
                 Divider()
 
-                NavigationStack {
+                NavigationStack(path: $navigationPath) {
                     detailView(for: selectedDestination)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color(.systemBackground))
@@ -136,7 +137,7 @@ struct ContentView: View {
 
                 Divider()
 
-                NavigationStack {
+                NavigationStack(path: $navigationPath) {
                     detailView(for: selectedDestination)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color(.systemBackground))
@@ -163,6 +164,7 @@ struct ContentView: View {
             List {
                 ForEach(SidebarDestination.sidebarCases) { destination in
                     Button {
+                        navigationPath = NavigationPath()
                         selectedDestination = destination
                     } label: {
                         HStack(spacing: 12) {
@@ -178,6 +180,7 @@ struct ContentView: View {
             Spacer(minLength: 0)
 
             Button {
+                navigationPath = NavigationPath()
                 selectedDestination = .settings
             } label: {
                 HStack(spacing: 12) {
