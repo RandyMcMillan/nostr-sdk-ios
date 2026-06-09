@@ -200,6 +200,7 @@ struct HostedRepositoriesView: View {
                                         .font(.caption.monospaced())
                                         .foregroundColor(.secondary)
                                         .lineLimit(2)
+                                        .textSelection(.enabled)
                                     Text(repository.localURL.path)
                                         .font(.caption2.monospaced())
                                         .foregroundColor(.secondary)
@@ -232,6 +233,7 @@ struct HostedRepositoriesView: View {
                     ForEach(seenRepositories, id: \.self) { repositoryURL in
                         HStack {
                             Text(repositoryURL.absoluteString)
+                                .textSelection(.enabled)
                             Spacer()
                             if hasHostedRepository(repositoryURL) {
                                 Button(role: .destructive) {
@@ -295,6 +297,7 @@ struct RepoView: View {
                 LabeledContent("Remote") {
                     Text(repository.remoteURL.absoluteString)
                         .multilineTextAlignment(.trailing)
+                        .textSelection(.enabled)
                 }
                 LabeledContent("Local") {
                     Text(repository.localURL.path)
