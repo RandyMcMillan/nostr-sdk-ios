@@ -343,7 +343,11 @@ struct HostedRepositoriesView: View {
                         .foregroundColor(.red)
                 }
             }
-            Spacer(minLength: 0)//replace with custom header 
+
+            Section {
+                HostedReposHeaderView()
+            }
+
             Section("Hosted Repositories") {
                 if repositoryHostStore.repositories.isEmpty {
                     Text("No hosted repositories yet.")
@@ -491,6 +495,27 @@ struct HostedRepositoriesView: View {
             Image(systemName: "xmark.circle.fill")
                 .foregroundStyle(.red)
         }
+    }
+}
+
+private struct HostedReposHeaderView: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "folder.fill")
+                .font(.title2)
+                .foregroundStyle(.primary)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Local Repos")
+                    .font(.headline)
+                //Text("Cloned repositories and their availability.")
+                //    .font(.caption)
+                //    .foregroundColor(.secondary)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 6)
     }
 }
 
