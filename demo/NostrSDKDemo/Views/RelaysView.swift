@@ -36,81 +36,7 @@ struct RelaysView: View {
     @EnvironmentObject var relayDirectory: RelayDirectoryStore
     
     var body: some View {
-        List {
-            Section("Connected Relays") {
-                ForEach(relays, id: \.url) { relay in
-                    HStack(alignment: .center, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(relay.url.absoluteString)
-                                .font(.subheadline)
-                                .textSelection(.enabled)
-                            Text(relay.state == .connected ? "Connected" : "Not connected")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-
-                        Spacer(minLength: 12)
-
-                        relay.statusImage
-
-                        Button(role: .destructive) {
-                            pool.remove(relay: relay)
-                        } label: {
-                            Label("Disconnect", systemImage: "xmark.circle.fill")
-                        }
-                        .buttonStyle(.borderless)
-                    }
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color(.secondarySystemBackground))
-                    )
-                }
-                .onDelete(perform: remove)
-            }
-
-            Section("Seen Relays") {
-                if seenRelays.isEmpty {
-                    Text("No seen relays yet.")
-                        .foregroundColor(.secondary)
-                } else {
-                    ForEach(seenRelays, id: \.self) { relayURL in
-                        HStack {
-                            Text(relayURL.absoluteString)
-                            Spacer()
-                            if contains(relayURL) {
-                                Button(role: .destructive) {
-                                    pool.removeRelay(withURL: relayURL)
-                                } label: {
-                                    Text("Remove")
-                                }
-                            } else {
-                                Button("Add") {
-                                    add(relayURL)
-                                }
-                            }
-                        }
-                        .swipeActions(edge: .trailing) {
-                            if contains(relayURL) == false {
-                                Button(role: .destructive) {
-                                    relayDirectory.removeSeen(relayURL)
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
-                            } else {
-                                Button(role: .destructive) {
-                                    pool.removeRelay(withURL: relayURL)
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
+        VStack(spacing: 0) {
             ContextAwareHeaderView(
                 title: "Relays",
                 subtitle: "Connected and seen relay URLs.",
@@ -119,9 +45,88 @@ struct RelaysView: View {
             )
             .padding(.horizontal)
             .padding(.top, 8)
-        }
-        .toolbar {
-            EditButton()
+
+            HStack {
+                Spacer()
+                EditButton()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 8)
+
+            List {
+                Section("Connected Relays") {
+                    ForEach(relays, id: \.url) { relay in
+                        HStack(alignment: .center, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(relay.url.absoluteString)
+                                    .font(.subheadline)
+                                    .textSelection(.enabled)
+                                Text(relay.state == .connected ? "Connected" : "Not connected")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer(minLength: 12)
+
+                            relay.statusImage
+
+                            Button(role: .destructive) {
+                                pool.remove(relay: relay)
+                            } label: {
+                                Label("Disconnect", systemImage: "xmark.circle.fill")
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color(.secondarySystemBackground))
+                        )
+                    }
+                    .onDelete(perform: remove)
+                }
+
+                Section("Seen Relays") {
+                    if seenRelays.isEmpty {
+                        Text("No seen relays yet.")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(seenRelays, id: \.self) { relayURL in
+                            HStack {
+                                Text(relayURL.absoluteString)
+                                Spacer()
+                                if contains(relayURL) {
+                                    Button(role: .destructive) {
+                                        pool.removeRelay(withURL: relayURL)
+                                    } label: {
+                                        Text("Remove")
+                                    }
+                                } else {
+                                    Button("Add") {
+                                        add(relayURL)
+                                    }
+                                }
+                            }
+                            .swipeActions(edge: .trailing) {
+                                if contains(relayURL) == false {
+                                    Button(role: .destructive) {
+                                        relayDirectory.removeSeen(relayURL)
+                                    } label: {
+                                        Label("Remove", systemImage: "trash")
+                                    }
+                                } else {
+                                    Button(role: .destructive) {
+                                        pool.removeRelay(withURL: relayURL)
+                                    } label: {
+                                        Label("Remove", systemImage: "trash")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
