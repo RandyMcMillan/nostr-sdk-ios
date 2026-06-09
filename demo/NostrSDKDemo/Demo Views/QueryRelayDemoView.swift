@@ -414,49 +414,6 @@ private struct EventDetailView: View {
         .compactMap { $0 }
     }
 
-    private var referencedRepositoryHeader: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if let referencedRepositoryAnnouncement {
-                NavigationLink(destination: EventDetailView(event: referencedRepositoryAnnouncement,
-                                                            metadata: metadata,
-                                                            referencedRepositoryAnnouncement: nil)) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Corresponding 30617")
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.primary)
-
-                        Text("Repository: \(repositoryID(for: referencedRepositoryAnnouncement) ?? "unknown")")
-                            .font(.caption.monospaced())
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.6)
-
-                        Text("ID: \(referencedRepositoryAnnouncement.id)")
-                            .font(.caption.monospaced())
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.6)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.plain)
-            } else if let repoID {
-                Text("Corresponding 30617")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.primary)
-                Text("Repository: \(repoID)")
-                    .font(.caption.monospaced())
-                    .foregroundColor(.primary)
-            }
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
-        )
-    }
-
     private var maintainerTitle: String {
         metadata?.displayName ?? metadata?.name ?? title
     }
@@ -465,10 +422,6 @@ private struct EventDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 banner
-
-                if event.kind.rawValue == 30618 {
-                    referencedRepositoryHeader
-                }
 
                 HStack(alignment: .center, spacing: 12) {
                     detailAvatar
