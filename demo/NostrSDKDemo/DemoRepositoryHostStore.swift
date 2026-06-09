@@ -350,20 +350,17 @@ struct HostedRepositoriesView: View {
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(repositoryHostStore.repositories) { repository in
-                        HStack(alignment: .top, spacing: 12) {
+                        HStack(alignment: .center, spacing: 10) {
                             NavigationLink(destination: RepoView(repository: repository)) {
-                                VStack(alignment: .leading, spacing: 6) {
+                                VStack(alignment: .leading, spacing: 0) {
                                     Text(repository.displayName)
                                         .font(.headline)
-                                    Text(repository.remoteURL.absoluteString)
-                                        .font(.caption.monospaced())
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(2)
+                                        .lineLimit(1)
                                         .textSelection(.enabled)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            Spacer(minLength: 12)
+                            Spacer(minLength: 8)
                             Button {
                                 repositoryHostStore.removeHostedRepository(repository.remoteURL)
                             } label: {
@@ -375,7 +372,7 @@ struct HostedRepositoriesView: View {
                             .buttonStyle(.plain)
                             .accessibilityLabel("Remove repository")
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 2)
                     }
                 }
             }
