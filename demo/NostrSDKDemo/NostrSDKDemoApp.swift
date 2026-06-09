@@ -23,12 +23,31 @@ struct NostrSDKDemoApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppBootstrapView()
                 .environmentObject(relayPool)
                 .environmentObject(identityStore)
                 .environmentObject(relayDirectory)
                 .environmentObject(appPrimeStore)
                 .environmentObject(repositoryHostStore)
         }
+    }
+}
+
+private struct AppBootstrapView: View {
+    @EnvironmentObject private var relayPool: RelayPool
+    @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
+    @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
+    @State private var didBootstrap = false
+
+    var body: some View {
+        ContentView()
+            .task {
+                guard didBootstrap == false else { return }
+                didBootstrap = true
+                identityStore.attach(relayPool: relayPool)
+                appPrimeStore.attach(relayPool: relayPool)
+                repositoryHostStore.attach(appPrimeStore: appPrimeStore)
+            }
     }
 }
