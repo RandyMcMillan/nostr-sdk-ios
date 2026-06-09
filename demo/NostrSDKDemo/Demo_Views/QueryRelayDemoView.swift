@@ -840,8 +840,13 @@ private struct MaintainerProfileView: View {
                             ForEach(events, id: \.id) { event in
                                 NavigationLink(destination: EventDetailView(event: event,
                                                                             metadata: metadataLoader.metadata,
+                                                                            eventByID: eventsByID,
+                                                                            eventByCoordinate: eventsByCoordinate,
                                                                             referencedRepositoryAnnouncement: nil)) {
-                                    EventCardView(event: event, metadata: metadataLoader.metadata)
+                                    EventCardView(event: event,
+                                                  metadata: metadataLoader.metadata,
+                                                  eventByID: eventsByID,
+                                                  eventByCoordinate: eventsByCoordinate)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -909,6 +914,14 @@ private struct MaintainerProfileView: View {
             return PublicKey(npub: value)?.hex
         }
         return PublicKey(hex: value)?.hex
+    }
+
+    private var eventsByID: [String: NostrEvent] {
+        eventIndex(for: events)
+    }
+
+    private var eventsByCoordinate: [String: NostrEvent] {
+        eventCoordinateIndex(for: events)
     }
 }
 
