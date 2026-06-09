@@ -465,6 +465,7 @@ private struct EventDetailView: View {
         let label: String
         let value: String
         let tagName: String
+        let targetValue: String?
         let target: TagTarget?
     }
 
@@ -521,8 +522,8 @@ private struct EventDetailView: View {
             tagItem(label: "Name", value: tagValue("name"), tagName: "name"),
             tagItem(label: "Description", value: tagValue("description"), tagName: "description"),
             tagItem(label: "Alt", value: tagValue("alt"), tagName: "alt"),
-            tagItem(label: "Clone", value: shortDisplayValue(cloneURL), tagName: "clone"),
-            tagItem(label: "Web", value: shortDisplayValue(webURL), tagName: "web"),
+            tagItem(label: "Clone", value: shortDisplayValue(cloneURL), tagName: "clone", targetValue: cloneURL),
+            tagItem(label: "Web", value: shortDisplayValue(webURL), tagName: "web", targetValue: webURL),
             tagItem(label: "Relays", value: relaysText, tagName: "relays"),
             tagItem(label: "Maintainers", value: maintainersText, tagName: "maintainers")
         ]
@@ -749,9 +750,9 @@ private struct EventDetailView: View {
         }
     }
 
-    private func tagItem(label: String, value: String?, tagName: String) -> TagItem? {
+    private func tagItem(label: String, value: String?, tagName: String, targetValue: String? = nil) -> TagItem? {
         guard let value, value.isEmpty == false else { return nil }
-        return TagItem(label: label, value: value, tagName: tagName, target: linkTarget(forTagName: tagName, value: value))
+        return TagItem(label: label, value: value, tagName: tagName, targetValue: targetValue, target: linkTarget(forTagName: tagName, value: targetValue ?? value))
     }
 
     private func linkTarget(forTagName tagName: String, value: String) -> TagTarget? {
