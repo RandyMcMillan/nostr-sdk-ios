@@ -99,11 +99,22 @@ private final class RemoteImagePrefetcher {
 private struct EventCardView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
+    let eventByID: [String: NostrEvent]
+    let eventByCoordinate: [String: NostrEvent]
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
         let label: String
         let value: String
+        let tagName: String
+        let target: TagTarget?
+    }
+
+    private enum TagTarget: Hashable {
+        case pubkey(String)
+        case event(String)
+        case coordinate(String)
+        case url(URL)
     }
 
     private var title: String? {
@@ -143,21 +154,21 @@ private struct EventCardView: View {
     private var cardTags: [TagItem] {
         // Promote the semantic fields first, then append any remaining raw tags.
         let primaryTags: [TagItem?] = [
-            tagItem(label: "Repo", value: repoID),
-            tagItem(label: "Name", value: tagValue("name")),
-            tagItem(label: "Description", value: tagValue("description")),
-            tagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
-            tagItem(label: "Web", value: shortDisplayValue(webURL)),
-            tagItem(label: "Relays", value: relaysText),
-            tagItem(label: "Maintainers", value: maintainersText),
-            tagItem(label: "Alt", value: tagValue("alt"))
+            tagItem(label: "Repo", value: repoID, tagName: "d"),
+            tagItem(label: "Name", value: tagValue("name"), tagName: "name"),
+            tagItem(label: "Description", value: tagValue("description"), tagName: "description"),
+            tagItem(label: "Clone", value: shortDisplayValue(cloneURL), tagName: "clone"),
+            tagItem(label: "Web", value: shortDisplayValue(webURL), tagName: "web"),
+            tagItem(label: "Relays", value: relaysText, tagName: "relays"),
+            tagItem(label: "Maintainers", value: maintainersText, tagName: "maintainers"),
+            tagItem(label: "Alt", value: tagValue("alt"), tagName: "alt")
         ]
 
         let primaryLabels = Set(primaryTags.compactMap { $0?.label.lowercased() })
         let extraTags = event.tags.compactMap { tag -> TagItem? in
             let label = tag.name.capitalized
             guard primaryLabels.contains(label.lowercased()) == false else { return nil }
-            return tagItem(label: label, value: tag.value)
+            return tagItem(label: label, value: tag.value, tagName: tag.name)
         }
 
         return (primaryTags.compactMap { $0 } + extraTags).prefix(8).map { $0 }
@@ -262,7 +273,7 @@ private struct EventCardView: View {
                 if cardTags.isEmpty == false {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(cardTags, id: \.self) { item in
-                            TagChipView(label: item.label, value: item.value)
+                            tagRow(for: item)
                         }
                     }
                     .padding(.top, 2)
@@ -341,9 +352,71 @@ private struct EventCardView: View {
         return value
     }
 
-    private func tagItem(label: String, value: String?) -> TagItem? {
+    @ViewBuilder
+    private func tagRow(for item: TagItem) -> some View {
+        if let target = item.target {
+            switch target {
+            case .pubkey(let pubkey):
+                NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
+                    TagChipView(label: item.label, value: item.value)
+                }
+                .buttonStyle(.plain)
+            case .event(let eventId):
+                if let linkedEvent = eventByID[eventId] {
+                    NavigationLink(destination: EventDetailView(event: linkedEvent,
+                                                                metadata: metadata,
+                                                                eventByID: eventByID,
+                                                                eventByCoordinate: eventByCoordinate,
+                                                                referencedRepositoryAnnouncement: nil)) {
+                        TagChipView(label: item.label, value: item.value)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    TagChipView(label: item.label, value: item.value)
+                }
+            case .coordinate(let coordinateKey):
+                if let linkedEvent = eventByCoordinate[coordinateKey] {
+                    NavigationLink(destination: EventDetailView(event: linkedEvent,
+                                                                metadata: metadata,
+                                                                eventByID: eventByID,
+                                                                eventByCoordinate: eventByCoordinate,
+                                                                referencedRepositoryAnnouncement: nil)) {
+                        TagChipView(label: item.label, value: item.value)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    TagChipView(label: item.label, value: item.value)
+                }
+            case .url(let url):
+                Link(destination: url) {
+                    TagChipView(label: item.label, value: item.value)
+                }
+            }
+        } else {
+            TagChipView(label: item.label, value: item.value)
+        }
+    }
+
+    private func tagItem(label: String, value: String?, tagName: String) -> TagItem? {
         guard let value, value.isEmpty == false else { return nil }
-        return TagItem(label: label, value: value)
+        return TagItem(label: label, value: value, tagName: tagName, target: linkTarget(forTagName: tagName, value: value))
+    }
+
+    private func linkTarget(forTagName tagName: String, value: String) -> TagTarget? {
+        switch tagName {
+        case TagName.pubkey.rawValue:
+            return .pubkey(value)
+        case TagName.event.rawValue:
+            return .event(value)
+        case TagName.eventCoordinates.rawValue:
+            return .coordinate(value)
+        case TagName.webURL.rawValue, "clone", "web":
+            guard let url = URL(string: value) else { return nil }
+            return .url(url)
+        default:
+            guard let url = URL(string: value), url.scheme != nil else { return nil }
+            return .url(url)
+        }
     }
 }
 
