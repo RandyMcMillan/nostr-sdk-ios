@@ -343,7 +343,7 @@ struct HostedRepositoriesView: View {
                         .foregroundColor(.red)
                 }
             }
-
+            Spacer(minLength: 0)//replace with custom header 
             Section("Hosted Repositories") {
                 if repositoryHostStore.repositories.isEmpty {
                     Text("No hosted repositories yet.")
@@ -403,7 +403,7 @@ struct HostedRepositoriesView: View {
                 }
             }
         }
-        .navigationTitle("Hosted Repos")
+        //.navigationTitle("Hosted Repos")
     }
 
     private var seenRepositories: [URL] {
