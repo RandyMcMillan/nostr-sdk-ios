@@ -1243,6 +1243,7 @@ struct QueryRelayDemoView: View {
 
     @EnvironmentObject var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var relayDirectory: RelayDirectoryStore
 
     @State private var selectedFollowedAuthorPubkey: String = ""
     @State private var selectedSeenAuthorPubkey: String = ""
@@ -1256,7 +1257,6 @@ struct QueryRelayDemoView: View {
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
     @State private var seenAuthorEventIDsByPubkey: [String: [Int: Set<String>]] = [:]
-    @State private var seenRelayURLs: Set<String> = []
     @State private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
 
     private let kindOptions = [
@@ -1350,18 +1350,6 @@ struct QueryRelayDemoView: View {
                                 .font(.caption)
                                 .foregroundColor(.primary)
                         }
-                    }
-                }
-
-                if seenRelayURLs.isEmpty == false {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Seen Relays")
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.primary)
-                        Text(seenRelayURLs.sorted().joined(separator: ", "))
-                            .font(.caption2.monospaced())
-                            .foregroundColor(.primary)
-                            .lineLimit(3)
                     }
                 }
 
@@ -1542,12 +1530,14 @@ struct QueryRelayDemoView: View {
     }
 
     private func recordSeenRelays(from event: NostrEvent) {
+        var relayURLs: [URL] = []
         for relayString in event.allValues(forTagName: .webURL) {
             guard let relayURL = normalizedRelayURL(from: relayString) else {
                 continue
             }
-            seenRelayURLs.insert(relayURL.absoluteString)
+            relayURLs.append(relayURL)
         }
+        relayDirectory.record(seen: relayURLs)
     }
 
     private func normalizedRelayURL(from relayString: String) -> URL? {
@@ -1692,5 +1682,6 @@ struct QueryRelayView_Previews: PreviewProvider {
         }
         .environmentObject(RelayPool(relays: []))
         .environmentObject(DemoIdentityStore())
+        .environmentObject(RelayDirectoryStore())
     }
 }

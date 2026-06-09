@@ -355,6 +355,7 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
             .environmentObject(RelayPool(relays: []))
             .environmentObject(DemoIdentityStore())
+            .environmentObject(RelayDirectoryStore())
     }
 }
 

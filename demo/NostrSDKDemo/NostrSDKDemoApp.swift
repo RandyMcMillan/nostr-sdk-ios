@@ -17,12 +17,14 @@ struct NostrSDKDemoApp: App {
         URL(string: "ws://127.0.0.1:8080")!
     ])
     @StateObject var identityStore = DemoIdentityStore()
+    @StateObject var relayDirectory = RelayDirectoryStore()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(relayPool)
                 .environmentObject(identityStore)
+                .environmentObject(relayDirectory)
         }
     }
 }
