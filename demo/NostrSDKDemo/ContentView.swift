@@ -87,14 +87,6 @@ struct SomeView: View {
     }
 }
 
-struct SomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ConnectRelayView(relay: DemoHelper.previewRelay)
-        }
-    }
-}
-
 struct ContentView: View {
 
     @EnvironmentObject private var relayPool: RelayPool
@@ -102,8 +94,7 @@ struct ContentView: View {
     @EnvironmentObject private var gitSettingsStore: DemoGitSettingsStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
-    @State private var relay: Relay?
-    @State private var selectedDestination: SidebarDestination = .connectRelay
+    @State private var selectedDestination: SidebarDestination = .configureRelays
     @State private var navigationPath = NavigationPath()
     @State private var navigationResetToken = UUID()
     @State private var orientation: AppOrientation = .landscape
@@ -203,8 +194,6 @@ struct ContentView: View {
     @ViewBuilder
     private func detailView(for destination: SidebarDestination) -> some View {
         switch destination {
-        case .connectRelay:
-            ConnectRelayView(relay: $relay)
         case .configureRelays:
             RelaysView()
         case .hostedRepositories:
@@ -300,7 +289,6 @@ private struct MacKeyEventMonitor: NSViewRepresentable {
 #endif
 
 private enum SidebarDestination: String, CaseIterable, Identifiable {
-    case connectRelay
     case configureRelays
     case hostedRepositories
     case nip0034Viewer
@@ -315,7 +303,6 @@ private enum SidebarDestination: String, CaseIterable, Identifiable {
 
     var labelText: String {
         switch self {
-        case .connectRelay: "Connect Relay"
         case .configureRelays: "Configure Relays"
         case .hostedRepositories: "Hosted Repos"
         case .nip0034Viewer: "NIP-0034 Viewer"
@@ -330,7 +317,7 @@ private enum SidebarDestination: String, CaseIterable, Identifiable {
 
     var imageName: String {
         switch self {
-        case .connectRelay, .configureRelays:
+        case .configureRelays:
             "network"
         case .hostedRepositories:
             "folder"

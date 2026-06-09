@@ -39,11 +39,33 @@ struct RelaysView: View {
         List {
             Section("Connected Relays") {
                 ForEach(relays, id: \.url) { relay in
-                    HStack {
-                        Text(relay.url.absoluteString)
-                        Spacer()
+                    HStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(relay.url.absoluteString)
+                                .font(.subheadline)
+                                .textSelection(.enabled)
+                            Text(relay.state == .connected ? "Connected" : "Not connected")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Spacer(minLength: 12)
+
                         relay.statusImage
+
+                        Button(role: .destructive) {
+                            pool.remove(relay: relay)
+                        } label: {
+                            Label("Disconnect", systemImage: "xmark.circle.fill")
+                        }
+                        .buttonStyle(.borderless)
                     }
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                    )
                 }
                 .onDelete(perform: remove)
             }
