@@ -23,7 +23,7 @@ final class DemoAppPrimeStore: ObservableObject {
         guard self.relayPool !== relayPool else { return }
         self.relayPool = relayPool
         Task.detached(priority: .background) { [weak self] in
-            self?.primeRepositoryEvents()
+            await self?.primeRepositoryEvents()
         }
     }
 
@@ -39,7 +39,7 @@ final class DemoAppPrimeStore: ObservableObject {
         }
     }
 
-    private func primeRepositoryEvents() {
+    private func primeRepositoryEvents() async {
         if let subscriptionId {
             relayPool?.closeSubscription(with: subscriptionId)
         }
