@@ -35,7 +35,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     @Published private(set) var cloningRemoteURLs: Set<URL> = []
     @Published private(set) var lastErrorMessage: String?
 
-    private var primeCancellable: AnyCancellable?
+    private var cancellables = Set<AnyCancellable>()
 
     func isCloning(_ remoteURL: URL) -> Bool {
         cloningRemoteURLs.contains(remoteURL)
@@ -43,12 +43,21 @@ final class DemoRepositoryHostStore: ObservableObject {
 
     func attach(appPrimeStore: DemoAppPrimeStore) {
         updateSeenRepositories(from: appPrimeStore.repositoryEventByRepoIDAndKind)
+        record(seen: Array(appPrimeStore.seenRepositoryURLs))
 
-        primeCancellable = appPrimeStore.$repositoryEventByRepoIDAndKind
+        appPrimeStore.$repositoryEventByRepoIDAndKind
             .receive(on: DispatchQueue.main)
             .sink { [weak self] repositoryEventByRepoIDAndKind in
                 self?.updateSeenRepositories(from: repositoryEventByRepoIDAndKind)
             }
+            .store(in: &cancellables)
+
+        appPrimeStore.$seenRepositoryURLs
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] repositoryURLs in
+                self?.record(seen: Array(repositoryURLs))
+            }
+            .store(in: &cancellables)
     }
 
     func record(seen repositoryURLs: [URL]) {

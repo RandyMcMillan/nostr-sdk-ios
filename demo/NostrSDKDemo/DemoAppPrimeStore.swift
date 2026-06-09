@@ -11,6 +11,7 @@ import GnostrSDK
 
 final class DemoAppPrimeStore: ObservableObject {
     @Published private(set) var repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
+    @Published private(set) var seenRepositoryURLs: Set<URL> = []
 
     private var relayPool: RelayPool?
     private var subscriptionId: String?
@@ -25,6 +26,8 @@ final class DemoAppPrimeStore: ObservableObject {
     }
 
     func record(event: NostrEvent) {
+        recordSeenRepositories(from: event)
+
         guard let repoID = repoID(for: event) else { return }
 
         var eventsByKind = repositoryEventByRepoIDAndKind[repoID] ?? [:]
@@ -56,5 +59,14 @@ final class DemoAppPrimeStore: ObservableObject {
 
     private func repoID(for event: NostrEvent) -> String? {
         event.tags.first(where: { $0.name == "d" })?.value
+    }
+
+    private func recordSeenRepositories(from event: NostrEvent) {
+        let repositoryURLs = event.tags.compactMap { tag -> URL? in
+            guard tag.name == "clone" else { return nil }
+            return DemoRepositoryHostStore.normalizedRepositoryCloneURL(from: tag.value)
+        }
+
+        seenRepositoryURLs.formUnion(repositoryURLs)
     }
 }
