@@ -1134,6 +1134,7 @@ struct QueryRelayDemoView: View {
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
     @State private var seenAuthorEventIDsByPubkey: [String: [Int: Set<String>]] = [:]
+    @State private var seenRelayURLs: Set<String> = []
     @State private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
 
     private let kindOptions = [
@@ -1227,6 +1228,18 @@ struct QueryRelayDemoView: View {
                                 .font(.caption)
                                 .foregroundColor(.primary)
                         }
+                    }
+                }
+
+                if seenRelayURLs.isEmpty == false {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Seen Relays")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.primary)
+                        Text(seenRelayURLs.sorted().joined(separator: ", "))
+                            .font(.caption2.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(3)
                     }
                 }
 
@@ -1396,12 +1409,22 @@ struct QueryRelayDemoView: View {
         eventIDs.insert(event.id)
         kindsByPubkey[event.kind.rawValue] = eventIDs
         seenAuthorEventIDsByPubkey[event.pubkey] = kindsByPubkey
+        recordSeenRelays(from: event)
 
         guard let repoID = repoID(for: event) else { return }
         var eventsByKind = repoEventByRepoIDAndKind[repoID] ?? [:]
         if eventsByKind[event.kind.rawValue]?.createdAt ?? 0 <= event.createdAt {
             eventsByKind[event.kind.rawValue] = event
             repoEventByRepoIDAndKind[repoID] = eventsByKind
+        }
+    }
+
+    private func recordSeenRelays(from event: NostrEvent) {
+        for relayString in event.allValues(forTagName: .webURL) {
+            guard let relayURL = try? RelayURLValidator.shared.validateRelayURLString(relayString) else {
+                continue
+            }
+            seenRelayURLs.insert(relayURL.absoluteString)
         }
     }
 
@@ -1443,6 +1466,7 @@ struct QueryRelayDemoView: View {
                         RemoteImagePrefetcher.shared.prefetch(url: metadataEvent.pictureURL)
                         RemoteImagePrefetcher.shared.prefetch(url: metadataEvent.bannerPictureURL)
                     }
+                    recordSeenRelays(from: metadataEvent)
                     return
                 }
 
