@@ -1421,11 +1421,20 @@ struct QueryRelayDemoView: View {
 
     private func recordSeenRelays(from event: NostrEvent) {
         for relayString in event.allValues(forTagName: .webURL) {
-            guard let relayURL = try? RelayURLValidator.shared.validateRelayURLString(relayString) else {
+            guard let relayURL = normalizedRelayURL(from: relayString) else {
                 continue
             }
             seenRelayURLs.insert(relayURL.absoluteString)
         }
+    }
+
+    private func normalizedRelayURL(from relayString: String) -> URL? {
+        guard let url = URL(string: relayString),
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.scheme == "ws" || components.scheme == "wss" else {
+            return nil
+        }
+        return url
     }
 
     private func referencedRepositoryAnnouncement(for event: NostrEvent) -> NostrEvent? {
