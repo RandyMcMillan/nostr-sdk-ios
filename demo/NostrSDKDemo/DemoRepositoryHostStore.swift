@@ -509,11 +509,12 @@ private struct HostedReposHeaderView: View {
             subtitle: "Cloned repositories and their availability.",
             systemImage: "folder.fill",
             accessory: {
-            VStack(alignment: .trailing, spacing: 6) {
-                HeaderMetricPill(value: "\(availableCount)", label: "available")
-                HeaderMetricPill(value: "\(unavailableCount)", label: "pending")
+                HStack(spacing: 8) {
+                    HeaderMetricPill(value: "\(availableCount)", label: "available")
+                    HeaderMetricPill(value: "\(unavailableCount)", label: "pending")
+                }
             }
-        })
+        )
     }
 }
 
