@@ -322,6 +322,10 @@ private struct EventCardView: View {
         event.tags.first(where: { $0.name == name })?.value
     }
 
+    private func repositoryID(for event: NostrEvent) -> String? {
+        event.tags.first(where: { $0.name == "d" })?.value
+    }
+
     private func values(for name: String) -> [String] {
         event.tags.filter { $0.name == name }.map(\.value)
     }
@@ -349,6 +353,7 @@ private enum AuthorSource {
 private struct EventDetailView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
+    let referencedRepositoryAnnouncement: NostrEvent?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
@@ -402,10 +407,46 @@ private struct EventDetailView: View {
         .compactMap { $0 }
     }
 
+    private var referencedRepositoryHeader: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Corresponding 30617")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.primary)
+
+            if let referencedRepositoryAnnouncement {
+                Text("Repository: \(repositoryID(for: referencedRepositoryAnnouncement) ?? "unknown")")
+                    .font(.caption.monospaced())
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+
+                Text("ID: \(referencedRepositoryAnnouncement.id)")
+                    .font(.caption.monospaced())
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else if let repoID {
+                Text("Repository: \(repoID)")
+                    .font(.caption.monospaced())
+                    .foregroundColor(.primary)
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 banner
+
+                if event.kind.rawValue == 30618 {
+                    referencedRepositoryHeader
+                }
 
                 HStack(alignment: .top, spacing: 12) {
                     detailAvatar
@@ -556,6 +597,10 @@ private struct EventDetailView: View {
         event.tags.first(where: { $0.name == name })?.value
     }
 
+    private func repositoryID(for event: NostrEvent) -> String? {
+        event.tags.first(where: { $0.name == "d" })?.value
+    }
+
     private func values(for name: String) -> [String] {
         event.tags.filter { $0.name == name }.map(\.value)
     }
@@ -676,6 +721,7 @@ struct QueryRelayDemoView: View {
     @State private var metadataSubscriptionId: String?
     @State private var trackedMetadataPubkeys: Set<String> = []
     @State private var seenAuthorEventIDsByPubkey: [String: [Int: Set<String>]] = [:]
+    @State private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
 
     private let kindOptions = [
         30617: "Repository announcements",
@@ -814,7 +860,9 @@ struct QueryRelayDemoView: View {
                     }
 
                     ForEach(events, id: \.id) { event in
-                        NavigationLink(destination: EventDetailView(event: event, metadata: metadataByPubkey[event.pubkey])) {
+                        NavigationLink(destination: EventDetailView(event: event,
+                                                                    metadata: metadataByPubkey[event.pubkey],
+                                                                    referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: event))) {
                             EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
                         }
                         .buttonStyle(.plain)
@@ -940,6 +988,22 @@ struct QueryRelayDemoView: View {
         eventIDs.insert(event.id)
         kindsByPubkey[event.kind.rawValue] = eventIDs
         seenAuthorEventIDsByPubkey[event.pubkey] = kindsByPubkey
+
+        guard let repoID = repoID(for: event) else { return }
+        var eventsByKind = repoEventByRepoIDAndKind[repoID] ?? [:]
+        if eventsByKind[event.kind.rawValue]?.createdAt ?? 0 <= event.createdAt {
+            eventsByKind[event.kind.rawValue] = event
+            repoEventByRepoIDAndKind[repoID] = eventsByKind
+        }
+    }
+
+    private func referencedRepositoryAnnouncement(for event: NostrEvent) -> NostrEvent? {
+        guard event.kind.rawValue == 30618, let repoID = repoID(for: event) else { return nil }
+        return repoEventByRepoIDAndKind[repoID]?[30617]
+    }
+
+    private func repoID(for event: NostrEvent) -> String? {
+        event.tags.first(where: { $0.name == "d" })?.value
     }
 
     private func updateSubscription() {
