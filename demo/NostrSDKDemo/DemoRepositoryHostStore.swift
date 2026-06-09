@@ -47,9 +47,14 @@ final class DemoRepositoryHostStore: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     private var gitSettingsStore: DemoGitSettingsStore?
+    private var availabilityRefreshTask: Task<Void, Never>?
 
     func attach(gitSettingsStore: DemoGitSettingsStore) {
         self.gitSettingsStore = gitSettingsStore
+    }
+
+    deinit {
+        availabilityRefreshTask?.cancel()
     }
 
     func isCloning(_ remoteURL: URL) -> Bool {
@@ -59,7 +64,8 @@ final class DemoRepositoryHostStore: ObservableObject {
     func attach(appPrimeStore: DemoAppPrimeStore) {
         updateSeenRepositories(from: appPrimeStore.repositoryEventByRepoIDAndKind)
         record(seen: Array(appPrimeStore.seenRepositoryURLs))
-        refreshAvailability(for: seenRepositoryURLs)
+        refreshAvailability(for: seenRepositoryURLs, force: true)
+        startAvailabilityRefreshLoop()
 
         appPrimeStore.$repositoryEventByRepoIDAndKind
             .receive(on: DispatchQueue.main)
@@ -72,7 +78,7 @@ final class DemoRepositoryHostStore: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] repositoryURLs in
                 self?.record(seen: Array(repositoryURLs))
-                self?.refreshAvailability(for: repositoryURLs)
+                self?.refreshAvailability(for: repositoryURLs, force: true)
             }
             .store(in: &cancellables)
     }
@@ -183,11 +189,11 @@ final class DemoRepositoryHostStore: ObservableObject {
             }
 
         record(seen: repositoryURLs)
-        refreshAvailability(for: Set(repositoryURLs))
+        refreshAvailability(for: Set(repositoryURLs), force: false)
     }
 
-    private func refreshAvailability(for repositoryURLs: Set<URL>) {
-        let repositoryURLsToCheck = repositoryURLs.filter { checkingRepositoryURLs.contains($0) == false && repositoryAvailabilityByURL[$0] == nil }
+    private func refreshAvailability(for repositoryURLs: Set<URL>, force: Bool) {
+        let repositoryURLsToCheck = repositoryURLs.filter { checkingRepositoryURLs.contains($0) == false && (force || repositoryAvailabilityByURL[$0] == nil) }
         guard repositoryURLsToCheck.isEmpty == false else { return }
 
         checkingRepositoryURLs.formUnion(repositoryURLsToCheck)
@@ -195,13 +201,27 @@ final class DemoRepositoryHostStore: ObservableObject {
             repositoryAvailabilityByURL[repositoryURL] = .checking
             Task.detached(priority: .background) { [weak self] in
                 let isAvailable = Self.isRepositoryAvailable(repositoryURL)
+                guard let self else { return }
                 await MainActor.run {
-                    guard let self else { return }
                     self.checkingRepositoryURLs.remove(repositoryURL)
                     self.repositoryAvailabilityByURL[repositoryURL] = isAvailable ? .available : .unavailable
                     if isAvailable {
                         self.failedRepositoryURLs.remove(repositoryURL)
                     }
+                }
+            }
+        }
+    }
+
+    private func startAvailabilityRefreshLoop() {
+        guard availabilityRefreshTask == nil else { return }
+
+        availabilityRefreshTask = Task.detached(priority: .background) { [weak self] in
+            while Task.isCancelled == false {
+                try? await Task.sleep(for: .seconds(60))
+                guard let self else { return }
+                await MainActor.run {
+                    self.refreshAvailability(for: self.seenRepositoryURLs, force: true)
                 }
             }
         }
