@@ -392,7 +392,6 @@ struct HostedRepositoriesView: View {
 
                 EditButton()
                     .padding(.trailing, 16)
-                    .padding(.top, 8)
             }
         }
     }
