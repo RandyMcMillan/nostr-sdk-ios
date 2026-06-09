@@ -528,9 +528,7 @@ private struct EventDetailView: View {
                             .foregroundColor(.primary)
                     }
                     if let maintainersText {
-                        Text("Maintainers: \(maintainersText)")
-                            .font(.body)
-                            .foregroundColor(.primary)
+                        MaintainersTagValueView(pubkeys: maintainerPubkeys)
                     }
                 }
                 .padding(14)
