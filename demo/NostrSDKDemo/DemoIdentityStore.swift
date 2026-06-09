@@ -34,7 +34,7 @@ final class DemoIdentityStore: ObservableObject {
     private func refreshIdentity() {
         let trimmed = privateKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let privateKey = PrivateKey(nsec: trimmed) ?? PrivateKey(hex: trimmed) else {
-            clearFollowedPubkeys()
+            stopFollowListTracking()
             publicKeyHex = nil
             trackedPublicKeyHex = nil
             return
@@ -52,26 +52,19 @@ final class DemoIdentityStore: ObservableObject {
     }
 
     private func subscribeForFollowList(publicKeyHex: String?) {
-        if let followListSubscriptionId {
-            relayPool?.closeSubscription(with: followListSubscriptionId)
-        }
-
-        followListSubscriptionId = nil
-        followListCancellable?.cancel()
-        followListCancellable = nil
-        trackedFollowListCreatedAt = 0
+        stopFollowListTracking()
 
         guard let relayPool, let publicKeyHex, let filter = Filter(authors: [publicKeyHex], kinds: [EventKind.followList.rawValue]) else {
-            clearFollowedPubkeys()
             return
         }
 
-        followListSubscriptionId = relayPool.subscribe(with: filter)
         followListCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
-            .map { $0.event }
-            .sink { [weak self] event in
-                guard let self, let followListEvent = event as? FollowListEvent, followListEvent.pubkey == publicKeyHex else {
+            .sink { [weak self] relayEvent in
+                guard let self,
+                      relayEvent.subscriptionId == self.followListSubscriptionId,
+                      let followListEvent = relayEvent.event as? FollowListEvent,
+                      followListEvent.pubkey == publicKeyHex else {
                     return
                 }
 
@@ -82,9 +75,18 @@ final class DemoIdentityStore: ObservableObject {
                 self.trackedFollowListCreatedAt = followListEvent.createdAt
                 self.followedPubkeys = Self.uniquePubkeys(followListEvent.followedPubkeys)
             }
+
+        followListSubscriptionId = relayPool.subscribe(with: filter)
     }
 
-    private func clearFollowedPubkeys() {
+    private func stopFollowListTracking() {
+        if let followListSubscriptionId {
+            relayPool?.closeSubscription(with: followListSubscriptionId)
+        }
+        followListSubscriptionId = nil
+        followListCancellable?.cancel()
+        followListCancellable = nil
+        trackedFollowListCreatedAt = 0
         followedPubkeys = []
     }
 
