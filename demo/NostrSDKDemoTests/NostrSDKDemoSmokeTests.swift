@@ -33,6 +33,62 @@ final class NostrSDKDemoSmokeTests: XCTestCase {
             )
         }
     }
+
+    func testGitSettingsStoreTracksDefaultAndCustomRepoRoots() {
+        let store = DemoGitSettingsStore()
+        let customRootPath = tempDirectory(name: "custom-root").path
+
+        store.appRepositoriesRootPath = customRootPath
+        XCTAssertTrue(store.repositoryRootPaths.contains(DemoGitSettingsStore.defaultRepositoriesRootPath))
+        XCTAssertTrue(store.repositoryRootPaths.contains(customRootPath))
+
+        store.resetAppRepositoriesRootPath()
+
+        XCTAssertEqual(store.appRepositoriesRootPath, DemoGitSettingsStore.defaultRepositoriesRootPath)
+        XCTAssertTrue(store.repositoryRootPaths.contains(customRootPath))
+    }
+
+    @MainActor
+    func testRepositoryHostStoreRestoresPreviouslyClonedReposFromDisk() async throws {
+        let settings = DemoGitSettingsStore()
+        let customRoot = tempDirectory(name: "repo-root")
+        let cloneRoot = customRoot.appendingPathComponent("seen-repo", isDirectory: true)
+        let remoteURL = URL(string: "https://github.com/\(RepoURLs.owner)/\(RepoURLs.repo).git")!
+
+        try FileManager.default.createDirectory(at: customRoot, withIntermediateDirectories: true)
+        try DemoRepositoryHostStore.createRepositoryFixture(at: cloneRoot, remoteURL: remoteURL)
+
+        settings.appRepositoriesRootPath = customRoot.path
+
+        let store = DemoRepositoryHostStore()
+        store.attach(gitSettingsStore: settings)
+
+        let restored = await waitForCondition {
+            store.repositories.contains(where: { $0.remoteURL == remoteURL && $0.localURL.path == cloneRoot.path })
+        }
+
+        let discoveredRepositories = store.repositories.map { "\($0.remoteURL.absoluteString) => \($0.localURL.path)" }
+        XCTAssertTrue(restored, "roots: \(settings.repositoryRootURLs.map(\.path)) repos: \(discoveredRepositories)")
+    }
+
+    private func tempDirectory(name: String) -> URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent("NostrSDKDemoSmokeTests-\(UUID().uuidString)-\(name)", isDirectory: true)
+    }
+
+    @MainActor
+    private func waitForCondition(timeout: TimeInterval = 5, pollInterval: UInt64 = 50_000_000, condition: @escaping () -> Bool) async -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() {
+                return true
+            }
+            try? await Task.sleep(nanoseconds: pollInterval)
+        }
+
+        return condition()
+    }
+
 }
 
 private enum RepoURLs {

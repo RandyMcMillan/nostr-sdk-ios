@@ -48,13 +48,25 @@ final class DemoRepositoryHostStore: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var gitSettingsStore: DemoGitSettingsStore?
     private var availabilityRefreshTask: Task<Void, Never>?
+    private var repositoryDiscoveryTask: Task<Void, Never>?
 
     func attach(gitSettingsStore: DemoGitSettingsStore) {
         self.gitSettingsStore = gitSettingsStore
+        gitSettingsStore.registerRepositoryRootPath(gitSettingsStore.appRepositoriesRootPath)
+        refreshHostedRepositories(in: gitSettingsStore.repositoryRootURLs)
+
+        gitSettingsStore.$repositoryRootPaths
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self, weak gitSettingsStore] _ in
+                guard let self, let gitSettingsStore else { return }
+                self.refreshHostedRepositories(in: gitSettingsStore.repositoryRootURLs)
+            }
+            .store(in: &cancellables)
     }
 
     deinit {
         availabilityRefreshTask?.cancel()
+        repositoryDiscoveryTask?.cancel()
     }
 
     func isCloning(_ remoteURL: URL) -> Bool {
@@ -96,6 +108,31 @@ final class DemoRepositoryHostStore: ObservableObject {
 
     func removeHostedRepository(_ repositoryURL: URL) {
         repositories.removeAll { $0.remoteURL == repositoryURL }
+    }
+
+#if DEBUG
+    nonisolated static func createRepositoryFixture(at repositoryURL: URL, remoteURL: URL) throws {
+        let repository = try Repository.create(at: repositoryURL)
+        _ = try repository.remote.add(named: "origin", at: remoteURL)
+    }
+#endif
+
+    func refreshHostedRepositories(in rootURLs: [URL]) {
+        repositoryDiscoveryTask?.cancel()
+
+        repositoryDiscoveryTask = Task.detached(priority: .background) { [weak self] in
+            let discoveredRepositories = Self.discoverHostedRepositories(in: rootURLs)
+            guard let self else { return }
+            await MainActor.run {
+                for repository in discoveredRepositories {
+                    self.repositories.removeAll { $0.remoteURL == repository.remoteURL }
+                    self.repositories.insert(repository, at: 0)
+                    self.repositoryAvailabilityByURL[repository.remoteURL] = .available
+                    self.failedRepositoryURLs.remove(repository.remoteURL)
+                    self.checkingRepositoryURLs.remove(repository.remoteURL)
+                }
+            }
+        }
     }
 
     func cloneRepository(from remoteURL: URL) {
@@ -227,6 +264,38 @@ final class DemoRepositoryHostStore: ObservableObject {
                 }
             }
         }
+    }
+
+    nonisolated private static func discoverHostedRepositories(in rootURLs: [URL]) -> [HostedRepository] {
+        var discoveredRepositories: [HostedRepository] = []
+        var seenRemoteURLs = Set<URL>()
+
+        for rootURL in rootURLs {
+            let rootPath = rootURL.path
+            guard FileManager.default.fileExists(atPath: rootPath) else { continue }
+
+            let contents = (try? FileManager.default.contentsOfDirectory(
+                at: rootURL,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles]
+            )) ?? []
+
+            for candidateURL in contents {
+                guard isDirectory(candidateURL) else { continue }
+                guard let repository = try? Repository.open(at: candidateURL) else { continue }
+                guard let remote = repository.remote["origin"] else { continue }
+                guard seenRemoteURLs.insert(remote.url).inserted else { continue }
+
+                let localURL = (try? repository.workingDirectory) ?? candidateURL
+                discoveredRepositories.append(HostedRepository(remoteURL: remote.url, localURL: localURL))
+            }
+        }
+
+        return discoveredRepositories.sorted { $0.remoteURL.absoluteString < $1.remoteURL.absoluteString }
+    }
+
+    nonisolated private static func isDirectory(_ url: URL) -> Bool {
+        (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
     }
 
     nonisolated private static func isRepositoryAvailable(_ repositoryURL: URL) -> Bool {
