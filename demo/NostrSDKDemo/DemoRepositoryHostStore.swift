@@ -165,15 +165,17 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     nonisolated static func normalizedRepositoryCloneURL(from value: String) -> URL? {
-        if let url = URL(string: value), url.scheme != nil {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let url = URL(string: trimmedValue), url.scheme != nil {
             return url
         }
 
-        guard value.contains("@"), value.contains(":"), value.contains("://") == false else {
+        guard trimmedValue.contains("@"), trimmedValue.contains(":"), trimmedValue.contains("://") == false else {
             return nil
         }
 
-        let components = value.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        let components = trimmedValue.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
         guard components.count == 2 else { return nil }
         return URL(string: "ssh://\(components[0])/\(components[1])")
     }
