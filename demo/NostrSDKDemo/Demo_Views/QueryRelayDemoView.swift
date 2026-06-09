@@ -416,23 +416,34 @@ private struct EventDetailView: View {
 
     private var referencedRepositoryHeader: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Corresponding 30617")
-                .font(.caption.weight(.semibold))
-                .foregroundColor(.primary)
-
             if let referencedRepositoryAnnouncement {
-                Text("Repository: \(repositoryID(for: referencedRepositoryAnnouncement) ?? "unknown")")
-                    .font(.caption.monospaced())
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                NavigationLink(destination: EventDetailView(event: referencedRepositoryAnnouncement,
+                                                            metadata: metadata,
+                                                            referencedRepositoryAnnouncement: nil)) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Corresponding 30617")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.primary)
 
-                Text("ID: \(referencedRepositoryAnnouncement.id)")
-                    .font(.caption.monospaced())
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                        Text("Repository: \(repositoryID(for: referencedRepositoryAnnouncement) ?? "unknown")")
+                            .font(.caption.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+
+                        Text("ID: \(referencedRepositoryAnnouncement.id)")
+                            .font(.caption.monospaced())
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
             } else if let repoID {
+                Text("Corresponding 30617")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.primary)
                 Text("Repository: \(repoID)")
                     .font(.caption.monospaced())
                     .foregroundColor(.primary)
