@@ -12,6 +12,7 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
     let subtitle: String?
     let systemImage: String
     let bannerURL: URL?
+    let fallbackBannerImageName: String
     let bannerHeight: CGFloat
     let hero: Hero
     let accessory: Accessory
@@ -20,6 +21,7 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
          subtitle: String? = nil,
          systemImage: String,
          bannerURL: URL? = nil,
+         fallbackBannerImageName: String = "DefaultBanner",
          bannerHeight: CGFloat = 180,
          @ViewBuilder hero: () -> Hero = { EmptyView() },
          @ViewBuilder accessory: () -> Accessory = { EmptyView() }) {
@@ -27,6 +29,7 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
         self.subtitle = subtitle
         self.systemImage = systemImage
         self.bannerURL = bannerURL
+        self.fallbackBannerImageName = fallbackBannerImageName
         self.bannerHeight = bannerHeight
         self.hero = hero()
         self.accessory = accessory()
@@ -70,29 +73,45 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
     @ViewBuilder
     private var banner: some View {
         if let bannerURL {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.tertiarySystemFill))
-                .frame(height: bannerHeight)
-                .overlay(alignment: .center) {
-                    AsyncImage(url: bannerURL) { phase in
-                        switch phase {
-                        case .empty:
-                            ProgressView()
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                        case .failure:
-                            EmptyView()
-                        @unknown default:
-                            EmptyView()
-                        }
+            bannerFrame {
+                AsyncImage(url: bannerURL) { phase in
+                    switch phase {
+                    case .empty:
+                        fallbackBanner
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
+                        fallbackBanner
+                    @unknown default:
+                        fallbackBanner
                     }
+                }
+            }
+        } else {
+            bannerFrame {
+                fallbackBanner
+            }
+        }
+    }
+
+    private var fallbackBanner: some View {
+        Image(fallbackBannerImageName)
+            .resizable()
+            .scaledToFill()
+    }
+
+    private func bannerFrame<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .fill(Color(.tertiarySystemFill))
+            .frame(height: bannerHeight)
+            .overlay(alignment: .center) {
+                content()
                     .frame(maxWidth: .infinity)
                     .frame(height: bannerHeight)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
-        }
+            }
     }
 }
 
