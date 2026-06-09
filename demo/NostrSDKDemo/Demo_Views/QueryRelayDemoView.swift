@@ -109,7 +109,7 @@ private func eventCoordinateIndex(for events: [NostrEvent]) -> [String: NostrEve
             return
         }
 
-        result[coordinates.tag.raw.joined(separator: "|")] = event
+        result[coordinates.tag.value] = event
     }
 }
 
