@@ -192,17 +192,20 @@ struct HostedRepositoriesView: View {
                 } else {
                     ForEach(repositoryHostStore.repositories) { repository in
                         HStack(alignment: .top, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(repository.displayName)
-                                    .font(.headline)
-                                Text(repository.remoteURL.absoluteString)
-                                    .font(.caption.monospaced())
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
-                                Text(repository.localURL.path)
-                                    .font(.caption2.monospaced())
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
+                            NavigationLink(destination: RepoView(repository: repository)) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(repository.displayName)
+                                        .font(.headline)
+                                    Text(repository.remoteURL.absoluteString)
+                                        .font(.caption.monospaced())
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                    Text(repository.localURL.path)
+                                        .font(.caption2.monospaced())
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             Spacer(minLength: 12)
                             Button {
@@ -277,5 +280,28 @@ struct HostedRepositoriesView: View {
     private func add(_ repositoryURL: URL) {
         guard hasHostedRepository(repositoryURL) == false else { return }
         repositoryHostStore.cloneRepository(from: repositoryURL)
+    }
+}
+
+struct RepoView: View {
+    let repository: DemoRepositoryHostStore.HostedRepository
+
+    var body: some View {
+        Form {
+            Section("Repository") {
+                LabeledContent("Name") {
+                    Text(repository.displayName)
+                }
+                LabeledContent("Remote") {
+                    Text(repository.remoteURL.absoluteString)
+                        .multilineTextAlignment(.trailing)
+                }
+                LabeledContent("Local") {
+                    Text(repository.localURL.path)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+        }
+        .navigationTitle(repository.displayName)
     }
 }
