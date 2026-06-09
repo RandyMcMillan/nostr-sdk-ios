@@ -131,7 +131,8 @@ private struct EventCardView: View {
     }
 
     private var maintainersText: String? {
-        values(for: "maintainers").first
+        let values = values(for: "maintainers")
+        return values.isEmpty ? nil : values.joined(separator: ", ")
     }
 
     private var isPatch: Bool {
@@ -386,7 +387,13 @@ private struct EventDetailView: View {
     }
 
     private var maintainersText: String? {
-        values(for: "maintainers").first
+        let values = values(for: "maintainers")
+        return values.isEmpty ? nil : values.joined(separator: ", ")
+    }
+
+    private var maintainerPubkeys: [String] {
+        var seen = Set<String>()
+        return values(for: "maintainers").filter { seen.insert($0).inserted }
     }
 
     private var isPatch: Bool {
@@ -482,6 +489,43 @@ private struct EventDetailView: View {
                                 .foregroundColor(.primary)
                         }
                     }
+                }
+
+                if maintainerPubkeys.isEmpty == false {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Maintainers")
+                            .font(.headline)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(maintainerPubkeys, id: \.self) { pubkey in
+                                NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
+                                    HStack(spacing: 10) {
+                                        Text(pubkey)
+                                            .font(.caption.monospaced())
+                                            .foregroundColor(.primary)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.6)
+                                        Spacer(minLength: 0)
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.vertical, 8)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(Color(.separator).opacity(0.15))
+                    )
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -659,6 +703,102 @@ private struct EventDetailView: View {
                 .padding(16)
         }
         .frame(width: 96, height: 96)
+    }
+}
+
+private struct MaintainerProfileView: View {
+    @EnvironmentObject private var relayPool: RelayPool
+    let pubkey: String
+
+    @StateObject private var metadataLoader = PubkeyMetadataLoader()
+    @State private var events: [NostrEvent] = []
+    @State private var eventsCancellable: AnyCancellable?
+    @State private var subscriptionId: String?
+    @State private var trackedPubkey: String?
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
+                    .frame(height: 240)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("30617 Repository announcements")
+                        .font(.headline)
+
+                    if events.isEmpty {
+                        Text("No repository announcements loaded yet.")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(events, id: \.id) { event in
+                                EventCardView(event: event, metadata: metadataLoader.metadata)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding()
+        }
+        .navigationTitle("Maintainer")
+        .onAppear {
+            refresh()
+        }
+        .onChange(of: pubkey) { _ in
+            refresh()
+        }
+        .onDisappear {
+            if let subscriptionId {
+                relayPool.closeSubscription(with: subscriptionId)
+            }
+        }
+    }
+
+    private func refresh() {
+        guard let normalizedPubkey = normalizedHexPubkey(from: pubkey) else {
+            events = []
+            metadataLoader.update(publicKeyInput: pubkey, isValid: false)
+            return
+        }
+
+        metadataLoader.attach(relayPool: relayPool)
+        metadataLoader.update(publicKeyInput: normalizedPubkey, isValid: true)
+
+        if trackedPubkey != normalizedPubkey {
+            trackedPubkey = normalizedPubkey
+            events = []
+            subscribe(pubkey: normalizedPubkey)
+        }
+    }
+
+    private func subscribe(pubkey: String) {
+        if let subscriptionId {
+            relayPool.closeSubscription(with: subscriptionId)
+        }
+
+        guard let filter = Filter(authors: [pubkey], kinds: [30617]) else {
+            subscriptionId = nil
+            return
+        }
+
+        subscriptionId = relayPool.subscribe(with: filter)
+        eventsCancellable = relayPool.events
+            .receive(on: DispatchQueue.main)
+            .sink { relayEvent in
+                guard relayEvent.subscriptionId == subscriptionId else { return }
+                let event = relayEvent.event
+                if events.contains(where: { $0.id == event.id }) == false {
+                    events.insert(event, at: 0)
+                }
+            }
+    }
+
+    private func normalizedHexPubkey(from value: String) -> String? {
+        if value.contains("npub") {
+            return PublicKey(npub: value)?.hex
+        }
+        return PublicKey(hex: value)?.hex
     }
 }
 
