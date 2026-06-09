@@ -1244,6 +1244,7 @@ struct QueryRelayDemoView: View {
     @EnvironmentObject var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
     @EnvironmentObject private var relayDirectory: RelayDirectoryStore
+    @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
 
     @State private var selectedFollowedAuthorPubkey: String = ""
     @State private var selectedSeenAuthorPubkey: String = ""
@@ -1412,6 +1413,10 @@ struct QueryRelayDemoView: View {
             primeSeenAuthors()
             updateSubscription()
             updateMetadataSubscription()
+            repoEventByRepoIDAndKind = appPrimeStore.repositoryEventByRepoIDAndKind
+        }
+        .onReceive(appPrimeStore.$repositoryEventByRepoIDAndKind) { repositoryEventByRepoIDAndKind in
+            self.repoEventByRepoIDAndKind = repositoryEventByRepoIDAndKind
         }
         .onChange(of: identityStore.followedPubkeys) { _ in
             sanitizeSelectedAuthors()
@@ -1526,6 +1531,7 @@ struct QueryRelayDemoView: View {
         if eventsByKind[event.kind.rawValue]?.createdAt ?? 0 <= event.createdAt {
             eventsByKind[event.kind.rawValue] = event
             repoEventByRepoIDAndKind[repoID] = eventsByKind
+            appPrimeStore.record(event: event)
         }
     }
 
@@ -1683,5 +1689,6 @@ struct QueryRelayView_Previews: PreviewProvider {
         .environmentObject(RelayPool(relays: []))
         .environmentObject(DemoIdentityStore())
         .environmentObject(RelayDirectoryStore())
+        .environmentObject(DemoAppPrimeStore())
     }
 }

@@ -18,6 +18,7 @@ struct NostrSDKDemoApp: App {
     ])
     @StateObject var identityStore = DemoIdentityStore()
     @StateObject var relayDirectory = RelayDirectoryStore()
+    @StateObject var appPrimeStore = DemoAppPrimeStore()
     
     var body: some Scene {
         WindowGroup {
@@ -25,6 +26,7 @@ struct NostrSDKDemoApp: App {
                 .environmentObject(relayPool)
                 .environmentObject(identityStore)
                 .environmentObject(relayDirectory)
+                .environmentObject(appPrimeStore)
         }
     }
 }

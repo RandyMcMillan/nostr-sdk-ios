@@ -99,6 +99,7 @@ struct ContentView: View {
 
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @State private var relay: Relay?
     @State private var selectedDestination: SidebarDestination = .connectRelay
     @State private var navigationPath = NavigationPath()
@@ -109,6 +110,7 @@ struct ContentView: View {
         layout
             .onAppear {
                 identityStore.attach(relayPool: relayPool)
+                appPrimeStore.attach(relayPool: relayPool)
             }
             #if os(macOS)
             .background(MacKeyEventMonitor(orientation: $orientation))
@@ -356,12 +358,14 @@ struct ContentView_Previews: PreviewProvider {
             .environmentObject(RelayPool(relays: []))
             .environmentObject(DemoIdentityStore())
             .environmentObject(RelayDirectoryStore())
+            .environmentObject(DemoAppPrimeStore())
     }
 }
 
 private struct SettingsView: View {
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @StateObject private var metadataLoader = PubkeyMetadataLoader()
 
