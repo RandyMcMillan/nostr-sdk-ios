@@ -10,6 +10,7 @@ import Foundation
 import GnostrSDK
 import SwiftGitX
 import SwiftUI
+import Darwin
 
 @MainActor
 final class DemoRepositoryHostStore: ObservableObject {
@@ -30,10 +31,18 @@ final class DemoRepositoryHostStore: ObservableObject {
         }
     }
 
+    enum RepositoryAvailability: Equatable {
+        case checking
+        case available
+        case unavailable
+    }
+
     @Published private(set) var repositories: [HostedRepository] = []
     @Published private(set) var seenRepositoryURLs: Set<URL> = []
     @Published private(set) var cloningRemoteURLs: Set<URL> = []
     @Published private(set) var failedRepositoryURLs: Set<URL> = []
+    @Published private(set) var repositoryAvailabilityByURL: [URL: RepositoryAvailability] = [:]
+    @Published private(set) var checkingRepositoryURLs: Set<URL> = []
     @Published private(set) var lastErrorMessage: String?
 
     private var cancellables = Set<AnyCancellable>()
@@ -50,6 +59,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     func attach(appPrimeStore: DemoAppPrimeStore) {
         updateSeenRepositories(from: appPrimeStore.repositoryEventByRepoIDAndKind)
         record(seen: Array(appPrimeStore.seenRepositoryURLs))
+        refreshAvailability(for: seenRepositoryURLs)
 
         appPrimeStore.$repositoryEventByRepoIDAndKind
             .receive(on: DispatchQueue.main)
@@ -62,6 +72,7 @@ final class DemoRepositoryHostStore: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] repositoryURLs in
                 self?.record(seen: Array(repositoryURLs))
+                self?.refreshAvailability(for: repositoryURLs)
             }
             .store(in: &cancellables)
     }
@@ -73,6 +84,8 @@ final class DemoRepositoryHostStore: ObservableObject {
     func removeSeen(_ repositoryURL: URL) {
         seenRepositoryURLs.remove(repositoryURL)
         failedRepositoryURLs.remove(repositoryURL)
+        repositoryAvailabilityByURL.removeValue(forKey: repositoryURL)
+        checkingRepositoryURLs.remove(repositoryURL)
     }
 
     func removeHostedRepository(_ repositoryURL: URL) {
@@ -112,6 +125,8 @@ final class DemoRepositoryHostStore: ObservableObject {
             } catch {
                 await MainActor.run {
                     self.failedRepositoryURLs.insert(remoteURL)
+                    self.repositoryAvailabilityByURL[remoteURL] = .unavailable
+                    self.checkingRepositoryURLs.remove(remoteURL)
                     self.lastErrorMessage = error.localizedDescription
                 }
             }
@@ -124,6 +139,8 @@ final class DemoRepositoryHostStore: ObservableObject {
             repositories.removeAll { $0.remoteURL == remoteURL }
             repositories.insert(hostedRepository, at: 0)
             failedRepositoryURLs.remove(remoteURL)
+            repositoryAvailabilityByURL[remoteURL] = .available
+            checkingRepositoryURLs.remove(remoteURL)
             lastErrorMessage = nil
         }
     }
@@ -166,6 +183,61 @@ final class DemoRepositoryHostStore: ObservableObject {
             }
 
         record(seen: repositoryURLs)
+        refreshAvailability(for: Set(repositoryURLs))
+    }
+
+    private func refreshAvailability(for repositoryURLs: Set<URL>) {
+        let repositoryURLsToCheck = repositoryURLs.filter { checkingRepositoryURLs.contains($0) == false && repositoryAvailabilityByURL[$0] == nil }
+        guard repositoryURLsToCheck.isEmpty == false else { return }
+
+        checkingRepositoryURLs.formUnion(repositoryURLsToCheck)
+        for repositoryURL in repositoryURLsToCheck {
+            repositoryAvailabilityByURL[repositoryURL] = .checking
+            Task.detached(priority: .background) { [weak self] in
+                let isAvailable = Self.isRepositoryAvailable(repositoryURL)
+                await MainActor.run {
+                    guard let self else { return }
+                    self.checkingRepositoryURLs.remove(repositoryURL)
+                    self.repositoryAvailabilityByURL[repositoryURL] = isAvailable ? .available : .unavailable
+                    if isAvailable {
+                        self.failedRepositoryURLs.remove(repositoryURL)
+                    }
+                }
+            }
+        }
+    }
+
+    nonisolated private static func isRepositoryAvailable(_ repositoryURL: URL) -> Bool {
+        var pid = pid_t()
+        let arguments = [
+            "git",
+            "ls-remote",
+            "--exit-code",
+            repositoryURL.absoluteString,
+            "HEAD"
+        ]
+
+        let executable = "/usr/bin/git"
+        let argv = arguments.map { strdup($0) }
+        defer { argv.forEach { free($0) } }
+
+        var cArguments: [UnsafeMutablePointer<CChar>?] = argv
+        cArguments.append(nil)
+
+        let spawnStatus = cArguments.withUnsafeMutableBufferPointer { buffer in
+            posix_spawn(&pid, executable, nil, nil, buffer.baseAddress, environ)
+        }
+
+        guard spawnStatus == 0 else {
+            return false
+        }
+
+        var waitStatus: Int32 = 0
+        guard waitpid(pid, &waitStatus, 0) != -1 else {
+            return false
+        }
+
+        return (waitStatus >> 8) == 0
     }
 }
 
@@ -228,6 +300,7 @@ struct HostedRepositoriesView: View {
                 } else {
                     ForEach(seenRepositories, id: \.self) { repositoryURL in
                         HStack {
+                            availabilityIcon(for: repositoryURL)
                             Text(repositoryURL.absoluteString)
                                 .foregroundColor(repositoryHostStore.failedRepositoryURLs.contains(repositoryURL) ? .red : .primary)
                                 .textSelection(.enabled)
@@ -279,6 +352,26 @@ struct HostedRepositoriesView: View {
     private func add(_ repositoryURL: URL) {
         guard hasHostedRepository(repositoryURL) == false else { return }
         repositoryHostStore.cloneRepository(from: repositoryURL)
+    }
+
+    @ViewBuilder
+    private func availabilityIcon(for repositoryURL: URL) -> some View {
+        if repositoryHostStore.checkingRepositoryURLs.contains(repositoryURL) {
+            ProgressView()
+                .controlSize(.small)
+        } else {
+            switch repositoryHostStore.repositoryAvailabilityByURL[repositoryURL] {
+            case .available:
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            case .unavailable:
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.red)
+            case .checking, .none:
+                Image(systemName: "questionmark.circle")
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
