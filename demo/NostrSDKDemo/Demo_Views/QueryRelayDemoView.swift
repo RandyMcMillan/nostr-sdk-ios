@@ -916,7 +916,8 @@ struct QueryRelayDemoView: View {
     }
 
     private func sanitizeSelectedAuthors() {
-        if selectedFollowedAuthorPubkey.isEmpty == false,
+        if identityStore.followedPubkeys.isEmpty == false,
+           selectedFollowedAuthorPubkey.isEmpty == false,
            identityStore.followedPubkeys.contains(selectedFollowedAuthorPubkey) == false {
             selectedFollowedAuthorPubkey = ""
             if selectedAuthorSource == .followed {
