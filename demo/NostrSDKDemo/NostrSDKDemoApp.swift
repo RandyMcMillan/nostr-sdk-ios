@@ -45,15 +45,11 @@ private struct AppBootstrapView: View {
             .task {
                 guard didBootstrap == false else { return }
                 didBootstrap = true
-                Task.detached(priority: .background) {
-                    await MainActor.run {
-                        identityStore.attach(relayPool: relayPool)
-                    }
-                    appPrimeStore.attach(relayPool: relayPool)
-                    await MainActor.run {
-                        repositoryHostStore.attach(appPrimeStore: appPrimeStore)
-                    }
+                await MainActor.run {
+                    identityStore.attach(relayPool: relayPool)
+                    repositoryHostStore.attach(appPrimeStore: appPrimeStore)
                 }
+                appPrimeStore.attach(relayPool: relayPool)
             }
     }
 }
