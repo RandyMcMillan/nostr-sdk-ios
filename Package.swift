@@ -27,16 +27,23 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "GnostrSDK",
+            name: "NostrSDK",
             dependencies: [
                 .product(name: "secp256k1", package: "secp256k1.swift"),
                 "CryptoSwift",
                 .product(name: "OrderedCollections", package: "swift-collections")
-            ]
+            ],
+            path: "Sources/NostrSDK"
+        ),
+        .target(
+            name: "GnostrSDK",
+            dependencies: ["NostrSDK"],
+            path: "Sources/NostrSDKCompatibility"
         ),
         .testTarget(
             name: "GnostrSDKTests",
-            dependencies: ["GnostrSDK"],
+            dependencies: ["NostrSDK"],
+            path: "Tests/NostrSDKTests",
             resources: [.copy("Fixtures")]
         )
     ]

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0000012E6E7F8E00000001 /* NostrSDKDemoSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000032E6E7F8E00000001 /* NostrSDKDemoSmokeTests.swift */; };
 		14B00A3D2E6E7F8E00000001 /* DemoIdentityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A3C2E6E7F8E00000001 /* DemoIdentityStore.swift */; };
 		14B00A3E2E6E7F8E00000001 /* DemoAppPrimeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A3F2E6E7F8E00000001 /* DemoAppPrimeStore.swift */; };
 		14B00A402E6E7F8E00000001 /* DemoRepositoryHostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A412E6E7F8E00000001 /* DemoRepositoryHostStore.swift */; };
@@ -31,6 +32,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AA0000042E6E7F8E00000001 /* NostrSDKDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NostrSDKDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000032E6E7F8E00000001 /* NostrSDKDemoSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrSDKDemoSmokeTests.swift; sourceTree = "<group>"; };
 		14B00A3C2E6E7F8E00000001 /* DemoIdentityStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoIdentityStore.swift; sourceTree = "<group>"; };
 		14B00A3F2E6E7F8E00000001 /* DemoAppPrimeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoAppPrimeStore.swift; sourceTree = "<group>"; };
 		14B00A412E6E7F8E00000001 /* DemoRepositoryHostStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoRepositoryHostStore.swift; sourceTree = "<group>"; };
@@ -55,6 +58,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AA00000A2E6E7F8E00000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F7CB36252A35127B0098F35C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -67,6 +77,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AA00000B2E6E7F8E00000001 /* NostrSDKDemoTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000032E6E7F8E00000001 /* NostrSDKDemoSmokeTests.swift */,
+			);
+			path = NostrSDKDemoTests;
+			sourceTree = "<group>";
+		};
 		F78221BC2A87EF6C008D5AE8 /* Demo_Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +128,7 @@
 		F7CB361F2A35127B0098F35C = {
 			isa = PBXGroup;
 			children = (
+				AA00000B2E6E7F8E00000001 /* NostrSDKDemoTests */,
 				F7CB362A2A35127B0098F35C /* NostrSDKDemo */,
 				F7CB36292A35127B0098F35C /* Products */,
 				F7A81BDC2A66201800EBCB0C /* Frameworks */,
@@ -120,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				F7CB36282A35127B0098F35C /* NostrSDKDemo.app */,
+				AA0000042E6E7F8E00000001 /* NostrSDKDemoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -153,6 +173,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AA0000052E6E7F8E00000001 /* NostrSDKDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000062E6E7F8E00000001 /* Build configuration list for PBXNativeTarget "NostrSDKDemoTests" */;
+			buildPhases = (
+				AA0000092E6E7F8E00000001 /* Sources */,
+				AA00000A2E6E7F8E00000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA00000D2E6E7F8E00000001 /* NostrSDKDemo */,
+			);
+			name = NostrSDKDemoTests;
+			packageProductDependencies = (
+				4BB77E8E2FD49904003742C9 /* GnostrSDK */,
+			);
+			productName = NostrSDKDemoTests;
+			productReference = AA0000042E6E7F8E00000001 /* NostrSDKDemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F7CB36272A35127B0098F35C /* NostrSDKDemo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F7CB36362A35127C0098F35C /* Build configuration list for PBXNativeTarget "NostrSDKDemo" */;
@@ -184,6 +224,9 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					AA0000052E6E7F8E00000001 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
 					F7CB36272A35127B0098F35C = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
@@ -206,6 +249,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				AA0000052E6E7F8E00000001 /* NostrSDKDemoTests */,
 				F7CB36272A35127B0098F35C /* NostrSDKDemo */,
 			);
 		};
@@ -223,7 +267,33 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXContainerItemProxy section */
+		AA00000C2E6E7F8E00000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F7CB36202A35127B0098F35C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F7CB36272A35127B0098F35C;
+			remoteInfo = NostrSDKDemo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		AA00000D2E6E7F8E00000001 /* NostrSDKDemo */ = {
+			isa = PBXTargetDependency;
+			target = F7CB36272A35127B0098F35C /* NostrSDKDemo */;
+			targetProxy = AA00000C2E6E7F8E00000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXSourcesBuildPhase section */
+		AA0000092E6E7F8E00000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000012E6E7F8E00000001 /* NostrSDKDemoSmokeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F7CB36242A35127B0098F35C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -437,9 +507,62 @@
 			};
 			name = Release;
 		};
+		AA0000072E6E7F8E00000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = M684FYCYG6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nostrsdk.NostrSDKDemoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NostrSDKDemo.app/NostrSDKDemo";
+			};
+			name = Debug;
+		};
+		AA0000082E6E7F8E00000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = M684FYCYG6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nostrsdk.NostrSDKDemoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NostrSDKDemo.app/NostrSDKDemo";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AA0000062E6E7F8E00000001 /* Build configuration list for PBXNativeTarget "NostrSDKDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000072E6E7F8E00000001 /* Debug */,
+				AA0000082E6E7F8E00000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F7CB36232A35127B0098F35C /* Build configuration list for PBXProject "NostrSDKDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
