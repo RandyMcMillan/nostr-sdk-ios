@@ -28,6 +28,7 @@ final class RelayDirectoryStore: ObservableObject {
 
     func record(seen relayURLs: [URL]) {
         seenRelayURLs.formUnion(relayURLs)
+        deduplicateSeenRelayURLs()
     }
 
     func record(seen event: NostrEvent) {
@@ -39,10 +40,15 @@ final class RelayDirectoryStore: ObservableObject {
             relayURLs.append(relayURL)
         }
         seenRelayURLs.formUnion(relayURLs)
+        deduplicateSeenRelayURLs()
     }
 
     func removeSeen(_ relayURL: URL) {
         seenRelayURLs.remove(relayURL)
+    }
+
+    func deduplicateSeenRelayURLs() {
+        seenRelayURLs = Set(seenRelayURLs.compactMap { normalizedRelayURL(from: $0.absoluteString) })
     }
 
     private func normalizedRelayURL(from relayString: String) -> URL? {
@@ -184,16 +190,19 @@ struct RelaysView: View {
         }
         pool.add(relay: relay)
         relayDirectory.removeSeen(relayURL)
+        relayDirectory.deduplicateSeenRelayURLs()
     }
 
     private func disconnect(_ relay: Relay) {
         relayDirectory.record(seen: [relay.url])
         pool.remove(relay: relay)
+        relayDirectory.deduplicateSeenRelayURLs()
     }
 
     private func disconnect(_ relayURL: URL) {
         relayDirectory.record(seen: [relayURL])
         pool.removeRelay(withURL: relayURL)
+        relayDirectory.deduplicateSeenRelayURLs()
     }
     
     private func remove(at offsets: IndexSet) {
