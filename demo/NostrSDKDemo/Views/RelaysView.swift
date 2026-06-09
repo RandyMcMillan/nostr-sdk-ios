@@ -99,7 +99,9 @@ struct RelaysView: View {
     }
 
     private var seenRelays: [URL] {
-        relayDirectory.seenRelayURLs.sorted { $0.absoluteString < $1.absoluteString }
+        relayDirectory.seenRelayURLs
+            .filter { contains($0) == false }
+            .sorted { $0.absoluteString < $1.absoluteString }
     }
 
     private func contains(_ relayURL: URL) -> Bool {
