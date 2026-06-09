@@ -720,7 +720,7 @@ private struct EventDetailView: View {
                                                                 metadata: metadata,
                                                                 eventByID: eventByID,
                                                                 eventByCoordinate: eventByCoordinate,
-                                                                referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: linkedEvent))) {
+                                                                referencedRepositoryAnnouncement: nil)) {
                         TagChipView(label: item.label, value: item.value)
                     }
                     .buttonStyle(.plain)
@@ -733,7 +733,7 @@ private struct EventDetailView: View {
                                                                 metadata: metadata,
                                                                 eventByID: eventByID,
                                                                 eventByCoordinate: eventByCoordinate,
-                                                                referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: linkedEvent))) {
+                                                                referencedRepositoryAnnouncement: nil)) {
                         TagChipView(label: item.label, value: item.value)
                     }
                     .buttonStyle(.plain)
