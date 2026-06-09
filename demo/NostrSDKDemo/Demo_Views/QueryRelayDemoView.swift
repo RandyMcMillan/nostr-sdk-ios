@@ -502,20 +502,6 @@ private struct EventDetailView: View {
                     }
                 }
 
-                if maintainerPubkeys.isEmpty == false {
-                    MaintainersTagChipView(pubkeys: maintainerPubkeys)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color(.secondarySystemBackground))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color(.separator).opacity(0.15))
-                    )
-                }
-
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text("ID")
@@ -609,7 +595,10 @@ private struct EventDetailView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             ForEach(detailTags, id: \.self) { item in
                                 if item.label == "Maintainers" {
-                                    MaintainersTagChipView(pubkeys: maintainerPubkeys)
+                                    NavigationLink(destination: MaintainerProfileView(pubkey: maintainerPubkeys.first ?? "")) {
+                                        TagChipView(label: item.label, value: maintainersText ?? "")
+                                    }
+                                    .buttonStyle(.plain)
                                 } else {
                                     TagChipView(label: item.label, value: item.value)
                                 }
@@ -823,64 +812,6 @@ private struct TagChipView: View {
                     .foregroundColor(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                     .multilineTextAlignment(.leading)
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color(.tertiarySystemFill))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color(.separator).opacity(0.12))
-        )
-    }
-}
-
-private struct MaintainersTagChipView: View {
-    let pubkeys: [String]
-
-    var body: some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text("Maintainers:")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundColor(.primary)
-
-                ForEach(Array(pubkeys.enumerated()), id: \.offset) { index, pubkey in
-                    if index > 0 {
-                        Text(",")
-                            .font(.caption.monospaced())
-                            .foregroundColor(.primary)
-                    }
-
-                    NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
-                        Text(pubkey)
-                            .font(.caption.monospaced())
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .allowsTightening(true)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Maintainers:")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundColor(.primary)
-
-                ForEach(pubkeys, id: \.self) { pubkey in
-                    NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
-                        Text(pubkey)
-                            .font(.caption.monospaced())
-                            .foregroundColor(.primary)
-                    }
-                    .buttonStyle(.plain)
-                }
             }
         }
         .padding(.horizontal, 12)
