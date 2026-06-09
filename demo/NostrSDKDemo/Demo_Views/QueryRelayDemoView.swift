@@ -429,12 +429,23 @@ private enum AuthorSource {
 private struct EventDetailView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
+    let eventByID: [String: NostrEvent]
+    let eventByCoordinate: [String: NostrEvent]
     let referencedRepositoryAnnouncement: NostrEvent?
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private struct TagItem: Hashable {
         let label: String
         let value: String
+        let tagName: String
+        let target: TagTarget?
+    }
+
+    private enum TagTarget: Hashable {
+        case pubkey(String)
+        case event(String)
+        case coordinate(String)
+        case url(URL)
     }
 
     private var title: String {
@@ -479,14 +490,14 @@ private struct EventDetailView: View {
     private var detailTags: [TagItem] {
         // The Maintainers field is rendered separately so each pubkey stays clickable.
         [
-            tagItem(label: "Repo", value: repoID),
-            tagItem(label: "Name", value: tagValue("name")),
-            tagItem(label: "Description", value: tagValue("description")),
-            tagItem(label: "Alt", value: tagValue("alt")),
-            tagItem(label: "Clone", value: shortDisplayValue(cloneURL)),
-            tagItem(label: "Web", value: shortDisplayValue(webURL)),
-            tagItem(label: "Relays", value: relaysText),
-            tagItem(label: "Maintainers", value: maintainersText)
+            tagItem(label: "Repo", value: repoID, tagName: "d"),
+            tagItem(label: "Name", value: tagValue("name"), tagName: "name"),
+            tagItem(label: "Description", value: tagValue("description"), tagName: "description"),
+            tagItem(label: "Alt", value: tagValue("alt"), tagName: "alt"),
+            tagItem(label: "Clone", value: shortDisplayValue(cloneURL), tagName: "clone"),
+            tagItem(label: "Web", value: shortDisplayValue(webURL), tagName: "web"),
+            tagItem(label: "Relays", value: relaysText, tagName: "relays"),
+            tagItem(label: "Maintainers", value: maintainersText, tagName: "maintainers")
         ]
         .compactMap { $0 }
     }
