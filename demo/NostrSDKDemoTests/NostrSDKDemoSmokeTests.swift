@@ -45,9 +45,9 @@ private enum RepoURLs {
     static let ssh = URL(string: "ssh://git@github.com/\(owner)/\(repo).git")!
 
     static let expectedForms: [ExpectedForm] = [
-        .init(rawValue: https.rawValue, expected: https),
-        .init(rawValue: ssh.rawValue, expected: ssh),
-        .init(rawValue: scp.rawValue, expected: ssh)
+        .init(rawValue: https.absoluteString, expected: https),
+        .init(rawValue: ssh.absoluteString, expected: ssh),
+        .init(rawValue: scp, expected: ssh)
     ]
 
     private static let https = URL(string: "https://github.com/\(owner)/\(repo).git")!
