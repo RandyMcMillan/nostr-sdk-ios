@@ -8,16 +8,50 @@
 import Foundation
 import GnostrSDK
 import SwiftUI
+import Combine
 
 final class RelayDirectoryStore: ObservableObject {
     @Published var seenRelayURLs: Set<URL> = []
+    private var relayPool: RelayPool?
+    private var eventsCancellable: AnyCancellable?
+
+    func attach(relayPool: RelayPool) {
+        guard self.relayPool !== relayPool else { return }
+        self.relayPool = relayPool
+
+        eventsCancellable = relayPool.events
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] relayEvent in
+                self?.record(seen: relayEvent.event)
+            }
+    }
 
     func record(seen relayURLs: [URL]) {
         seenRelayURLs.formUnion(relayURLs)
     }
 
+    func record(seen event: NostrEvent) {
+        var relayURLs: [URL] = []
+        for relayString in event.allValues(forTagName: .webURL) {
+            guard let relayURL = normalizedRelayURL(from: relayString) else {
+                continue
+            }
+            relayURLs.append(relayURL)
+        }
+        seenRelayURLs.formUnion(relayURLs)
+    }
+
     func removeSeen(_ relayURL: URL) {
         seenRelayURLs.remove(relayURL)
+    }
+
+    private func normalizedRelayURL(from relayString: String) -> URL? {
+        guard let url = URL(string: relayString),
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.scheme == "ws" || components.scheme == "wss" else {
+            return nil
+        }
+        return url
     }
 }
 

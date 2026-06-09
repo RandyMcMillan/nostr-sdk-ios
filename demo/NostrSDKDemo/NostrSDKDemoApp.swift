@@ -39,6 +39,7 @@ private struct AppBootstrapView: View {
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
     @EnvironmentObject private var gitSettingsStore: DemoGitSettingsStore
+    @EnvironmentObject private var relayDirectory: RelayDirectoryStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @State private var didBootstrap = false
@@ -50,6 +51,7 @@ private struct AppBootstrapView: View {
                 didBootstrap = true
                 await MainActor.run {
                     identityStore.attach(relayPool: relayPool)
+                    relayDirectory.attach(relayPool: relayPool)
                     repositoryHostStore.attach(gitSettingsStore: gitSettingsStore)
                     repositoryHostStore.attach(appPrimeStore: appPrimeStore)
                 }
