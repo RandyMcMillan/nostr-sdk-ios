@@ -99,6 +99,7 @@ struct ContentView: View {
 
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var gitSettingsStore: DemoGitSettingsStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @State private var relay: Relay?
@@ -360,6 +361,7 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
             .environmentObject(RelayPool(relays: []))
             .environmentObject(DemoIdentityStore())
+            .environmentObject(DemoGitSettingsStore())
             .environmentObject(RelayDirectoryStore())
             .environmentObject(DemoAppPrimeStore())
             .environmentObject(DemoRepositoryHostStore())
@@ -369,6 +371,7 @@ struct ContentView_Previews: PreviewProvider {
 private struct SettingsView: View {
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var gitSettingsStore: DemoGitSettingsStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -429,6 +432,24 @@ private struct SettingsView: View {
                 }
 
                 Section("Git Settings") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("App Repos Root")
+                            .font(.caption.weight(.semibold))
+
+                        TextField("Application Support/NostrSDKDemo/HostedRepos", text: $gitSettingsStore.appRepositoriesRootPath)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+
+                        Text("Hosted repositories will be cloned into this folder instead of the default location.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Button("Reset to Default") {
+                            gitSettingsStore.resetAppRepositoriesRootPath()
+                        }
+                        .buttonStyle(.borderless)
+                    }
+
                     NavigationLink(destination: HostedRepositoriesView()) {
                         Text("Hosted Repositories")
                     }
