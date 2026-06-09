@@ -1174,8 +1174,13 @@ struct QueryRelayDemoView: View {
                     ForEach(events, id: \.id) { event in
                         NavigationLink(destination: EventDetailView(event: event,
                                                                     metadata: metadataByPubkey[event.pubkey],
+                                                                    eventByID: eventsByID,
+                                                                    eventByCoordinate: eventsByCoordinate,
                                                                     referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: event))) {
-                            EventCardView(event: event, metadata: metadataByPubkey[event.pubkey])
+                            EventCardView(event: event,
+                                          metadata: metadataByPubkey[event.pubkey],
+                                          eventByID: eventsByID,
+                                          eventByCoordinate: eventsByCoordinate)
                         }
                         .buttonStyle(.plain)
                         .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
@@ -1399,6 +1404,14 @@ struct QueryRelayDemoView: View {
         }
 
         metadataSubscriptionId = relayPool.subscribe(with: filter)
+    }
+
+    private var eventsByID: [String: NostrEvent] {
+        eventIndex(for: events)
+    }
+
+    private var eventsByCoordinate: [String: NostrEvent] {
+        eventCoordinateIndex(for: events)
     }
 }
 
