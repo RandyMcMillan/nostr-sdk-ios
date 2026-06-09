@@ -11,6 +11,7 @@
 		1F73BD012D24432B00C49147 /* EncryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */; };
 		1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */; };
 		3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */; };
+		4B147F6D2FD8738A004EFDD5 /* SwiftGitX in Frameworks */ = {isa = PBXBuildFile; productRef = 4B147F6C2FD8738A004EFDD5 /* SwiftGitX */; };
 		4BB77E8F2FD49904003742C9 /* GnostrSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 4BB77E8E2FD49904003742C9 /* GnostrSDK */; };
 		50BB70A12B4302F300EDD3B5 /* RelaysView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50BB70A02B4302F300EDD3B5 /* RelaysView.swift */; };
 		A1B2C3D42E00000100000001 /* PubkeyMetadataPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D32E00000100000001 /* PubkeyMetadataPreview.swift */; };
@@ -54,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B147F6D2FD8738A004EFDD5 /* SwiftGitX in Frameworks */,
 				4BB77E8F2FD49904003742C9 /* GnostrSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,6 +162,7 @@
 			name = NostrSDKDemo;
 			packageProductDependencies = (
 				4BB77E8E2FD49904003742C9 /* GnostrSDK */,
+				4B147F6C2FD8738A004EFDD5 /* SwiftGitX */,
 			);
 			productName = NostrSDKDemo;
 			productReference = F7CB36282A35127B0098F35C /* NostrSDKDemo.app */;
@@ -191,6 +194,7 @@
 			mainGroup = F7CB361F2A35127B0098F35C;
 			packageReferences = (
 				4BB77E8D2FD49904003742C9 /* XCLocalSwiftPackageReference "../../gnostr-sdk-ios" */,
+				4B147F6B2FD8738A004EFDD5 /* XCRemoteSwiftPackageReference "SwiftGitX" */,
 			);
 			productRefGroup = F7CB36292A35127B0098F35C /* Products */;
 			projectDirPath = "";
@@ -455,7 +459,23 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		4B147F6B2FD8738A004EFDD5 /* XCRemoteSwiftPackageReference "SwiftGitX" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ibrahimcetin/SwiftGitX.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		4B147F6C2FD8738A004EFDD5 /* SwiftGitX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4B147F6B2FD8738A004EFDD5 /* XCRemoteSwiftPackageReference "SwiftGitX" */;
+			productName = SwiftGitX;
+		};
 		4BB77E8E2FD49904003742C9 /* GnostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = GnostrSDK;
