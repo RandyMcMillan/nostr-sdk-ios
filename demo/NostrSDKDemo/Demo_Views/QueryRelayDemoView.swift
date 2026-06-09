@@ -578,6 +578,17 @@ private struct EventDetailView: View {
         event.kind.rawValue == 1617
     }
 
+    private var relatedRepositoryEventTitle: String {
+        switch event.kind.rawValue {
+        case 1631:
+            return "Related patch"
+        case 30618:
+            return "Related repository announcement"
+        default:
+            return "Related event"
+        }
+    }
+
     private var detailTags: [TagItem] {
         // The Maintainers field is rendered separately so each pubkey stays clickable.
         [
@@ -601,6 +612,29 @@ private struct EventDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 banner
+
+                if let referencedRepositoryAnnouncement {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(relatedRepositoryEventTitle)
+                            .font(.headline)
+                        NavigationLink(destination: EventDetailView(event: referencedRepositoryAnnouncement,
+                                                                    metadata: metadata,
+                                                                    eventByID: eventByID,
+                                                                    eventByCoordinate: eventByCoordinate,
+                                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
+                                                                    referencedRepositoryAnnouncement: nil)) {
+                            EventCardView(event: referencedRepositoryAnnouncement,
+                                          metadata: metadata,
+                                          eventByID: eventByID,
+                                          eventByCoordinate: eventByCoordinate,
+                                          repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                Text(event.kind.rawValue == 1631 ? "Merge event" : "Event")
+                    .font(.headline)
 
                 HStack(alignment: .center, spacing: 12) {
                     detailAvatar
@@ -704,31 +738,6 @@ private struct EventDetailView: View {
                     }
                     if let maintainersText {
                         MaintainersTagValueView(pubkeys: maintainerPubkeys)
-                    }
-                    if let referencedRepositoryAnnouncement {
-                        NavigationLink(destination: EventDetailView(event: referencedRepositoryAnnouncement,
-                                                                    metadata: metadata,
-                                                                    eventByID: eventByID,
-                                                                    eventByCoordinate: eventByCoordinate,
-                                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
-                                                                    referencedRepositoryAnnouncement: nil)) {
-                            HStack {
-                                Text(relatedRepositoryEventTitle)
-                                    .font(.caption.weight(.semibold))
-                                Spacer(minLength: 0)
-                                Text(referencedRepositoryAnnouncement.id)
-                                    .font(.caption.monospaced())
-                                    .lineLimit(1)
-                            }
-                            .foregroundColor(.primary)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(Color(.tertiarySystemFill))
-                            )
-                        }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding(14)
