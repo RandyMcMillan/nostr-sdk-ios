@@ -105,7 +105,7 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
     private func bannerFrame<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(.tertiarySystemFill))
+                .fill(Color(.systemBackground))
 
             content()
                 .frame(maxWidth: .infinity)
