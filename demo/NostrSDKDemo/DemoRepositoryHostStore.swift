@@ -357,8 +357,8 @@ struct HostedRepositoriesView: View {
     @ViewBuilder
     private func availabilityIcon(for repositoryURL: URL) -> some View {
         if repositoryHostStore.checkingRepositoryURLs.contains(repositoryURL) {
-            ProgressView()
-                .controlSize(.small)
+            Image(systemName: "questionmark.circle.fill")
+                .foregroundStyle(.yellow)
         } else {
             switch repositoryHostStore.repositoryAvailabilityByURL[repositoryURL] {
             case .available:
@@ -368,8 +368,8 @@ struct HostedRepositoriesView: View {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.red)
             case .checking, .none:
-                Image(systemName: "questionmark.circle")
-                    .foregroundStyle(.secondary)
+                Image(systemName: "questionmark.circle.fill")
+                    .foregroundStyle(.yellow)
             }
         }
     }
