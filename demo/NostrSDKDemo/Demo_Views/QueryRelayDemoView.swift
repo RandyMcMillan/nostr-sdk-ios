@@ -636,7 +636,7 @@ private struct EventDetailView: View {
                                 if item.label == "Maintainers" {
                                     MaintainersTagValueView(pubkeys: maintainerPubkeys)
                                 } else {
-                                    TagChipView(label: item.label, value: item.value)
+                                    tagRow(for: item)
                                 }
                             }
                         }
@@ -677,9 +677,71 @@ private struct EventDetailView: View {
         return value
     }
 
-    private func tagItem(label: String, value: String?) -> TagItem? {
+    @ViewBuilder
+    private func tagRow(for item: TagItem) -> some View {
+        if let target = item.target {
+            switch target {
+            case .pubkey(let pubkey):
+                NavigationLink(destination: MaintainerProfileView(pubkey: pubkey)) {
+                    TagChipView(label: item.label, value: item.value)
+                }
+                .buttonStyle(.plain)
+            case .event(let eventId):
+                if let linkedEvent = eventByID[eventId] {
+                    NavigationLink(destination: EventDetailView(event: linkedEvent,
+                                                                metadata: metadata,
+                                                                eventByID: eventByID,
+                                                                eventByCoordinate: eventByCoordinate,
+                                                                referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: linkedEvent))) {
+                        TagChipView(label: item.label, value: item.value)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    TagChipView(label: item.label, value: item.value)
+                }
+            case .coordinate(let coordinateKey):
+                if let linkedEvent = eventByCoordinate[coordinateKey] {
+                    NavigationLink(destination: EventDetailView(event: linkedEvent,
+                                                                metadata: metadata,
+                                                                eventByID: eventByID,
+                                                                eventByCoordinate: eventByCoordinate,
+                                                                referencedRepositoryAnnouncement: referencedRepositoryAnnouncement(for: linkedEvent))) {
+                        TagChipView(label: item.label, value: item.value)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    TagChipView(label: item.label, value: item.value)
+                }
+            case .url(let url):
+                Link(destination: url) {
+                    TagChipView(label: item.label, value: item.value)
+                }
+            }
+        } else {
+            TagChipView(label: item.label, value: item.value)
+        }
+    }
+
+    private func tagItem(label: String, value: String?, tagName: String) -> TagItem? {
         guard let value, value.isEmpty == false else { return nil }
-        return TagItem(label: label, value: value)
+        return TagItem(label: label, value: value, tagName: tagName, target: linkTarget(forTagName: tagName, value: value))
+    }
+
+    private func linkTarget(forTagName tagName: String, value: String) -> TagTarget? {
+        switch tagName {
+        case TagName.pubkey.rawValue:
+            return .pubkey(value)
+        case TagName.event.rawValue:
+            return .event(value)
+        case TagName.eventCoordinates.rawValue:
+            return .coordinate(value)
+        case TagName.webURL.rawValue, "clone", "web":
+            guard let url = URL(string: value) else { return nil }
+            return .url(url)
+        default:
+            guard let url = URL(string: value), url.scheme != nil else { return nil }
+            return .url(url)
+        }
     }
 
     @ViewBuilder
