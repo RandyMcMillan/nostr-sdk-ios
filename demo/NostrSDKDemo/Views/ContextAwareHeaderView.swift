@@ -67,7 +67,7 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
                 accessory
             }
         }
-        .padding(.vertical, 8)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -103,15 +103,20 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
     }
 
     private func bannerFrame<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(Color(.tertiarySystemFill))
-            .frame(height: bannerHeight)
-            .overlay(alignment: .center) {
-                content()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: bannerHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            }
+        ZStack {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.tertiarySystemFill))
+
+            content()
+                .frame(maxWidth: .infinity)
+                .frame(height: bannerHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .frame(height: bannerHeight)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.separator).opacity(0.18), lineWidth: 1)
+        )
     }
 }
 
