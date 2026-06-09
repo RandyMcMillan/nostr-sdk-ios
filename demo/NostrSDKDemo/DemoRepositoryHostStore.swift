@@ -336,79 +336,78 @@ struct HostedRepositoriesView: View {
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
 
     var body: some View {
-        VStack(spacing: 0) {
-            HostedReposHeaderView(availableCount: availableSeenRepositories.count,
-                                  unavailableCount: unavailableSeenRepositories.count)
-                .padding(.horizontal)
-                .padding(.top, 8)
+        List {
+            if let lastErrorMessage = repositoryHostStore.lastErrorMessage {
+                Section {
+                    Text(lastErrorMessage)
+                        .foregroundColor(.red)
+                }
+            }
 
-            List {
-                if let lastErrorMessage = repositoryHostStore.lastErrorMessage {
-                    Section {
-                        Text(lastErrorMessage)
-                            .foregroundColor(.red)
+            Section("Hosted Repositories") {
+                if repositoryHostStore.repositories.isEmpty {
+                    Text("No hosted repositories yet.")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(repositoryHostStore.repositories) { repository in
+                        HStack(alignment: .top, spacing: 12) {
+                            NavigationLink(destination: RepoView(repository: repository)) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(repository.displayName)
+                                        .font(.headline)
+                                    Text(repository.remoteURL.absoluteString)
+                                        .font(.caption.monospaced())
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                        .textSelection(.enabled)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            Spacer(minLength: 12)
+                            Button {
+                                repositoryHostStore.removeHostedRepository(repository.remoteURL)
+                            } label: {
+                                Image(systemName: "trash")
+                                    .foregroundStyle(.red)
+                                    .padding(8)
+                                    .background(.red.opacity(0.12), in: Circle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Remove repository")
+                        }
+                        .padding(.vertical, 4)
                     }
                 }
+            }
 
-                Section("Hosted Repositories") {
-                    if repositoryHostStore.repositories.isEmpty {
-                        Text("No hosted repositories yet.")
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(repositoryHostStore.repositories) { repository in
-                            HStack(alignment: .top, spacing: 12) {
-                                NavigationLink(destination: RepoView(repository: repository)) {
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(repository.displayName)
-                                            .font(.headline)
-                                        Text(repository.remoteURL.absoluteString)
-                                            .font(.caption.monospaced())
-                                            .foregroundColor(.secondary)
-                                            .lineLimit(2)
-                                            .textSelection(.enabled)
-                                    }
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                Spacer(minLength: 12)
-                                Button {
-                                    repositoryHostStore.removeHostedRepository(repository.remoteURL)
-                                } label: {
-                                    Image(systemName: "trash")
-                                        .foregroundStyle(.red)
-                                        .padding(8)
-                                        .background(.red.opacity(0.12), in: Circle())
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Remove repository")
+            Section("Seen Repositories") {
+                if seenRepositories.isEmpty {
+                    Text("No seen repositories yet.")
+                        .foregroundColor(.secondary)
+                } else {
+                    if availableSeenRepositories.isEmpty == false {
+                        Section("Available") {
+                            ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
+                                seenRepositoryRow(for: repositoryURL)
                             }
-                            .padding(.vertical, 4)
                         }
                     }
-                }
 
-                Section("Seen Repositories") {
-                    if seenRepositories.isEmpty {
-                        Text("No seen repositories yet.")
-                            .foregroundColor(.secondary)
-                    } else {
-                        if availableSeenRepositories.isEmpty == false {
-                            Section("Available") {
-                                ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
-                                    seenRepositoryRow(for: repositoryURL)
-                                }
-                            }
-                        }
-
-                        if unavailableSeenRepositories.isEmpty == false {
-                            Section("Unavailable") {
-                                ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
-                                    seenRepositoryRow(for: repositoryURL)
-                                }
+                    if unavailableSeenRepositories.isEmpty == false {
+                        Section("Unavailable") {
+                            ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
+                                seenRepositoryRow(for: repositoryURL)
                             }
                         }
                     }
                 }
             }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            HostedReposHeaderView(availableCount: availableSeenRepositories.count,
+                                  unavailableCount: unavailableSeenRepositories.count)
+                .padding(.horizontal)
+                .padding(.top, 8)
         }
         //.navigationTitle("Hosted Repos")
     }
@@ -524,7 +523,23 @@ struct RepoView: View {
     let repository: DemoRepositoryHostStore.HostedRepository
 
     var body: some View {
-        VStack(spacing: 0) {
+        Form {
+            Section("Repository") {
+                LabeledContent("Name") {
+                    Text(repository.displayName)
+                }
+                LabeledContent("Remote") {
+                    Text(repository.remoteURL.absoluteString)
+                        .multilineTextAlignment(.trailing)
+                        .textSelection(.enabled)
+                }
+                LabeledContent("Local") {
+                    Text(repository.localURL.path)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
             ContextAwareHeaderView(
                 title: repository.displayName,
                 subtitle: repository.remoteURL.absoluteString,
@@ -533,23 +548,6 @@ struct RepoView: View {
             )
             .padding(.horizontal)
             .padding(.top, 8)
-
-            Form {
-                Section("Repository") {
-                    LabeledContent("Name") {
-                        Text(repository.displayName)
-                    }
-                    LabeledContent("Remote") {
-                        Text(repository.remoteURL.absoluteString)
-                            .multilineTextAlignment(.trailing)
-                            .textSelection(.enabled)
-                    }
-                    LabeledContent("Local") {
-                        Text(repository.localURL.path)
-                            .multilineTextAlignment(.trailing)
-                    }
-                }
-            }
         }
     }
 }

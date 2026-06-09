@@ -395,76 +395,75 @@ private struct SettingsView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        Form {
+            Section("110:") {//}
+                //Spacer(minLength: 1)
+                Section("") {
+                    labeledTextField("111:Private Key",
+                                     text: $identityStore.privateKeyInput,
+                                     prompt: "nsec or hex",
+                                     secure: true,
+                                     isRevealed: $isPrivateKeyRevealed)
+
+                    if let publicKeyHex = identityStore.publicKeyHex {
+                        labeledTextField("118:Public Key",
+                                         text: .constant(publicKeyHex),
+                                         prompt: "npub or hex",
+                                         secure: false,
+                                         isEnabled: false)
+                    } else {
+                        Text("Enter a valid private key to load profile metadata.")
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                    }
+                }
+
+                Section("User Metadata") {
+                    SettingsMetadataEditorView(name: $name,
+                                               displayName: $displayName,
+                                               about: $about,
+                                               website: $website,
+                                               pictureURL: $pictureURL,
+                                               bannerURL: $bannerURL,
+                                               nostrAddress: $nostrAddress,
+                                               isBot: $isBot,
+                                               lud06: $lud06,
+                                               lud16: $lud16)
+                }
+
+                Section("Git Settings") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("App Repos Root")
+                            .font(.caption.weight(.semibold))
+
+                        TextField("Application Support/NostrSDKDemo/HostedRepos", text: $gitSettingsStore.appRepositoriesRootPath)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+
+                        Text("Hosted repositories will be cloned into this folder instead of the default location.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Button("Reset to Default") {
+                            gitSettingsStore.resetAppRepositoriesRootPath()
+                        }
+                        .buttonStyle(.borderless)
+                    }
+
+                    NavigationLink(destination: HostedRepositoriesView()) {
+                        Text("Hosted Repositories")
+                    }
+
+                    Text("Repository priming runs at app launch and collects clone tags from NIP-34 events.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
             SettingsNavHeaderView(metadata: metadataLoader.metadata)
                 .padding(.horizontal)
                 .padding(.top, 8)
-
-            Form {
-                Section("110:") {//}
-                    //Spacer(minLength: 1)
-                    Section("") {
-                        labeledTextField("111:Private Key",
-                                         text: $identityStore.privateKeyInput,
-                                         prompt: "nsec or hex",
-                                         secure: true,
-                                         isRevealed: $isPrivateKeyRevealed)
-
-                        if let publicKeyHex = identityStore.publicKeyHex {
-                            labeledTextField("118:Public Key",
-                                             text: .constant(publicKeyHex),
-                                             prompt: "npub or hex",
-                                             secure: false,
-                                             isEnabled: false)
-                        } else {
-                            Text("Enter a valid private key to load profile metadata.")
-                                .font(.caption)
-                                .foregroundColor(.primary)
-                        }
-                    }
-
-                    Section("User Metadata") {
-                        SettingsMetadataEditorView(name: $name,
-                                                   displayName: $displayName,
-                                                   about: $about,
-                                                   website: $website,
-                                                   pictureURL: $pictureURL,
-                                                   bannerURL: $bannerURL,
-                                                   nostrAddress: $nostrAddress,
-                                                   isBot: $isBot,
-                                                   lud06: $lud06,
-                                                   lud16: $lud16)
-                    }
-
-                    Section("Git Settings") {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("App Repos Root")
-                                .font(.caption.weight(.semibold))
-
-                            TextField("Application Support/NostrSDKDemo/HostedRepos", text: $gitSettingsStore.appRepositoriesRootPath)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-
-                            Text("Hosted repositories will be cloned into this folder instead of the default location.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-
-                            Button("Reset to Default") {
-                                gitSettingsStore.resetAppRepositoriesRootPath()
-                            }
-                            .buttonStyle(.borderless)
-                        }
-
-                        NavigationLink(destination: HostedRepositoriesView()) {
-                            Text("Hosted Repositories")
-                        }
-
-                        Text("Repository priming runs at app launch and collects clone tags from NIP-34 events.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
         }
         .onAppear {
             metadataLoader.attach(relayPool: relayPool)

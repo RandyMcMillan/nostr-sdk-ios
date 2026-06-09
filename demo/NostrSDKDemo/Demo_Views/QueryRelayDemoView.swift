@@ -800,7 +800,6 @@ private struct EventDetailView: View {
             }
             .padding()
         }
-        //.navigationTitle("Event Details")
         .safeAreaInset(edge: .bottom) {
             Text("Signature: \(event.signature ?? "N/A")")
                 .font(.caption.monospaced())
@@ -809,6 +808,17 @@ private struct EventDetailView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
                 .background(.ultraThinMaterial)
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            ContextAwareHeaderView(
+                title: title,
+                subtitle: "Repository event details",
+                systemImage: "doc.text.magnifyingglass",
+                bannerURL: metadata?.bannerPictureURL,
+                bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
     }
 
@@ -1055,23 +1065,22 @@ private struct MaintainerProfileView: View {
 
         var body: some View {
             ScrollView {
-                VStack(spacing: 0) {
-                    ContextAwareHeaderView(
-                        title: "30617 Event",
-                        subtitle: "Repository announcement details.",
-                        systemImage: "doc.text.magnifyingglass",
-                        bannerHeight: 180
-                    )
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-
-                    EventCardView(event: event,
-                                  metadata: metadata,
-                                  eventByID: eventByID,
-                                  eventByCoordinate: eventByCoordinate,
-                                  repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
-                        .padding()
-                }
+                EventCardView(event: event,
+                              metadata: metadata,
+                              eventByID: eventByID,
+                              eventByCoordinate: eventByCoordinate,
+                              repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+                    .padding()
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                ContextAwareHeaderView(
+                    title: "30617 Event",
+                    subtitle: "Repository announcement details.",
+                    systemImage: "doc.text.magnifyingglass",
+                    bannerHeight: 180
+                )
+                .padding(.horizontal)
+                .padding(.top, 8)
             }
         }
     }
@@ -1079,16 +1088,6 @@ private struct MaintainerProfileView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                ContextAwareHeaderView(
-                    title: metadataLoader.metadata?.displayName ?? metadataLoader.metadata?.name ?? "Maintainer",
-                    subtitle: metadataLoader.metadata?.about ?? "Repository announcements for this maintainer.",
-                    systemImage: "person.crop.circle",
-                    bannerURL: metadataLoader.metadata?.bannerPictureURL,
-                    bannerHeight: 180
-                )
-                .padding(.horizontal)
-                .padding(.top, 8)
-
                 PubkeyMetadataPreviewView(metadata: metadataLoader.metadata)
                     .frame(height: 240)
 
@@ -1110,6 +1109,17 @@ private struct MaintainerProfileView: View {
                 }
             }
             .padding()
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            ContextAwareHeaderView(
+                title: metadataLoader.metadata?.displayName ?? metadataLoader.metadata?.name ?? "Maintainer",
+                subtitle: metadataLoader.metadata?.about ?? "Repository announcements for this maintainer.",
+                systemImage: "person.crop.circle",
+                bannerURL: metadataLoader.metadata?.bannerPictureURL,
+                bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
         .onAppear {
             refresh()
@@ -1336,17 +1346,7 @@ struct QueryRelayDemoView: View {
     @State private var selectedKind = 30617
 
     var body: some View {
-        VStack(spacing: 0) {
-            ContextAwareHeaderView(
-            title: "NIP-0034 Viewer",
-            subtitle: "Browse repository announcements and related events.",
-            systemImage: "list.bullet.rectangle.portrait",
-            bannerHeight: 180
-            )
-            .padding(.horizontal)
-            .padding(.top, 8)
-
-            VStack(spacing: 8) {
+        VStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top, spacing: 12) {
                     VStack(alignment: .leading, spacing: 10) {
@@ -1470,15 +1470,14 @@ struct QueryRelayDemoView: View {
 
                     ForEach(events, id: \.id) { event in
                         queryEventRow(for: event)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     }
                 }
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-        }
         }
         .onAppear {
             sanitizeSelectedAuthors()
@@ -1512,6 +1511,16 @@ struct QueryRelayDemoView: View {
             if let metadataSubscriptionId {
                 relayPool.closeSubscription(with: metadataSubscriptionId)
             }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            ContextAwareHeaderView(
+                title: "NIP-0034 Viewer",
+                subtitle: "Browse repository announcements and related events.",
+                systemImage: "list.bullet.rectangle.portrait",
+                bannerHeight: 180
+            )
+            .padding(.horizontal)
+            .padding(.top, 8)
         }
     }
 

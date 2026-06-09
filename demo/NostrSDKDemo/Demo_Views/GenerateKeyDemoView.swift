@@ -18,7 +18,28 @@ struct GenerateKeyDemoView: View {
     private let noValueString = "Must generate key"
 
     var body: some View {
-        VStack(spacing: 0) {
+        Form {
+            Button("Generate Key") {
+                let keypair = Keypair()
+                privateKey = keypair?.privateKey.hex ?? ""
+                publicKey = keypair?.publicKey.hex ?? ""
+                nsec = keypair?.privateKey.nsec ?? ""
+                npub = keypair?.publicKey.npub
+            }
+            Section("Private Key") {
+                Text(privateKey ?? noValueString)
+            }
+            Section("32:Public Key") {
+                Text(publicKey ?? noValueString)
+            }
+            Section("35:nsec") {
+                Text(nsec ?? noValueString)
+            }
+            Section("38:npub") {
+                Text(npub ?? noValueString)
+            }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
             ContextAwareHeaderView(
                 title: "Key Generation",
                 subtitle: "Generate and inspect a nostr keypair.",
@@ -27,28 +48,6 @@ struct GenerateKeyDemoView: View {
             )
             .padding(.horizontal)
             .padding(.top, 8)
-
-            Form {
-                Button("Generate Key") {
-                    let keypair = Keypair()
-                    privateKey = keypair?.privateKey.hex ?? ""
-                    publicKey = keypair?.publicKey.hex ?? ""
-                    nsec = keypair?.privateKey.nsec ?? ""
-                    npub = keypair?.publicKey.npub
-                }
-                Section("Private Key") {
-                    Text(privateKey ?? noValueString)
-                }
-                Section("32:Public Key") {
-                    Text(publicKey ?? noValueString)
-                }
-                Section("35:nsec") {
-                    Text(nsec ?? noValueString)
-                }
-                Section("38:npub") {
-                    Text(npub ?? noValueString)
-                }
-            }
         }
     }
 }
