@@ -396,6 +396,10 @@ private struct SettingsView: View {
 
     var body: some View {
         Form {
+            SettingsNavHeaderView(metadata: metadataLoader.metadata)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+
             Section("110:") {//}
                 //Spacer(minLength: 1)
                 Section("") {
@@ -457,13 +461,6 @@ private struct SettingsView: View {
                     Text("Repository priming runs at app launch and collects clone tags from NIP-34 events.")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                }
-            }
-            //.navigationTitle("139:Settings")
-            //.navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    SettingsNavHeaderView(metadata: metadataLoader.metadata)
                 }
             }
             .onAppear {
@@ -611,8 +608,10 @@ private struct SettingsNavHeaderView: View {
             bannerURL: metadata?.bannerPictureURL,
             bannerHeight: 180,
             accessory: {
-            SettingsAvatarView(metadata: metadata, size: 52)
-        })
+               SettingsAvatarView(metadata: metadata, size: 52)
+            }
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
