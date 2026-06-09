@@ -35,6 +35,7 @@ final class NostrSDKDemoSmokeTests: XCTestCase {
     }
 
     func testGitSettingsStoreTracksDefaultAndCustomRepoRoots() {
+        DemoGitSettingsStore.resetStoredValuesForTesting()
         let store = DemoGitSettingsStore()
         let customRootPath = tempDirectory(name: "custom-root").path
 
@@ -50,6 +51,7 @@ final class NostrSDKDemoSmokeTests: XCTestCase {
 
     @MainActor
     func testRepositoryHostStoreRestoresPreviouslyClonedReposFromDisk() async throws {
+        DemoGitSettingsStore.resetStoredValuesForTesting()
         let settings = DemoGitSettingsStore()
         let customRoot = tempDirectory(name: "repo-root")
         let cloneRoot = customRoot.appendingPathComponent("seen-repo", isDirectory: true)
@@ -63,7 +65,7 @@ final class NostrSDKDemoSmokeTests: XCTestCase {
         let store = DemoRepositoryHostStore()
         store.attach(gitSettingsStore: settings)
 
-        let restored = await waitForCondition {
+        let restored = await waitForCondition(timeout: 10) {
             store.repositories.contains(where: { $0.remoteURL == remoteURL && $0.localURL.path == cloneRoot.path })
         }
 
