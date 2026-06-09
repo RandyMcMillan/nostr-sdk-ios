@@ -792,6 +792,9 @@ struct QueryRelayDemoView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .simultaneousGesture(TapGesture().onEnded {
+                        refreshKindCounts()
+                    })
                 }
             }
             .padding(.horizontal)
@@ -989,6 +992,12 @@ struct QueryRelayDemoView: View {
         }
 
         seenPrimeSubscriptionId = relayPool.subscribe(with: filter)
+    }
+
+    private func refreshKindCounts() {
+        primeSeenAuthors()
+        updateSubscription()
+        updateMetadataSubscription()
     }
 
     private func updateMetadataSubscription() {
