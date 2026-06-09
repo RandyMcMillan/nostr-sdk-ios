@@ -173,6 +173,11 @@ private struct EventCardView: View {
         return values.isEmpty ? nil : values.joined(separator: ", ")
     }
 
+    private var maintainerPubkeys: [String] {
+        var seen = Set<String>()
+        return values(for: "maintainers").filter { seen.insert($0).inserted }
+    }
+
     private var isPatch: Bool {
         event.kind.rawValue == 1617
     }
@@ -299,7 +304,11 @@ private struct EventCardView: View {
                 if cardTags.isEmpty == false {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(cardTags, id: \.self) { item in
-                            tagRow(for: item)
+                            if item.label == "Maintainers" {
+                                MaintainersTagValueView(pubkeys: maintainerPubkeys)
+                            } else {
+                                tagRow(for: item)
+                            }
                         }
                     }
                     .padding(.top, 2)
