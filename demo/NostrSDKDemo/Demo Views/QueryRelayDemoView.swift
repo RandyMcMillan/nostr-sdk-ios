@@ -439,6 +439,10 @@ private struct EventDetailView: View {
         )
     }
 
+    private var maintainerTitle: String {
+        metadata?.displayName ?? metadata?.name ?? title
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -448,11 +452,11 @@ private struct EventDetailView: View {
                     referencedRepositoryHeader
                 }
 
-                HStack(alignment: .top, spacing: 12) {
+                HStack(alignment: .center, spacing: 12) {
                     detailAvatar
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(title)
+                        Text(maintainerTitle)
                             .font(.headline)
 
                         if isPatch {
