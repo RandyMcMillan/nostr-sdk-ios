@@ -10,7 +10,7 @@ import GnostrSDK
 import Foundation
 
 final class DemoIdentityStore: ObservableObject {
-    @Published var privateKeyInput: String = DemoHelper.validHexPrivateKey.wrappedValue {
+    @Published var privateKeyInput: String = "" {
         didSet {
             refreshIdentity()
         }
