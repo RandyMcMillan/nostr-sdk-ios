@@ -131,6 +131,7 @@ private struct EventCardView: View {
     }
 
     private var maintainersText: String? {
+        // Keep the raw maintainer edge visible as display text in tag chips.
         let values = values(for: "maintainers")
         return values.isEmpty ? nil : values.joined(separator: ", ")
     }
@@ -140,6 +141,7 @@ private struct EventCardView: View {
     }
 
     private var cardTags: [TagItem] {
+        // Promote the semantic fields first, then append any remaining raw tags.
         let primaryTags: [TagItem?] = [
             tagItem(label: "Repo", value: repoID),
             tagItem(label: "Name", value: tagValue("name")),
@@ -392,6 +394,7 @@ private struct EventDetailView: View {
     }
 
     private var maintainerPubkeys: [String] {
+        // Preserve order while removing duplicate maintainer edges before linking.
         var seen = Set<String>()
         return values(for: "maintainers").filter { seen.insert($0).inserted }
     }
@@ -401,6 +404,7 @@ private struct EventDetailView: View {
     }
 
     private var detailTags: [TagItem] {
+        // The Maintainers field is rendered separately so each pubkey stays clickable.
         [
             tagItem(label: "Repo", value: repoID),
             tagItem(label: "Name", value: tagValue("name")),
@@ -788,6 +792,7 @@ private struct MaintainersTagValueView: View {
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
+            // Each maintainer pubkey is a traversal edge into that maintainer's profile.
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("Maintainers:")
                     .font(.caption2.weight(.semibold))
