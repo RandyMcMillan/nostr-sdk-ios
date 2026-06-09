@@ -112,6 +112,7 @@ struct ContentView: View {
             .onAppear {
                 identityStore.attach(relayPool: relayPool)
                 appPrimeStore.attach(relayPool: relayPool)
+                repositoryHostStore.attach(appPrimeStore: appPrimeStore)
             }
             #if os(macOS)
             .background(MacKeyEventMonitor(orientation: $orientation))

@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import GnostrSDK
 import SwiftGitX
 import SwiftUI
 
@@ -30,11 +31,36 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     @Published private(set) var repositories: [HostedRepository] = []
+    @Published private(set) var seenRepositoryURLs: Set<URL> = []
     @Published private(set) var cloningRemoteURLs: Set<URL> = []
     @Published private(set) var lastErrorMessage: String?
 
+    private var primeCancellable: AnyCancellable?
+
     func isCloning(_ remoteURL: URL) -> Bool {
         cloningRemoteURLs.contains(remoteURL)
+    }
+
+    func attach(appPrimeStore: DemoAppPrimeStore) {
+        updateSeenRepositories(from: appPrimeStore.repositoryEventByRepoIDAndKind)
+
+        primeCancellable = appPrimeStore.$repositoryEventByRepoIDAndKind
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] repositoryEventByRepoIDAndKind in
+                self?.updateSeenRepositories(from: repositoryEventByRepoIDAndKind)
+            }
+    }
+
+    func record(seen repositoryURLs: [URL]) {
+        seenRepositoryURLs.formUnion(repositoryURLs)
+    }
+
+    func removeSeen(_ repositoryURL: URL) {
+        seenRepositoryURLs.remove(repositoryURL)
+    }
+
+    func removeHostedRepository(_ repositoryURL: URL) {
+        repositories.removeAll { $0.remoteURL == repositoryURL }
     }
 
     func cloneRepository(from remoteURL: URL) {
@@ -54,12 +80,18 @@ final class DemoRepositoryHostStore: ObservableObject {
                 if FileManager.default.fileExists(atPath: localURL.path) {
                     _ = try Repository.open(at: localURL)
                     await self.record(remoteURL: remoteURL, localURL: localURL)
+                    await MainActor.run {
+                        self.removeSeen(remoteURL)
+                    }
                     return
                 }
 
                 let repository = try await Repository.clone(from: remoteURL, to: localURL)
                 let workingDirectory = try repository.workingDirectory
                 await self.record(remoteURL: remoteURL, localURL: workingDirectory)
+                await MainActor.run {
+                    self.removeSeen(remoteURL)
+                }
             } catch {
                 await MainActor.run {
                     self.lastErrorMessage = error.localizedDescription
@@ -103,6 +135,33 @@ final class DemoRepositoryHostStore: ObservableObject {
         let trimmed = sanitized.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
         return trimmed.isEmpty ? "repository" : trimmed
     }
+
+    nonisolated static func normalizedRepositoryCloneURL(from value: String) -> URL? {
+        if let url = URL(string: value), url.scheme != nil {
+            return url
+        }
+
+        guard value.contains("@"), value.contains(":"), value.contains("://") == false else {
+            return nil
+        }
+
+        let components = value.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard components.count == 2 else { return nil }
+        return URL(string: "ssh://\(components[0])/\(components[1])")
+    }
+
+    private func updateSeenRepositories(from repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
+        let repositoryURLs = repositoryEventByRepoIDAndKind.values
+            .flatMap { $0.values }
+            .flatMap { event in
+                event.tags.compactMap { tag -> URL? in
+                    guard tag.name == "clone" else { return nil }
+                    return DemoRepositoryHostStore.normalizedRepositoryCloneURL(from: tag.value)
+                }
+            }
+
+        record(seen: repositoryURLs)
+    }
 }
 
 struct HostedRepositoriesView: View {
@@ -123,22 +182,96 @@ struct HostedRepositoriesView: View {
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(repositoryHostStore.repositories) { repository in
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(repository.displayName)
-                                .font(.headline)
-                            Text(repository.remoteURL.absoluteString)
-                                .font(.caption.monospaced())
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
-                            Text(repository.localURL.path)
-                                .font(.caption2.monospaced())
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(repository.displayName)
+                                    .font(.headline)
+                                Text(repository.remoteURL.absoluteString)
+                                    .font(.caption.monospaced())
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                                Text(repository.localURL.path)
+                                    .font(.caption2.monospaced())
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                            }
+                            Spacer(minLength: 12)
+                            Button(role: .destructive) {
+                                repositoryHostStore.removeHostedRepository(repository.remoteURL)
+                            } label: {
+                                Text("Remove")
+                            }
+                        }
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                repositoryHostStore.removeHostedRepository(repository.remoteURL)
+                            } label: {
+                                Label("Remove", systemImage: "trash")
+                            }
+                        }
+                    }
+                    .onDelete { offsets in
+                        offsets.map { repositoryHostStore.repositories[$0].remoteURL }
+                            .forEach { repositoryHostStore.removeHostedRepository($0) }
+                    }
+                }
+            }
+
+            Section("Seen Repositories") {
+                if seenRepositories.isEmpty {
+                    Text("No seen repositories yet.")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(seenRepositories, id: \.self) { repositoryURL in
+                        HStack {
+                            Text(repositoryURL.absoluteString)
+                            Spacer()
+                            if hasHostedRepository(repositoryURL) {
+                                Button(role: .destructive) {
+                                    repositoryHostStore.removeHostedRepository(repositoryURL)
+                                } label: {
+                                    Text("Remove")
+                                }
+                            } else {
+                                Button("Add") {
+                                    add(repositoryURL)
+                                }
+                            }
+                        }
+                        .swipeActions(edge: .trailing) {
+                            if hasHostedRepository(repositoryURL) {
+                                Button(role: .destructive) {
+                                    repositoryHostStore.removeHostedRepository(repositoryURL)
+                                } label: {
+                                    Label("Remove", systemImage: "trash")
+                                }
+                            } else {
+                                Button(role: .destructive) {
+                                    repositoryHostStore.removeSeen(repositoryURL)
+                                } label: {
+                                    Label("Remove", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                 }
             }
         }
         .navigationTitle("Hosted Repos")
+    }
+
+    private var seenRepositories: [URL] {
+        repositoryHostStore.seenRepositoryURLs
+            .filter { hasHostedRepository($0) == false }
+            .sorted { $0.absoluteString < $1.absoluteString }
+    }
+
+    private func hasHostedRepository(_ repositoryURL: URL) -> Bool {
+        repositoryHostStore.repositories.contains(where: { $0.remoteURL == repositoryURL })
+    }
+
+    private func add(_ repositoryURL: URL) {
+        guard hasHostedRepository(repositoryURL) == false else { return }
+        repositoryHostStore.cloneRepository(from: repositoryURL)
     }
 }
