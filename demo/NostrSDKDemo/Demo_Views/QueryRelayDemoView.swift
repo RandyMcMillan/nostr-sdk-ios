@@ -1004,6 +1004,26 @@ private struct MaintainerProfileView: View {
         }
     }
 
+    private struct RepositoryAnnouncementCardView: View {
+        let event: NostrEvent
+        let metadata: MetadataEvent?
+        let eventByID: [String: NostrEvent]
+        let eventByCoordinate: [String: NostrEvent]
+        let repoEventByRepoIDAndKind: [String: [Int: NostrEvent]]
+
+        var body: some View {
+            ScrollView {
+                EventCardView(event: event,
+                              metadata: metadata,
+                              eventByID: eventByID,
+                              eventByCoordinate: eventByCoordinate,
+                              repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)
+                    .padding()
+            }
+            .navigationTitle("30617 Event")
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -1057,13 +1077,12 @@ private struct MaintainerProfileView: View {
 
     @ViewBuilder
     private func maintainerEventRow(for event: NostrEvent) -> some View {
-        NavigationLink(destination: EventDetailView(event: event,
-                                                    metadata: metadataLoader.metadata,
-                                                    eventByID: eventsByID,
-                                                    eventByCoordinate: eventsByCoordinate,
-                                                    repoEventByRepoIDAndKind: repoEventByRepoIDAndKind,
-                                                    referencedRepositoryAnnouncement: nil)) {
-            SummaryCard(event: event, title: "30617: Repo Announcement")
+        NavigationLink(destination: RepositoryAnnouncementCardView(event: event,
+                                                                   metadata: metadataLoader.metadata,
+                                                                   eventByID: eventsByID,
+                                                                   eventByCoordinate: eventsByCoordinate,
+                                                                   repoEventByRepoIDAndKind: repoEventByRepoIDAndKind)) {
+            SummaryCard(event: event, title: "Open full 30617 event")
         }
         .buttonStyle(.plain)
     }
