@@ -17,6 +17,7 @@ struct NostrSDKDemoApp: App {
         URL(string: "ws://127.0.0.1:8080")!
     ])
     @StateObject var identityStore = DemoIdentityStore()
+    @StateObject var gitSettingsStore = DemoGitSettingsStore()
     @StateObject var relayDirectory = RelayDirectoryStore()
     @StateObject var appPrimeStore = DemoAppPrimeStore()
     @StateObject var repositoryHostStore = DemoRepositoryHostStore()
@@ -26,6 +27,7 @@ struct NostrSDKDemoApp: App {
             AppBootstrapView()
                 .environmentObject(relayPool)
                 .environmentObject(identityStore)
+                .environmentObject(gitSettingsStore)
                 .environmentObject(relayDirectory)
                 .environmentObject(appPrimeStore)
                 .environmentObject(repositoryHostStore)
@@ -36,6 +38,7 @@ struct NostrSDKDemoApp: App {
 private struct AppBootstrapView: View {
     @EnvironmentObject private var relayPool: RelayPool
     @EnvironmentObject private var identityStore: DemoIdentityStore
+    @EnvironmentObject private var gitSettingsStore: DemoGitSettingsStore
     @EnvironmentObject private var appPrimeStore: DemoAppPrimeStore
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @State private var didBootstrap = false
@@ -47,6 +50,7 @@ private struct AppBootstrapView: View {
                 didBootstrap = true
                 await MainActor.run {
                     identityStore.attach(relayPool: relayPool)
+                    repositoryHostStore.attach(gitSettingsStore: gitSettingsStore)
                     repositoryHostStore.attach(appPrimeStore: appPrimeStore)
                 }
                 appPrimeStore.attach(relayPool: relayPool)

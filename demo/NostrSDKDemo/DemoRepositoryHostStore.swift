@@ -36,6 +36,11 @@ final class DemoRepositoryHostStore: ObservableObject {
     @Published private(set) var lastErrorMessage: String?
 
     private var cancellables = Set<AnyCancellable>()
+    private var gitSettingsStore: DemoGitSettingsStore?
+
+    func attach(gitSettingsStore: DemoGitSettingsStore) {
+        self.gitSettingsStore = gitSettingsStore
+    }
 
     func isCloning(_ remoteURL: URL) -> Bool {
         cloningRemoteURLs.contains(remoteURL)
@@ -74,6 +79,7 @@ final class DemoRepositoryHostStore: ObservableObject {
 
     func cloneRepository(from remoteURL: URL) {
         guard cloningRemoteURLs.insert(remoteURL).inserted else { return }
+        let rootURL = gitSettingsStore?.appRepositoriesRootURL ?? DemoGitSettingsStore.defaultRepositoriesRootURL
 
         Task.detached(priority: .userInitiated) { [weak self] in
             guard let self else { return }
@@ -84,7 +90,7 @@ final class DemoRepositoryHostStore: ObservableObject {
             }
 
             do {
-                let localURL = try self.localCloneURL(for: remoteURL)
+                let localURL = Self.localCloneURL(for: remoteURL, rootURL: rootURL)
 
                 if FileManager.default.fileExists(atPath: localURL.path) {
                     _ = try Repository.open(at: localURL)
@@ -118,25 +124,11 @@ final class DemoRepositoryHostStore: ObservableObject {
         }
     }
 
-    nonisolated private func localCloneURL(for remoteURL: URL) throws -> URL {
-        let rootURL = try cloneRootURL()
+    nonisolated private static func localCloneURL(for remoteURL: URL, rootURL: URL) -> URL {
         return rootURL.appendingPathComponent(safeDirectoryName(for: remoteURL), isDirectory: true)
     }
 
-    nonisolated private func cloneRootURL() throws -> URL {
-        guard let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            throw NSError(domain: "DemoRepositoryHostStore", code: 1, userInfo: [NSLocalizedDescriptionKey: "Application Support directory not available"])
-        }
-
-        let rootURL = baseURL
-            .appendingPathComponent("NostrSDKDemo", isDirectory: true)
-            .appendingPathComponent("HostedRepos", isDirectory: true)
-
-        try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
-        return rootURL
-    }
-
-    nonisolated private func safeDirectoryName(for remoteURL: URL) -> String {
+    nonisolated private static func safeDirectoryName(for remoteURL: URL) -> String {
         let candidate = [remoteURL.host, remoteURL.path]
             .compactMap { $0 }
             .joined(separator: "-")
