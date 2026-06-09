@@ -608,30 +608,11 @@ private struct SettingsNavHeaderView: View {
             title: metadata?.displayName ?? metadata?.name ?? "Settings",
             subtitle: metadata?.about ?? "Profile, relays, and git settings.",
             systemImage: "gearshape",
-            hero: {
-            SettingsBannerImageView(url: metadata?.bannerPictureURL, height: 180)
-        }, accessory: {
+            bannerURL: metadata?.bannerPictureURL,
+            bannerHeight: 180,
+            accessory: {
             SettingsAvatarView(metadata: metadata, size: 52)
         })
-    }
-}
-
-private struct SettingsBannerImageView: View {
-    let url: URL?
-    let height: CGFloat
-
-    var body: some View {
-        RoundedRectangle(cornerRadius: 16, style: .continuous)
-            .fill(Color(.tertiarySystemFill))
-            .frame(height: height)
-            .overlay(alignment: .center) {
-                if let url {
-                    SettingsRemoteImageView(url: url)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: height)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                }
-            }
     }
 }
 

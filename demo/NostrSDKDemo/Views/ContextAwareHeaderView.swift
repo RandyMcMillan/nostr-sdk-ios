@@ -11,23 +11,30 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
     let title: String
     let subtitle: String?
     let systemImage: String
+    let bannerURL: URL?
+    let bannerHeight: CGFloat
     let hero: Hero
     let accessory: Accessory
 
     init(title: String,
          subtitle: String? = nil,
          systemImage: String,
+         bannerURL: URL? = nil,
+         bannerHeight: CGFloat = 180,
          @ViewBuilder hero: () -> Hero = { EmptyView() },
          @ViewBuilder accessory: () -> Accessory = { EmptyView() }) {
         self.title = title
         self.subtitle = subtitle
         self.systemImage = systemImage
+        self.bannerURL = bannerURL
+        self.bannerHeight = bannerHeight
         self.hero = hero()
         self.accessory = accessory()
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            banner
             hero
 
             HStack(alignment: .top, spacing: 12) {
@@ -58,6 +65,34 @@ struct ContextAwareHeaderView<Hero: View, Accessory: View>: View {
             }
         }
         .padding(.vertical, 8)
+    }
+
+    @ViewBuilder
+    private var banner: some View {
+        if let bannerURL {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.tertiarySystemFill))
+                .frame(height: bannerHeight)
+                .overlay(alignment: .center) {
+                    AsyncImage(url: bannerURL) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            EmptyView()
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: bannerHeight)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+        }
     }
 }
 
