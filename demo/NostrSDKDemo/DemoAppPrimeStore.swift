@@ -22,7 +22,9 @@ final class DemoAppPrimeStore: ObservableObject {
     func attach(relayPool: RelayPool) {
         guard self.relayPool !== relayPool else { return }
         self.relayPool = relayPool
-        primeRepositoryEvents()
+        Task.detached(priority: .background) { [weak self] in
+            self?.primeRepositoryEvents()
+        }
     }
 
     func record(event: NostrEvent) {
