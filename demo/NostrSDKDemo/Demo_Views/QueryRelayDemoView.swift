@@ -96,6 +96,23 @@ private final class RemoteImagePrefetcher {
     }
 }
 
+private func eventIndex(for events: [NostrEvent]) -> [String: NostrEvent] {
+    events.reduce(into: [:]) { result, event in
+        result[event.id] = event
+    }
+}
+
+private func eventCoordinateIndex(for events: [NostrEvent]) -> [String: NostrEvent] {
+    events.reduce(into: [:]) { result, event in
+        guard let replaceableEvent = event as? ReplaceableEvent,
+              let coordinates = replaceableEvent.replaceableEventCoordinates(relayURL: nil) else {
+            return
+        }
+
+        result[coordinates.tag.raw.joined(separator: "|")] = event
+    }
+}
+
 private struct EventCardView: View {
     let event: NostrEvent
     let metadata: MetadataEvent?
