@@ -110,6 +110,23 @@ public struct ContextAwareActionChipButton: View {
     }
 }
 
+public struct ContextAwareListToolbar<Content: View>: View {
+    private let content: Content
+
+    public init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    public var body: some View {
+        HStack {
+            Spacer()
+            content
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+}
+
 public struct ContextAwareSortToggleChip<Selection: Equatable>: View {
     @Binding private var selection: Selection
     private let ascending: Selection
