@@ -75,6 +75,77 @@ final class RelayDirectoryStore: ObservableObject {
     }
 }
 
+@MainActor
+final class RelayInfoLoader: ObservableObject {
+    @Published private(set) var relayInfoByURL: [URL: RelayInfo] = [:]
+    @Published private(set) var loadingRelayURLs: Set<URL> = []
+
+    private var inFlightTaskURLs: Set<URL> = []
+
+    func refresh(relays: [Relay]) {
+        relays.forEach { loadRelayInfo(for: $0.url) }
+    }
+
+    func relayInfo(for relayURL: URL) -> RelayInfo? {
+        relayInfoByURL[relayURL]
+    }
+
+    func isLoading(_ relayURL: URL) -> Bool {
+        loadingRelayURLs.contains(relayURL)
+    }
+
+    private func loadRelayInfo(for relayURL: URL) {
+        guard relayInfoByURL[relayURL] == nil else { return }
+        guard let infoURL = relayInfoURL(for: relayURL) else { return }
+        guard inFlightTaskURLs.insert(relayURL).inserted else { return }
+
+        loadingRelayURLs.insert(relayURL)
+
+        Task.detached(priority: .utility) { [infoURL, relayURL] in
+            defer {
+                Task { @MainActor in
+                    self.inFlightTaskURLs.remove(relayURL)
+                    self.loadingRelayURLs.remove(relayURL)
+                }
+            }
+
+            do {
+                var request = URLRequest(url: infoURL)
+                request.setValue("application/nostr+json", forHTTPHeaderField: "Accept")
+                let (data, response) = try await URLSession.shared.data(for: request)
+                guard let httpResponse = response as? HTTPURLResponse,
+                      200..<300 ~= httpResponse.statusCode else {
+                    return
+                }
+
+                let info = try JSONDecoder().decode(RelayInfo.self, from: data)
+                await MainActor.run {
+                    self.relayInfoByURL[relayURL] = info
+                }
+            } catch {
+                print("[RelaysView] relay metadata fetch failed url=\(infoURL.absoluteString) error=\(error)")
+            }
+        }
+    }
+
+    private func relayInfoURL(for relayURL: URL) -> URL? {
+        guard var components = URLComponents(url: relayURL, resolvingAgainstBaseURL: false) else {
+            return nil
+        }
+
+        switch components.scheme {
+        case "ws":
+            components.scheme = "http"
+        case "wss":
+            components.scheme = "https"
+        default:
+            return nil
+        }
+
+        return components.url
+    }
+}
+
 extension Relay {
     var statusColor: Color {
         switch state {
@@ -106,6 +177,8 @@ struct RelaysView: View {
     
     @EnvironmentObject var pool: RelayPool
     @EnvironmentObject var relayDirectory: RelayDirectoryStore
+    @StateObject private var relayInfoLoader = RelayInfoLoader()
+    @State private var expandedRelayURLs: Set<URL> = []
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     
@@ -191,9 +264,11 @@ struct RelaysView: View {
             }
             .onAppear {
                 bindRelayStateUpdates()
+                relayInfoLoader.refresh(relays: relays)
             }
             .onReceive(pool.$relays) { _ in
                 bindRelayStateUpdates()
+                relayInfoLoader.refresh(relays: relays)
                 relayStateRefreshToken += 1
             }
         }
@@ -239,23 +314,28 @@ struct RelaysView: View {
                     .foregroundColor(.secondary)
             } else {
                 ForEach(relays, id: \.url) { relay in
-                    HStack(alignment: .center, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(relay.url.absoluteString)
-                                .font(.subheadline)
-                                .textSelection(.enabled)
+                    DisclosureGroup(isExpanded: binding(for: relay.url)) {
+                        relayMetadataDetails(for: relay)
+                            .padding(.top, 10)
+                    } label: {
+                        HStack(alignment: .center, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(relay.url.absoluteString)
+                                    .font(.subheadline)
+                                    .textSelection(.enabled)
+                            }
+
+                            Spacer(minLength: 12)
+
+                            relay.statusImage
+
+                            Button(role: .destructive) {
+                                disconnect(relay)
+                            } label: {
+                                Label("Disconnect", systemImage: "xmark.circle.fill")
+                            }
+                            .buttonStyle(.borderless)
                         }
-
-                        Spacer(minLength: 12)
-
-                        relay.statusImage
-
-                        Button(role: .destructive) {
-                            disconnect(relay)
-                        } label: {
-                            Label("Disconnect", systemImage: "xmark.circle.fill")
-                        }
-                        .buttonStyle(.borderless)
                     }
                     .padding(.vertical, 6)
                     .padding(.horizontal, 8)
@@ -263,12 +343,34 @@ struct RelaysView: View {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
                             .fill(Color(.secondarySystemBackground))
                     )
+                    .onAppear {
+                        relayInfoLoader.refresh(relays: [relay])
+                    }
                 }
                 .onDelete { offsets in
                     remove(relays: relays, at: offsets)
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func relayMetadataDetails(for relay: Relay) -> some View {
+        let info = relayInfoLoader.relayInfo(for: relay.url)
+
+        VStack(alignment: .leading, spacing: 10) {
+            if relayInfoLoader.isLoading(relay.url) && info == nil {
+                ProgressView("Loading relay metadata...")
+                    .font(.caption)
+            } else if let info {
+                RelayMetadataDetailView(info: info)
+            } else {
+                Text("No relay metadata available.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var seenRelays: [URL] {
@@ -313,5 +415,100 @@ struct RelaysView: View {
     
     private func remove(relays: [Relay], at offsets: IndexSet) {
         offsets.map { relays[$0] }.forEach { disconnect($0) }
+    }
+
+    private func binding(for relayURL: URL) -> Binding<Bool> {
+        Binding(
+            get: { expandedRelayURLs.contains(relayURL) },
+            set: { isExpanded in
+                if isExpanded {
+                    expandedRelayURLs.insert(relayURL)
+                    relayInfoLoader.refresh(relays: relays.filter { $0.url == relayURL })
+                } else {
+                    expandedRelayURLs.remove(relayURL)
+                }
+            }
+        )
+    }
+}
+
+private struct RelayMetadataDetailView: View {
+    let info: RelayInfo
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let name = info.name, name.isEmpty == false {
+                detailRow(title: "Name", value: name)
+            }
+            if let description = info.description, description.isEmpty == false {
+                detailRow(title: "Description", value: description)
+            }
+            if let software = info.software, software.isEmpty == false {
+                detailRow(title: "Software", value: software)
+            }
+            if let version = info.version, version.isEmpty == false {
+                detailRow(title: "Version", value: version)
+            }
+            if let contact = info.contactPubkey, contact.isEmpty == false {
+                detailRow(title: "Contact Pubkey", value: contact)
+            } else if let alternativeContact = info.alternativeContact, alternativeContact.isEmpty == false {
+                detailRow(title: "Contact", value: alternativeContact)
+            }
+            if let supportedNIPs = info.supportedNIPs, supportedNIPs.isEmpty == false {
+                detailRow(title: "Supported NIPs", value: supportedNIPs.map(String.init).joined(separator: ", "))
+            }
+            if let relayCountries = info.relayCountries, relayCountries.isEmpty == false {
+                detailRow(title: "Countries", value: relayCountries.joined(separator: ", "))
+            }
+            if let languageTags = info.languageTags, languageTags.isEmpty == false {
+                detailRow(title: "Languages", value: languageTags.joined(separator: ", "))
+            }
+            if let tags = info.tags, tags.isEmpty == false {
+                detailRow(title: "Tags", value: tags.joined(separator: ", "))
+            }
+
+            if let limits = info.limitations {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Limitations")
+                        .font(.caption.weight(.semibold))
+                    if let maxSubscriptions = limits.maxSubscriptions {
+                        detailRow(title: "Max subscriptions", value: String(maxSubscriptions))
+                    }
+                    if let maxFilters = limits.maxFilters {
+                        detailRow(title: "Max filters", value: String(maxFilters))
+                    }
+                    if let maxLimit = limits.maxLimit {
+                        detailRow(title: "Max limit", value: String(maxLimit))
+                    }
+                    if let maxMessageLength = limits.maxMessageLength {
+                        detailRow(title: "Max message length", value: String(maxMessageLength))
+                    }
+                    if let maxEventTags = limits.maxEventTags {
+                        detailRow(title: "Max event tags", value: String(maxEventTags))
+                    }
+                    if let authRequired = limits.isAuthenticationRequired {
+                        detailRow(title: "Auth required", value: authRequired ? "Yes" : "No")
+                    }
+                    if let restrictedWrites = limits.isWriteRestricted {
+                        detailRow(title: "Write restricted", value: restrictedWrites ? "Yes" : "No")
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func detailRow(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.caption)
+                .foregroundColor(.primary)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
