@@ -400,10 +400,15 @@ struct HostedRepositoriesView: View {
 
             HStack {
                 Spacer()
-                ContextAwareSortChipBar(title: "Sort:",
-                                        selection: $hostedRepositorySortOrder,
-                                        options: ContextAwareSortOrder.allCases,
-                                        label: { $0.title })
+                Text("Sort:")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.secondary)
+
+                ContextAwareSortToggleChip(selection: $hostedRepositorySortOrder,
+                                           ascending: .urlAscending,
+                                           descending: .urlDescending,
+                                           ascendingTitle: "A-Z",
+                                           descendingTitle: "Z-A")
 
                 EditButton()
 
