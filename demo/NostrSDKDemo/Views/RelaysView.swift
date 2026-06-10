@@ -186,6 +186,7 @@ struct RelaysView: View {
     @StateObject private var relayInfoLoader = RelayInfoLoader()
     @State private var expandedRelayURLs: Set<URL> = []
     @State private var relaySortOption: RelaySortOption = .urlAscending
+    @State private var connectedRelaySortOption: RelaySortOption = .pingDescending
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     @State private var isConnectedRelaysExpanded = true
@@ -214,12 +215,6 @@ struct RelaysView: View {
                                            descending: .urlDescending,
                                            ascendingTitle: "A-Z",
                                            descendingTitle: "Z-A")
-
-                ContextAwareSortToggleChip(selection: $relaySortOption,
-                                           ascending: .pingAscending,
-                                           descending: .pingDescending,
-                                           ascendingTitle: "Ping ↑",
-                                           descendingTitle: "Ping ↓")
             }, trailing: {
                 ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
                                              systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
@@ -229,10 +224,11 @@ struct RelaysView: View {
 
             List {
                 relaySection(title: "Connected",
-                             relays: groupedRelays.connected,
+                             relays: connectedRelaysSorted,
                              isExpanded: isConnectedRelaysExpanded,
                              setExpanded: { isConnectedRelaysExpanded = $0 },
-                             removeAllAction: removeAllConnectedRelays)
+                             removeAllAction: removeAllConnectedRelays,
+                             sortSelection: $connectedRelaySortOption)
                 relaySection(title: "Connecting",
                              relays: groupedRelays.connecting,
                              isExpanded: isConnectingRelaysExpanded,
@@ -251,15 +247,7 @@ struct RelaysView: View {
                             Text("No seen relays yet.")
                                 .foregroundColor(.secondary)
                         } else if shouldGroupByHost(for: seenRelays) {
-                            ForEach(groupedSeenRelayURLs(for: seenRelays), id: \.title) { group in
-                                if group.title.isEmpty == false {
-                                    Text(group.title)
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal, 8)
-                                        .padding(.top, 4)
-                                }
-
+                            ForEach(groupedSeenRelayURLs(for: seenRelays), id: \.key) { group in
                                 ForEach(Array(group.urls), id: \.self) { relayURL in
                                     seenRelayRow(for: relayURL)
                                 }
@@ -324,6 +312,10 @@ struct RelaysView: View {
         relaySortOption.sort(relays: Array(pool.relays))
     }
 
+    private var connectedRelaysSorted: [Relay] {
+        connectedRelaySortOption.sort(relays: Array(pool.relays.filter { $0.state == .connected }))
+    }
+
     private func bindRelayStateUpdates() {
         relayStateCancellable = Publishers.MergeMany(
             pool.relays.map { relay in
@@ -342,6 +334,7 @@ struct RelaysView: View {
                               isExpanded: Bool = true,
                               setExpanded: @escaping (Bool) -> Void = { _ in },
                               removeAllAction: (() -> Void)? = nil,
+                              sortSelection: Binding<RelaySortOption>? = nil,
                               showsReconnectButton: Bool = false) -> some View {
         Section {
             if isExpanded == false {
@@ -351,15 +344,7 @@ struct RelaysView: View {
                 Text("No \(title.lowercased()) relays.")
                     .foregroundColor(.secondary)
             } else if shouldGroupByHost(for: relays) {
-                ForEach(groupedRelaysByHost(for: relays), id: \.title) { group in
-                    if group.title.isEmpty == false {
-                        Text(group.title)
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 8)
-                            .padding(.top, 4)
-                    }
-
+                ForEach(groupedRelaysByHost(for: relays), id: \.key) { group in
                     ForEach(Array(group.relays), id: \.url) { relay in
                         relayCard(for: relay, showsReconnectButton: showsReconnectButton)
                     }
@@ -373,6 +358,14 @@ struct RelaysView: View {
             ContextAwareListToolbar {
                 Text(title)
             } trailing: {
+                if let sortSelection {
+                    ContextAwareSortToggleChip(selection: sortSelection,
+                                               ascending: .pingAscending,
+                                               descending: .pingDescending,
+                                               ascendingTitle: "Ping ↑",
+                                               descendingTitle: "Ping ↓")
+                }
+
                 ContextAwareActionChipButton(title: isExpanded ? "Hide" : "Show",
                                              systemImage: isExpanded ? "chevron.up" : "chevron.down") {
                     setExpanded(isExpanded == false)
@@ -476,31 +469,23 @@ struct RelaysView: View {
         groupedSeenRelayURLs(for: urls).contains { $0.urls.count > 1 }
     }
 
-    private func groupedRelaysByHost(for relays: [Relay]) -> [(title: String, relays: [Relay])] {
-        let hosts = Set(relays.compactMap { $0.url.host?.lowercased() })
-        let grouped = Dictionary(grouping: relays) { relay -> String in
+    private func groupedRelaysByHost(for relays: [Relay]) -> [(key: String, relays: [Relay])] {
+        let uniqueRelays = deduplicated(relays, key: { $0.url.absoluteString })
+        let hosts = Set(uniqueRelays.compactMap { $0.url.host?.lowercased() })
+        let grouped = Dictionary(grouping: uniqueRelays) { relay -> String in
             hostGroupKey(for: relay.url.host?.lowercased(), among: hosts)
         }
 
         return grouped.keys.sorted().map { key in
-            let sortedRelays = (grouped[key] ?? []).sorted { lhs, rhs in
-                let lhsHost = lhs.url.host?.lowercased() ?? ""
-                let rhsHost = rhs.url.host?.lowercased() ?? ""
-                if lhsHost == key && rhsHost != key {
-                    return true
-                }
-                if lhsHost != key && rhsHost == key {
-                    return false
-                }
-                return lhs.url.absoluteString < rhs.url.absoluteString
-            }
-            return (title: key, relays: sortedRelays)
+            let sortedRelays = relaySortOption.sort(relays: grouped[key] ?? [])
+            return (key: key, relays: sortedRelays)
         }
     }
 
-    private func groupedSeenRelayURLs(for urls: [URL]) -> [(title: String, urls: [URL])] {
-        let hosts = Set(urls.compactMap { $0.host?.lowercased() })
-        let grouped = Dictionary(grouping: urls) { url -> String in
+    private func groupedSeenRelayURLs(for urls: [URL]) -> [(key: String, urls: [URL])] {
+        let uniqueURLs = deduplicated(urls, key: { $0.absoluteString })
+        let hosts = Set(uniqueURLs.compactMap { $0.host?.lowercased() })
+        let grouped = Dictionary(grouping: uniqueURLs) { url -> String in
             hostGroupKey(for: url.host?.lowercased(), among: hosts)
         }
 
@@ -516,7 +501,7 @@ struct RelaysView: View {
                 }
                 return lhs.absoluteString < rhs.absoluteString
             }
-            return (title: key, urls: sortedURLs)
+            return (key: key, urls: sortedURLs)
         }
     }
 
@@ -524,6 +509,13 @@ struct RelaysView: View {
         guard let host else { return "" }
         let candidates = hosts.filter { $0 != host && host.hasSuffix(".\($0)") }
         return candidates.max(by: { $0.count < $1.count }) ?? host
+    }
+
+    private func deduplicated<T>(_ values: [T], key: (T) -> String) -> [T] {
+        var seen = Set<String>()
+        return values.filter { value in
+            seen.insert(key(value)).inserted
+        }
     }
 
     private func contains(_ relayURL: URL) -> Bool {
