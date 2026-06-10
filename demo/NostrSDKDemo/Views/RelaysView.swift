@@ -250,39 +250,23 @@ struct RelaysView: View {
                         if seenRelays.isEmpty {
                             Text("No seen relays yet.")
                                 .foregroundColor(.secondary)
+                        } else if shouldGroupByHost(for: seenRelays) {
+                            ForEach(groupedSeenRelayURLs(for: seenRelays), id: \.title) { group in
+                                if group.title.isEmpty == false {
+                                    Text(group.title)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundColor(.secondary)
+                                        .padding(.horizontal, 8)
+                                        .padding(.top, 4)
+                                }
+
+                                ForEach(Array(group.urls), id: \.self) { relayURL in
+                                    seenRelayRow(for: relayURL)
+                                }
+                            }
                         } else {
-                            ForEach(seenRelays, id: \.self) { relayURL in
-                                HStack {
-                                    Text(relayURL.absoluteString)
-                                    Spacer()
-                                    if contains(relayURL) {
-                                        ContextAwareActionChipButton(title: "Remove",
-                                                                     systemImage: "minus.circle.fill",
-                                                                     role: .destructive) {
-                                            disconnect(relayURL)
-                                        }
-                                    } else {
-                                        ContextAwareActionChipButton(title: "Add",
-                                                                     systemImage: "plus.circle.fill") {
-                                            add(relayURL)
-                                        }
-                                    }
-                                }
-                                .swipeActions(edge: .trailing) {
-                                    if contains(relayURL) == false {
-                                        Button(role: .destructive) {
-                                            relayDirectory.removeSeen(relayURL)
-                                        } label: {
-                                            Label("Remove", systemImage: "trash")
-                                        }
-                                    } else {
-                                        Button(role: .destructive) {
-                                            disconnect(relayURL)
-                                        } label: {
-                                            Label("Remove", systemImage: "trash")
-                                        }
-                                    }
-                                }
+                            ForEach(Array(seenRelays), id: \.self) { relayURL in
+                                seenRelayRow(for: relayURL)
                             }
                         }
                     } else {
@@ -366,54 +350,23 @@ struct RelaysView: View {
             } else if relays.isEmpty {
                 Text("No \(title.lowercased()) relays.")
                     .foregroundColor(.secondary)
-            } else {
-                ForEach(relays, id: \.url) { relay in
-                    DisclosureGroup(isExpanded: binding(for: relay.url)) {
-                        relayMetadataDetails(for: relay)
-                            .padding(.top, 10)
-                    } label: {
-                        HStack(alignment: .center, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(relay.url.absoluteString)
-                                    .font(.subheadline)
-                                    .textSelection(.enabled)
-                                if let pingLabel = relay.pingLabel {
-                                    Text("Ping \(pingLabel)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-
-                            Spacer(minLength: 12)
-
-                            relay.statusImage.hidden()
-
-                            if showsReconnectButton {
-                                ContextAwareActionChipButton(title: "Reconnect",
-                                                             systemImage: "plus.circle.fill") {
-                                    relay.connect()
-                                }
-                            }
-
-                            ContextAwareActionChipButton(title: "Remove",
-                                                         systemImage: "minus.circle.fill",
-                                                         role: .destructive) {
-                                disconnect(relay)
-                            }
-                        }
+            } else if shouldGroupByHost(for: relays) {
+                ForEach(groupedRelaysByHost(for: relays), id: \.title) { group in
+                    if group.title.isEmpty == false {
+                        Text(group.title)
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.top, 4)
                     }
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color(.secondarySystemBackground))
-                    )
-                    .onAppear {
-                        relayInfoLoader.refresh(relays: [relay])
+
+                    ForEach(Array(group.relays), id: \.url) { relay in
+                        relayCard(for: relay, showsReconnectButton: showsReconnectButton)
                     }
                 }
-                .onDelete { offsets in
-                    remove(relays: relays, at: offsets)
+            } else {
+                ForEach(Array(relays), id: \.url) { relay in
+                    relayCard(for: relay, showsReconnectButton: showsReconnectButton)
                 }
             }
         } header: {
@@ -436,6 +389,53 @@ struct RelaysView: View {
 
                 EditButton()
             }
+        }
+    }
+
+    @ViewBuilder
+    private func relayCard(for relay: Relay, showsReconnectButton: Bool) -> some View {
+        DisclosureGroup(isExpanded: binding(for: relay.url)) {
+            relayMetadataDetails(for: relay)
+                .padding(.top, 10)
+        } label: {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(relay.url.absoluteString)
+                        .font(.subheadline)
+                        .textSelection(.enabled)
+                    if let pingLabel = relay.pingLabel {
+                        Text("Ping \(pingLabel)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Spacer(minLength: 12)
+
+                relay.statusImage.hidden()
+
+                if showsReconnectButton {
+                    ContextAwareActionChipButton(title: "Reconnect",
+                                                 systemImage: "plus.circle.fill") {
+                        relay.connect()
+                    }
+                }
+
+                ContextAwareActionChipButton(title: "Remove",
+                                             systemImage: "minus.circle.fill",
+                                             role: .destructive) {
+                    disconnect(relay)
+                }
+            }
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
+        .onAppear {
+            relayInfoLoader.refresh(relays: [relay])
         }
     }
 
@@ -468,6 +468,64 @@ struct RelaysView: View {
         relays.filter { $0.state == .connected }
     }
 
+    private func shouldGroupByHost(for relays: [Relay]) -> Bool {
+        groupedRelaysByHost(for: relays).contains { $0.relays.count > 1 }
+    }
+
+    private func shouldGroupByHost(for urls: [URL]) -> Bool {
+        groupedSeenRelayURLs(for: urls).contains { $0.urls.count > 1 }
+    }
+
+    private func groupedRelaysByHost(for relays: [Relay]) -> [(title: String, relays: [Relay])] {
+        let hosts = Set(relays.compactMap { $0.url.host?.lowercased() })
+        let grouped = Dictionary(grouping: relays) { relay -> String in
+            hostGroupKey(for: relay.url.host?.lowercased(), among: hosts)
+        }
+
+        return grouped.keys.sorted().map { key in
+            let sortedRelays = (grouped[key] ?? []).sorted { lhs, rhs in
+                let lhsHost = lhs.url.host?.lowercased() ?? ""
+                let rhsHost = rhs.url.host?.lowercased() ?? ""
+                if lhsHost == key && rhsHost != key {
+                    return true
+                }
+                if lhsHost != key && rhsHost == key {
+                    return false
+                }
+                return lhs.url.absoluteString < rhs.url.absoluteString
+            }
+            return (title: key, relays: sortedRelays)
+        }
+    }
+
+    private func groupedSeenRelayURLs(for urls: [URL]) -> [(title: String, urls: [URL])] {
+        let hosts = Set(urls.compactMap { $0.host?.lowercased() })
+        let grouped = Dictionary(grouping: urls) { url -> String in
+            hostGroupKey(for: url.host?.lowercased(), among: hosts)
+        }
+
+        return grouped.keys.sorted().map { key in
+            let sortedURLs = (grouped[key] ?? []).sorted { lhs, rhs in
+                let lhsHost = lhs.host?.lowercased() ?? ""
+                let rhsHost = rhs.host?.lowercased() ?? ""
+                if lhsHost == key && rhsHost != key {
+                    return true
+                }
+                if lhsHost != key && rhsHost == key {
+                    return false
+                }
+                return lhs.absoluteString < rhs.absoluteString
+            }
+            return (title: key, urls: sortedURLs)
+        }
+    }
+
+    private func hostGroupKey(for host: String?, among hosts: Set<String>) -> String {
+        guard let host else { return "" }
+        let candidates = hosts.filter { $0 != host && host.hasSuffix(".\($0)") }
+        return candidates.max(by: { $0.count < $1.count }) ?? host
+    }
+
     private func contains(_ relayURL: URL) -> Bool {
         relays.contains(where: { $0.url == relayURL })
     }
@@ -483,6 +541,41 @@ struct RelaysView: View {
 
     private func addAllSeenRelays() {
         seenRelays.forEach { add($0) }
+    }
+
+    @ViewBuilder
+    private func seenRelayRow(for relayURL: URL) -> some View {
+        HStack {
+            Text(relayURL.absoluteString)
+            Spacer()
+            if contains(relayURL) {
+                ContextAwareActionChipButton(title: "Remove",
+                                             systemImage: "minus.circle.fill",
+                                             role: .destructive) {
+                    disconnect(relayURL)
+                }
+            } else {
+                ContextAwareActionChipButton(title: "Add",
+                                             systemImage: "plus.circle.fill") {
+                    add(relayURL)
+                }
+            }
+        }
+        .swipeActions(edge: .trailing) {
+            if contains(relayURL) == false {
+                Button(role: .destructive) {
+                    relayDirectory.removeSeen(relayURL)
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                }
+            } else {
+                Button(role: .destructive) {
+                    disconnect(relayURL)
+                } label: {
+                    Label("Remove", systemImage: "trash")
+                }
+            }
+        }
     }
 
     private func removeAllConnectedRelays() {
