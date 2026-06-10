@@ -106,6 +106,8 @@ struct RelaysView: View {
     
     @EnvironmentObject var pool: RelayPool
     @EnvironmentObject var relayDirectory: RelayDirectoryStore
+    @State private var relayStateRefreshToken = 0
+    @State private var relayStateCancellable: AnyCancellable?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -187,6 +189,13 @@ struct RelaysView: View {
                     }
                 }
             }
+            .onAppear {
+                bindRelayStateUpdates()
+            }
+            .onReceive(pool.$relays) { _ in
+                bindRelayStateUpdates()
+                relayStateRefreshToken += 1
+            }
         }
     }
     
@@ -208,6 +217,18 @@ struct RelaysView: View {
 
     private var relays: [Relay] {
         pool.relays.sorted()
+    }
+
+    private func bindRelayStateUpdates() {
+        relayStateCancellable = Publishers.MergeMany(
+            pool.relays.map { relay in
+                relay.$state.map { _ in () }.eraseToAnyPublisher()
+            }
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { _ in
+            relayStateRefreshToken += 1
+        }
     }
 
     @ViewBuilder
