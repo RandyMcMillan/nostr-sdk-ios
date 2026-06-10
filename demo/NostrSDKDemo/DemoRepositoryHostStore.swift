@@ -380,6 +380,8 @@ final class DemoRepositoryHostStore: ObservableObject {
 
 struct HostedRepositoriesView: View {
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
+    @Environment(\.editMode) private var editMode
+    @State private var selectedHostedRepositoryURLs: Set<URL> = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -388,58 +390,79 @@ struct HostedRepositoriesView: View {
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-            ZStack(alignment: .topTrailing) {
-                List {
-                    if let lastErrorMessage = repositoryHostStore.lastErrorMessage {
-                        Section {
-                            Text(lastErrorMessage)
-                                .foregroundColor(.red)
-                        }
-                    }
+            HStack {
+                EditButton()
 
-                    if repositoryHostStore.repositories.isEmpty {
-                        Text("No hosted repositories yet.")
+                if isEditing && selectedHostedRepositoryURLs.isEmpty == false {
+                    Button(role: .destructive) {
+                        deleteSelectedHostedRepositories()
+                    } label: {
+                        Text("Delete Selected")
+                    }
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
+            List(selection: $selectedHostedRepositoryURLs) {
+                if let lastErrorMessage = repositoryHostStore.lastErrorMessage {
+                    Section {
+                        Text(lastErrorMessage)
+                            .foregroundColor(.red)
+                    }
+                }
+
+                if repositoryHostStore.repositories.isEmpty {
+                    Text("No hosted repositories yet.")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(repositoryHostStore.repositories) { repository in
+                        NavigationLink(destination: RepoView(repository: repository)) {
+                            Text(repository.displayName)
+                                .font(.headline)
+                                .lineLimit(1)
+                                .textSelection(.enabled)
+                        }
+                        .tag(repository.remoteURL)
+                    }
+                    .onDelete(perform: removeHostedRepositories)
+                }
+
+                Section("Seen Repositories") {
+                    if seenRepositories.isEmpty {
+                        Text("No seen repositories yet.")
                             .foregroundColor(.secondary)
                     } else {
-                        ForEach(repositoryHostStore.repositories) { repository in
-                            NavigationLink(destination: RepoView(repository: repository)) {
-                                Text(repository.displayName)
-                                    .font(.headline)
-                                    .lineLimit(1)
-                                    .textSelection(.enabled)
-                            }
-                        }
-                        .onDelete(perform: removeHostedRepositories)
-                    }
-
-                    Section("Seen Repositories") {
-                        if seenRepositories.isEmpty {
-                            Text("No seen repositories yet.")
-                                .foregroundColor(.secondary)
-                        } else {
-                            if availableSeenRepositories.isEmpty == false {
-                                Section("Available") {
-                                    ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
-                                        seenRepositoryRow(for: repositoryURL)
-                                    }
+                        if availableSeenRepositories.isEmpty == false {
+                            Section("Available") {
+                                ForEach(availableSeenRepositories, id: \.self) { repositoryURL in
+                                    seenRepositoryRow(for: repositoryURL)
                                 }
                             }
+                        }
 
-                            if unavailableSeenRepositories.isEmpty == false {
-                                Section("Unavailable") {
-                                    ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
-                                        seenRepositoryRow(for: repositoryURL)
-                                    }
+                        if unavailableSeenRepositories.isEmpty == false {
+                            Section("Unavailable") {
+                                ForEach(unavailableSeenRepositories, id: \.self) { repositoryURL in
+                                    seenRepositoryRow(for: repositoryURL)
                                 }
                             }
                         }
                     }
                 }
-
-                EditButton()
-                    .padding(.trailing, 16)
+            }
+            .onChange(of: isEditing) { editing in
+                if editing == false {
+                    selectedHostedRepositoryURLs.removeAll()
+                }
             }
         }
+    }
+
+    private var isEditing: Bool {
+        editMode?.wrappedValue == .active
     }
 
     private var seenRepositories: [URL] {
@@ -470,6 +493,12 @@ struct HostedRepositoriesView: View {
         offsets
             .map { hostedRepositories[$0] }
             .forEach { repositoryHostStore.removeHostedRepository($0.remoteURL) }
+    }
+
+    private func deleteSelectedHostedRepositories() {
+        guard selectedHostedRepositoryURLs.isEmpty == false else { return }
+        selectedHostedRepositoryURLs.forEach { repositoryHostStore.removeHostedRepository($0) }
+        selectedHostedRepositoryURLs.removeAll()
     }
 
     @ViewBuilder
