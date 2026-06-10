@@ -395,10 +395,12 @@ struct RelaysView: View {
     @ViewBuilder
     private func relayCard(for relay: Relay, showsReconnectButton: Bool) -> some View {
         // Keep the relay row compact; metadata is expanded inline so the user never loses the current list context.
+        let info = relayInfoLoader.relayInfo(for: relay.url)
         DisclosureGroup(isExpanded: binding(for: relay.url)) {
-            relayMetadataDetails(for: relay)
-                .padding(.top, 10)
+        relayMetadataDetails(for: relay)
+            .padding(.top, 10)
         } label: {
+        VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(relay.url.absoluteString)
@@ -428,12 +430,26 @@ struct RelaysView: View {
                     disconnect(relay)
                 }
             }
+
+            if let supportedNIPs = info?.supportedNIPs, supportedNIPs.isEmpty == false {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(supportedNIPs, id: \.self) { nip in
+                            ContextAwareActionChipButton(title: "NIP-\(nip)",
+                                                         systemImage: "network") {
+                                activeNIPFilter = nip
+                            }
+                        }
+                    }
+                }
+            }
+        }
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
         .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(.secondarySystemBackground))
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color(.secondarySystemBackground))
         )
         .onAppear {
             relayInfoLoader.refresh(relays: [relay])
