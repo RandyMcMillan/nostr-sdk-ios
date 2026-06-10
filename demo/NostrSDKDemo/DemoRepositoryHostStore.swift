@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import GnostrSDK
+import libgit2
 import SwiftGitX
 import SwiftUI
 import Darwin
@@ -49,6 +50,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     private var gitSettingsStore: DemoGitSettingsStore?
     private var availabilityRefreshTask: Task<Void, Never>?
     private var repositoryDiscoveryTask: Task<Void, Never>?
+    private static let bootstrapRepositoryURL = URL(string: "https://github.com/nostr-protocol/nips.git")!
 
     func attach(gitSettingsStore: DemoGitSettingsStore) {
         self.gitSettingsStore = gitSettingsStore
@@ -136,8 +138,17 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     func cloneRepository(from remoteURL: URL) {
+        cloneRepository(from: remoteURL, depth: nil)
+    }
+
+    func bootstrapHostedRepositoryIfNeeded() async {
+        await cloneRepository(from: Self.bootstrapRepositoryURL, depth: 1)
+    }
+
+    private func cloneRepository(from remoteURL: URL, depth: Int?) {
         guard cloningRemoteURLs.insert(remoteURL).inserted else { return }
         let rootURL = gitSettingsStore?.appRepositoriesRootURL ?? DemoGitSettingsStore.defaultRepositoriesRootURL
+        let localURL = Self.localCloneURL(for: remoteURL, rootURL: rootURL)
 
         Task.detached(priority: .userInitiated) { [weak self] in
             guard let self else { return }
@@ -148,8 +159,6 @@ final class DemoRepositoryHostStore: ObservableObject {
             }
 
             do {
-                let localURL = Self.localCloneURL(for: remoteURL, rootURL: rootURL)
-
                 if FileManager.default.fileExists(atPath: localURL.path) {
                     _ = try Repository.open(at: localURL)
                     await self.record(remoteURL: remoteURL, localURL: localURL)
@@ -159,7 +168,19 @@ final class DemoRepositoryHostStore: ObservableObject {
                     return
                 }
 
-                let repository = try await Repository.clone(from: remoteURL, to: localURL)
+                if let depth {
+                    try Self.cloneRepository(from: remoteURL, to: localURL, depth: depth)
+                } else {
+                    let repository = try await Repository.clone(from: remoteURL, to: localURL)
+                    let workingDirectory = try repository.workingDirectory
+                    await self.record(remoteURL: remoteURL, localURL: workingDirectory)
+                    await MainActor.run {
+                        self.removeSeen(remoteURL)
+                    }
+                    return
+                }
+
+                let repository = try Repository.open(at: localURL)
                 let workingDirectory = try repository.workingDirectory
                 await self.record(remoteURL: remoteURL, localURL: workingDirectory)
                 await MainActor.run {
@@ -172,6 +193,22 @@ final class DemoRepositoryHostStore: ObservableObject {
                     self.checkingRepositoryURLs.remove(remoteURL)
                     self.lastErrorMessage = error.localizedDescription
                 }
+            }
+        }
+
+        private static func cloneRepository(from remoteURL: URL, to localURL: URL, depth: Int) throws {
+            try SwiftGitXRuntime.initialize()
+            defer { _ = try? SwiftGitXRuntime.shutdown() }
+
+            var options = git_clone_options()
+            try SwiftGitXError.check(git_clone_options_init(&options, UInt32(GIT_CLONE_OPTIONS_VERSION)), operation: .clone)
+            options.fetch_opts.depth = Int32(depth)
+
+            var repositoryPointer: OpaquePointer?
+            let status = git_clone(&repositoryPointer, remoteURL.absoluteString, localURL.path, &options)
+            try SwiftGitXError.check(status, pointer: repositoryPointer, operation: .clone)
+            if let repositoryPointer {
+                git_repository_free(repositoryPointer)
             }
         }
     }
