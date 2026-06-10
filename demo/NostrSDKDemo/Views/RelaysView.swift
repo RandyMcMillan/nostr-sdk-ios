@@ -461,7 +461,7 @@ struct RelaysView: View {
                 }
             }
 
-            if let supportedNIPs = info?.supportedNIPs, supportedNIPs.isEmpty == false {
+            if isNIPDisplayMode, let supportedNIPs = info?.supportedNIPs, supportedNIPs.isEmpty == false {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         ForEach(supportedNIPs, id: \.self) { nip in
