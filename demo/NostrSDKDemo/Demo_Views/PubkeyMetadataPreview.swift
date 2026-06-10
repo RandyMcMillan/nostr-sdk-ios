@@ -102,6 +102,7 @@ private final class RemoteImagePrefetcher {
         guard let url else { return }
         guard taskURLs.insert(url).inserted else { return }
 
+        // Prefetch remote images off the main actor so metadata previews stay responsive.
         Task.detached(priority: .background) { [url] in
             print("[NIP44Metadata] image prefetch attempt url=\(url.absoluteString)")
             defer { Task { @MainActor in RemoteImagePrefetcher.shared.taskURLs.remove(url) } }
@@ -252,6 +253,7 @@ private struct CachedRemoteImageView: UIViewRepresentable {
             }
 
             task?.cancel()
+            // Load metadata preview images in the background and apply them on the main actor only.
             task = Task.detached(priority: .background) { [weak imageView] in
                 do {
                     let (data, _) = try await URLSession.shared.data(from: url)
