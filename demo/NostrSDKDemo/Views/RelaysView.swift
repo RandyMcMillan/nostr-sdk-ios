@@ -363,7 +363,9 @@ struct RelaysView: View {
                 ProgressView("Loading relay metadata...")
                     .font(.caption)
             } else if let info {
-                RelayMetadataDetailView(info: info)
+                RelayMetadataDetailView(info: info,
+                                        connectedRelays: connectedRelays,
+                                        relayInfoLoader: relayInfoLoader)
             } else {
                 Text("No relay metadata available.")
                     .font(.caption)
@@ -377,6 +379,10 @@ struct RelaysView: View {
         relayDirectory.seenRelayURLs
             .filter { contains($0) == false }
             .sorted { $0.absoluteString < $1.absoluteString }
+    }
+
+    private var connectedRelays: [Relay] {
+        relays.filter { $0.state == .connected }
     }
 
     private func contains(_ relayURL: URL) -> Bool {
@@ -434,6 +440,8 @@ struct RelaysView: View {
 
 private struct RelayMetadataDetailView: View {
     let info: RelayInfo
+    let connectedRelays: [Relay]
+    @ObservedObject var relayInfoLoader: RelayInfoLoader
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -455,7 +463,33 @@ private struct RelayMetadataDetailView: View {
                 detailRow(title: "Contact", value: alternativeContact)
             }
             if let supportedNIPs = info.supportedNIPs, supportedNIPs.isEmpty == false {
-                detailRow(title: "Supported NIPs", value: supportedNIPs.map(String.init).joined(separator: ", "))
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Supported NIPs")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.secondary)
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), alignment: .leading)], alignment: .leading, spacing: 8) {
+                        ForEach(supportedNIPs, id: \.self) { nip in
+                            NavigationLink {
+                                RelayNIPConnectedRelaysView(nip: nip,
+                                                            connectedRelays: connectedRelays,
+                                                            relayInfoLoader: relayInfoLoader)
+                            } label: {
+                                Text("NIP-\(nip)")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundColor(.primary)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 999, style: .continuous)
+                                            .fill(Color(.tertiarySystemFill))
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
             }
             if let relayCountries = info.relayCountries, relayCountries.isEmpty == false {
                 detailRow(title: "Countries", value: relayCountries.joined(separator: ", "))
@@ -509,6 +543,72 @@ private struct RelayMetadataDetailView: View {
                 .foregroundColor(.primary)
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+private struct RelayNIPConnectedRelaysView: View {
+    let nip: Int
+    let connectedRelays: [Relay]
+    @ObservedObject var relayInfoLoader: RelayInfoLoader
+
+    private var relaysSupportingNIP: [Relay] {
+        connectedRelays.filter { relay in
+            relayInfoLoader.relayInfo(for: relay.url)?.supportedNIPs?.contains(nip) == true
+        }
+    }
+
+    var body: some View {
+        List {
+            if relaysSupportingNIP.isEmpty {
+                Text("No connected relays support NIP-\(nip).")
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(relaysSupportingNIP, id: \.url) { relay in
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .center, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(relay.url.absoluteString)
+                                    .font(.subheadline)
+                                    .textSelection(.enabled)
+                                Text("Connected")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            }
+
+                            Spacer(minLength: 12)
+
+                            relay.statusImage
+                        }
+
+                        if let info = relayInfoLoader.relayInfo(for: relay.url) {
+                            RelayMetadataCompactView(info: info)
+                        }
+                    }
+                    .padding(.vertical, 6)
+                }
+            }
+        }
+        .navigationTitle("NIP-\(nip) relays")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct RelayMetadataCompactView: View {
+    let info: RelayInfo
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if let name = info.name, name.isEmpty == false {
+                Text(name)
+                    .font(.caption.weight(.semibold))
+            }
+            if let description = info.description, description.isEmpty == false {
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(3)
+            }
         }
     }
 }
