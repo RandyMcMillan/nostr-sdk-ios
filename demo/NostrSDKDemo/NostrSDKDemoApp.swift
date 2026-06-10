@@ -56,7 +56,7 @@ private struct AppBootstrapView: View {
                     repositoryHostStore.attach(appPrimeStore: appPrimeStore)
                 }
                 appPrimeStore.attach(relayPool: relayPool)
-                await repositoryHostStore.bootstrapHostedRepositoryIfNeeded()
+                repositoryHostStore.bootstrapHostedRepositoryIfNeeded()
             }
     }
 }
