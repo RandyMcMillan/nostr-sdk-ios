@@ -433,6 +433,7 @@ struct RelaysView: View {
                     .font(.caption)
             } else if let info {
                 RelayMetadataDetailView(info: info,
+                                        relayLabel: relay.url.absoluteString,
                                         connectedRelays: connectedRelays,
                                         relayInfoLoader: relayInfoLoader)
             } else {
@@ -549,6 +550,7 @@ struct RelaysView: View {
 
 private struct RelayMetadataDetailView: View {
     let info: RelayInfo
+    let relayLabel: String
     let connectedRelays: [Relay]
     @ObservedObject var relayInfoLoader: RelayInfoLoader
 
@@ -581,7 +583,7 @@ private struct RelayMetadataDetailView: View {
                         ForEach(supportedNIPs, id: \.self) { nip in
                             NavigationLink {
                                 RelayNIPConnectedRelaysView(nip: nip,
-                                                            referringRelayLabel: relay.url.absoluteString,
+                                                            referringRelayLabel: relayLabel,
                                                             connectedRelays: connectedRelays,
                                                             relayInfoLoader: relayInfoLoader)
                             } label: {
