@@ -399,20 +399,12 @@ struct HostedRepositoriesView: View {
                 .padding(.top, 8)
 
             HStack {
-                Menu {
-                    ForEach(ContextAwareSortOrder.allCases) { sortOrder in
-                        Button {
-                            hostedRepositorySortOrder = sortOrder
-                        } label: {
-                            if hostedRepositorySortOrder == sortOrder {
-                                Label(sortOrder.title, systemImage: "checkmark")
-                            } else {
-                                Text(sortOrder.title)
-                            }
-                        }
-                    }
+                Spacer()
+
+                Button {
+                    hostedRepositorySortOrder = hostedRepositorySortOrder.toggled
                 } label: {
-                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                    Label("Sort \(hostedRepositorySortOrder.toggleTitle)", systemImage: "arrow.up.arrow.down")
                 }
                 .buttonStyle(.borderless)
 
@@ -426,7 +418,6 @@ struct HostedRepositoriesView: View {
                     }
                 }
 
-                Spacer()
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
