@@ -190,6 +190,7 @@ struct RelaysView: View {
     @State private var relayStateCancellable: AnyCancellable?
     @State private var isConnectedRelaysExpanded = true
     @State private var isConnectingRelaysExpanded = true
+    @State private var isDisconnectedRelaysExpanded = true
     @State private var isSeenRelaysExpanded = true
     
     var body: some View {
@@ -239,7 +240,12 @@ struct RelaysView: View {
                              isExpanded: isConnectingRelaysExpanded,
                              setExpanded: { isConnectingRelaysExpanded = $0 },
                              removeAllAction: removeAllConnectingRelays)
-                relaySection(title: "Disconnected", relays: groupedRelays.disconnected, showsReconnectButton: true)
+                relaySection(title: "Disconnected",
+                             relays: groupedRelays.disconnected,
+                             isExpanded: isDisconnectedRelaysExpanded,
+                             setExpanded: { isDisconnectedRelaysExpanded = $0 },
+                             removeAllAction: removeAllDisconnectedRelays,
+                             showsReconnectButton: true)
 
                 Section {
                     if isSeenRelaysExpanded {
@@ -480,6 +486,10 @@ struct RelaysView: View {
 
     private func removeAllConnectingRelays() {
         groupedRelays.connecting.forEach { disconnect($0) }
+    }
+
+    private func removeAllDisconnectedRelays() {
+        groupedRelays.disconnected.forEach { disconnect($0) }
     }
 
     private func disconnect(_ relay: Relay) {
