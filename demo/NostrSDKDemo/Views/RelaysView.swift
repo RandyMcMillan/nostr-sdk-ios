@@ -225,8 +225,6 @@ struct RelaysView: View {
                                              systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
                     isConnectedRelaysExpanded.toggle()
                 }
-
-                EditButton()
             }, horizontalPadding: 16)
 
             List {
@@ -305,6 +303,8 @@ struct RelaysView: View {
                                                      isEnabled: seenRelays.isEmpty == false) {
                             addAllSeenRelays()
                         }
+
+                        EditButton()
                     })
                 }
             }
@@ -433,6 +433,8 @@ struct RelaysView: View {
                         removeAllAction()
                     }
                 }
+
+                EditButton()
             }
         }
     }
