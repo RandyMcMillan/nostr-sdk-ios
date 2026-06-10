@@ -187,7 +187,7 @@ struct RelaysView: View {
     @State private var expandedRelayURLs: Set<URL> = []
     @State private var relaySortOption: RelaySortOption = .urlAscending
     @State private var connectedRelaySortOption: RelaySortOption = .pingDescending
-    @State private var activeNIPFilter: Int?
+    @State private var activeNIPFilters: Set<Int> = []
     // Relays can resolve from connecting to connected/notConnected/error at any time, so the list needs a hard refresh token.
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
@@ -224,11 +224,25 @@ struct RelaysView: View {
                                            ascendingTitle: "Ping ↑",
                                            descendingTitle: "Ping ↓")
 
-                if let activeNIPFilter {
-                    ContextAwareActionChipButton(title: "NIP-\(activeNIPFilter)",
-                                                 systemImage: "xmark.circle") {
-                        self.activeNIPFilter = nil
+                ForEach(activeNIPFilters.sorted(), id: \.self) { nip in
+                    Button {
+                        activeNIPFilters.remove(nip)
+                    } label: {
+                        Label {
+                            Text("NIP-\(nip)")
+                                .font(.caption.weight(.semibold))
+                        } icon: {
+                            Image(systemName: "xmark.circle")
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .foregroundStyle(Color.accentColor)
+                        .background(
+                            RoundedRectangle(cornerRadius: 999, style: .continuous)
+                                .fill(Color(.tertiarySystemFill))
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
             }, trailing: {
                 ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
@@ -298,7 +312,7 @@ struct RelaysView: View {
                 relayInfoLoader.refresh(relays: relays)
                 relayStateRefreshToken += 1
             }
-            .onChange(of: activeNIPFilter) { _ in
+            .onChange(of: activeNIPFilters) { _ in
                 expandedRelayURLs.removeAll()
             }
         }
@@ -326,14 +340,15 @@ struct RelaysView: View {
 
     private var connectedRelaysSorted: [Relay] {
         let connected = Array(pool.relays.filter { $0.state == .connected })
-        let filtered = activeNIPFilter.map { nip in
-            connected.filter { relayInfoLoader.relayInfo(for: $0.url)?.supportedNIPs?.contains(nip) == true }
-        } ?? connected
+        let filtered = activeNIPFilters.isEmpty ? connected : connected.filter { relay in
+            let supported = relayInfoLoader.relayInfo(for: relay.url)?.supportedNIPs ?? []
+            return activeNIPFilters.isSubset(of: Set(supported))
+        }
         return connectedRelaySortOption.sort(relays: filtered)
     }
 
     private var isNIPDisplayMode: Bool {
-        activeNIPFilter != nil
+        activeNIPFilters.isEmpty == false
     }
 
     private func bindRelayStateUpdates() {
@@ -467,7 +482,7 @@ struct RelaysView: View {
                         ForEach(supportedNIPs, id: \.self) { nip in
                             ContextAwareActionChipButton(title: "NIP-\(nip)",
                                                          systemImage: "network") {
-                                activeNIPFilter = nip
+                                toggleNIPFilter(nip)
                             }
                         }
                     }
@@ -490,7 +505,7 @@ struct RelaysView: View {
                                         relayLabel: relay.url.absoluteString,
                                         connectedRelays: connectedRelays,
                                         relayInfoLoader: relayInfoLoader) { nip in
-                    activeNIPFilter = nip
+                    toggleNIPFilter(nip)
                 }
             } else {
                 Text("No relay metadata available.")
@@ -602,6 +617,14 @@ struct RelaysView: View {
                 }
             }
         )
+    }
+
+    private func toggleNIPFilter(_ nip: Int) {
+        if activeNIPFilters.contains(nip) {
+            activeNIPFilters.remove(nip)
+        } else {
+            activeNIPFilters.insert(nip)
+        }
     }
 }
 
