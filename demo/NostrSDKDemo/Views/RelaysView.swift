@@ -75,6 +75,7 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
     case urlAscending
     case urlDescending
     case pingAscending
+    case pingDescending
 
     var id: String { rawValue }
 
@@ -85,7 +86,9 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
         case .urlDescending:
             return "URL Z-A"
         case .pingAscending:
-            return "Ping Fastest"
+            return "Ping Low-High"
+        case .pingDescending:
+            return "Ping High-Low"
         }
     }
 
@@ -96,7 +99,9 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
         case .urlDescending:
             return "URL Z-A"
         case .pingAscending:
-            return "Ping"
+            return "Ping Low-High"
+        case .pingDescending:
+            return "Ping High-Low"
         }
     }
 
@@ -114,23 +119,33 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
             case .urlDescending:
                 return lhs.url.absoluteString > rhs.url.absoluteString
             case .pingAscending:
-                let leftPing = lhs.connectionLatency
-                let rightPing = rhs.connectionLatency
-                switch (leftPing, rightPing) {
-                case let (left?, right?):
-                    if left != right {
-                        return left < right
-                    }
-                case (.some, .none):
-                    return true
-                case (.none, .some):
-                    return false
-                case (.none, .none):
-                    break
-                }
-
-                return lhs.url.absoluteString < rhs.url.absoluteString
+                return pingSortComparison(lhs, rhs, ascending: true)
+            case .pingDescending:
+                return pingSortComparison(lhs, rhs, ascending: false)
             }
+        }
+    }
+
+    private func pingSortComparison(_ lhs: Relay, _ rhs: Relay, ascending: Bool) -> Bool {
+        let leftPing = lhs.connectionLatency
+        let rightPing = rhs.connectionLatency
+        switch (leftPing, rightPing) {
+        case let (left?, right?):
+            if left != right {
+                return ascending ? left < right : left > right
+            }
+        case (.some, .none):
+            return true
+        case (.none, .some):
+            return false
+        case (.none, .none):
+            break
+        }
+
+        if ascending {
+            return lhs.url.absoluteString < rhs.url.absoluteString
+        } else {
+            return lhs.url.absoluteString > rhs.url.absoluteString
         }
     }
 
@@ -422,10 +437,11 @@ struct RelaysView: View {
                                            ascendingTitle: "A-Z",
                                            descendingTitle: "Z-A")
 
-                ContextAwareSortChipButton(title: "Ping",
-                                           isSelected: relaySortOption == .pingAscending) {
-                    relaySortOption = .pingAscending
-                }
+                ContextAwareSortToggleChip(selection: $relaySortOption,
+                                           ascending: .pingAscending,
+                                           descending: .pingDescending,
+                                           ascendingTitle: "Low-High",
+                                           descendingTitle: "High-Low")
 
                 EditButton()
             }
