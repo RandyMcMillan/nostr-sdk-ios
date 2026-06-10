@@ -258,9 +258,6 @@ struct RelaysView: View {
                                 seenRelayRow(for: relayURL)
                             }
                         }
-                    } else {
-                        Text("Hidden.")
-                            .foregroundColor(.secondary)
                     }
                 } header: {
                     ContextAwareListToolbar(content: {
@@ -340,8 +337,6 @@ struct RelaysView: View {
                               showsReconnectButton: Bool = false) -> some View {
         Section {
             if isExpanded == false {
-                Text("Hidden.")
-                    .foregroundColor(.secondary)
             } else if relays.isEmpty {
                 Text("No \(title.lowercased()) relays.")
                     .foregroundColor(.secondary)
