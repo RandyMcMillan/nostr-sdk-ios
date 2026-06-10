@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import GnostrSDK
+import ContextAwareToolbar
 import libgit2
 import SwiftGitX
 import SwiftUI
@@ -489,7 +490,14 @@ struct HostedRepositoriesView: View {
     }
 
     private var hostedRepositories: [DemoRepositoryHostStore.HostedRepository] {
-        hostedRepositorySortOrder.sort(repositories: repositoryHostStore.repositories)
+        let sortedURLs = hostedRepositorySortOrder.sort(urls: repositoryHostStore.repositories.map(\.remoteURL))
+        let sortOrder = sortedURLs.enumerated().reduce(into: [URL: Int]()) { result, element in
+            result[element.element] = element.offset
+        }
+
+        return repositoryHostStore.repositories.sorted {
+            (sortOrder[$0.remoteURL] ?? .max) < (sortOrder[$1.remoteURL] ?? .max)
+        }
     }
 
     private var availableSeenRepositories: [URL] {

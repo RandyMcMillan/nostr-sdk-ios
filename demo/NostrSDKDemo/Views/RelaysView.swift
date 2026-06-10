@@ -7,234 +7,9 @@
 
 import Foundation
 import GnostrSDK
+import ContextAwareToolbar
 import SwiftUI
 import Combine
-
-enum ContextAwareSortOrder: String, CaseIterable, Identifiable {
-    case urlAscending
-    case urlDescending
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .urlAscending:
-            return "URL A-Z"
-        case .urlDescending:
-            return "URL Z-A"
-        }
-    }
-
-    var toggled: Self {
-        switch self {
-        case .urlAscending:
-            return .urlDescending
-        case .urlDescending:
-            return .urlAscending
-        }
-    }
-
-    var toggleTitle: String {
-        switch self {
-        case .urlAscending:
-            return "A-Z"
-        case .urlDescending:
-            return "Z-A"
-        }
-    }
-
-    func sort(relays: [Relay]) -> [Relay] {
-        switch self {
-        case .urlAscending:
-            return relays.sorted { $0.url.absoluteString < $1.url.absoluteString }
-        case .urlDescending:
-            return relays.sorted { $0.url.absoluteString > $1.url.absoluteString }
-        }
-    }
-
-    func sort(urls: [URL]) -> [URL] {
-        switch self {
-        case .urlAscending:
-            return urls.sorted { $0.absoluteString < $1.absoluteString }
-        case .urlDescending:
-            return urls.sorted { $0.absoluteString > $1.absoluteString }
-        }
-    }
-
-    func sort(repositories: [DemoRepositoryHostStore.HostedRepository]) -> [DemoRepositoryHostStore.HostedRepository] {
-        switch self {
-        case .urlAscending:
-            return repositories.sorted { $0.remoteURL.absoluteString < $1.remoteURL.absoluteString }
-        case .urlDescending:
-            return repositories.sorted { $0.remoteURL.absoluteString > $1.remoteURL.absoluteString }
-        }
-    }
-}
-
-enum RelaySortOption: String, CaseIterable, Identifiable {
-    case urlAscending
-    case urlDescending
-    case pingAscending
-    case pingDescending
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .urlAscending:
-            return "URL A-Z"
-        case .urlDescending:
-            return "URL Z-A"
-        case .pingAscending:
-            return "Ping ↑"
-        case .pingDescending:
-            return "Ping ↓"
-        }
-    }
-
-    var shortTitle: String {
-        switch self {
-        case .urlAscending:
-            return "URL A-Z"
-        case .urlDescending:
-            return "URL Z-A"
-        case .pingAscending:
-            return "Ping ↑"
-        case .pingDescending:
-            return "Ping ↓"
-        }
-    }
-
-    func sort(relays: [Relay]) -> [Relay] {
-        relays.sorted { lhs, rhs in
-            let leftRank = stateRank(for: lhs)
-            let rightRank = stateRank(for: rhs)
-            if leftRank != rightRank {
-                return leftRank < rightRank
-            }
-
-            switch self {
-            case .urlAscending:
-                return lhs.url.absoluteString < rhs.url.absoluteString
-            case .urlDescending:
-                return lhs.url.absoluteString > rhs.url.absoluteString
-            case .pingAscending:
-                return pingSortComparison(lhs, rhs, ascending: true)
-            case .pingDescending:
-                return pingSortComparison(lhs, rhs, ascending: false)
-            }
-        }
-    }
-
-    private func pingSortComparison(_ lhs: Relay, _ rhs: Relay, ascending: Bool) -> Bool {
-        let leftPing = lhs.connectionLatency
-        let rightPing = rhs.connectionLatency
-        switch (leftPing, rightPing) {
-        case let (left?, right?):
-            if left != right {
-                return ascending ? left < right : left > right
-            }
-        case (.some, .none):
-            return true
-        case (.none, .some):
-            return false
-        case (.none, .none):
-            break
-        }
-
-        if ascending {
-            return lhs.url.absoluteString < rhs.url.absoluteString
-        } else {
-            return lhs.url.absoluteString > rhs.url.absoluteString
-        }
-    }
-
-    private func stateRank(for relay: Relay) -> Int {
-        switch relay.state {
-        case .connected:
-            return 0
-        case .connecting:
-            return 1
-        case .notConnected, .error:
-            return 2
-        }
-    }
-}
-
-struct ContextAwareSortChipBar<Option: CaseIterable & Identifiable & Equatable>: View where Option.AllCases: RandomAccessCollection, Option.AllCases.Element == Option {
-    let title: String
-    @Binding var selection: Option
-    let options: Option.AllCases
-    let label: (Option) -> String
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
-
-            HStack(spacing: 8) {
-                ForEach(options) { option in
-                    Button {
-                        selection = option
-                    } label: {
-                        Text(label(option))
-                            .font(.caption.weight(.semibold))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(
-                                RoundedRectangle(cornerRadius: 999, style: .continuous)
-                                    .fill(selection == option ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemFill))
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-}
-
-struct ContextAwareSortChipButton: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 999, style: .continuous)
-                        .fill(isSelected ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemFill))
-                )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-struct ContextAwareSortToggleChip<Selection: Equatable>: View {
-    @Binding var selection: Selection
-    let ascending: Selection
-    let descending: Selection
-    let ascendingTitle: String
-    let descendingTitle: String
-
-    private var currentTitle: String {
-        selection == descending ? descendingTitle : ascendingTitle
-    }
-
-    private var isSelected: Bool {
-        selection == ascending || selection == descending
-    }
-
-    var body: some View {
-        ContextAwareSortChipButton(title: currentTitle, isSelected: isSelected) {
-            selection = selection == ascending ? descending : ascending
-        }
-    }
-}
 
 final class RelayDirectoryStore: ObservableObject {
     @Published var seenRelayURLs: Set<URL> = []
@@ -413,6 +188,7 @@ struct RelaysView: View {
     @State private var relaySortOption: RelaySortOption = .urlAscending
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
+    @State private var isSeenRelaysExpanded = true
     
     var body: some View {
         VStack(spacing: 0) {
@@ -454,40 +230,42 @@ struct RelaysView: View {
                 relaySection(title: "Disconnected", relays: groupedRelays.disconnected)
 
                 Section {
-                    if seenRelays.isEmpty {
-                        Text("No seen relays yet.")
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(seenRelays, id: \.self) { relayURL in
-                            HStack {
-                                Text(relayURL.absoluteString)
-                                Spacer()
-                                if contains(relayURL) {
-                                    Button(role: .destructive) {
-                                        disconnect(relayURL)
-                                    } label: {
-                                        Label("Remove", systemImage: "minus.circle.fill")
-                                    }
-                                } else {
-                                    Button {
-                                        add(relayURL)
-                                    } label: {
-                                        Label("Add", systemImage: "plus.circle.fill")
+                    if isSeenRelaysExpanded {
+                        if seenRelays.isEmpty {
+                            Text("No seen relays yet.")
+                                .foregroundColor(.secondary)
+                        } else {
+                            ForEach(seenRelays, id: \.self) { relayURL in
+                                HStack {
+                                    Text(relayURL.absoluteString)
+                                    Spacer()
+                                    if contains(relayURL) {
+                                        Button(role: .destructive) {
+                                            disconnect(relayURL)
+                                        } label: {
+                                            Label("Remove", systemImage: "minus.circle.fill")
+                                        }
+                                    } else {
+                                        Button {
+                                            add(relayURL)
+                                        } label: {
+                                            Label("Add", systemImage: "plus.circle.fill")
+                                        }
                                     }
                                 }
-                            }
-                            .swipeActions(edge: .trailing) {
-                                if contains(relayURL) == false {
-                                    Button(role: .destructive) {
-                                        relayDirectory.removeSeen(relayURL)
-                                    } label: {
-                                        Label("Remove", systemImage: "trash")
-                                    }
-                                } else {
-                                    Button(role: .destructive) {
-                                        disconnect(relayURL)
-                                    } label: {
-                                        Label("Remove", systemImage: "trash")
+                                .swipeActions(edge: .trailing) {
+                                    if contains(relayURL) == false {
+                                        Button(role: .destructive) {
+                                            relayDirectory.removeSeen(relayURL)
+                                        } label: {
+                                            Label("Remove", systemImage: "trash")
+                                        }
+                                    } else {
+                                        Button(role: .destructive) {
+                                            disconnect(relayURL)
+                                        } label: {
+                                            Label("Remove", systemImage: "trash")
+                                        }
                                     }
                                 }
                             }
@@ -498,15 +276,11 @@ struct RelaysView: View {
                         Text("Seen Relays")
                         Spacer(minLength: 12)
 
-                        Button("Add All") {
-                            addAllSeenRelays()
-                        }
-                        .buttonStyle(.borderless)
-
-                        Button(role: .destructive) {
-                            removeAllSeenRelays()
+                        Button {
+                            isSeenRelaysExpanded.toggle()
                         } label: {
-                            Text("Remove All")
+                            Label(isSeenRelaysExpanded ? "Hide" : "Show",
+                                  systemImage: isSeenRelaysExpanded ? "chevron.up" : "chevron.down")
                         }
                         .buttonStyle(.borderless)
                     }
@@ -648,15 +422,6 @@ struct RelaysView: View {
         }
         pool.add(relay: relay)
         relayDirectory.removeSeen(relayURL)
-        relayDirectory.deduplicateSeenRelayURLs()
-    }
-
-    private func addAllSeenRelays() {
-        seenRelays.forEach { add($0) }
-    }
-
-    private func removeAllSeenRelays() {
-        seenRelays.forEach { relayDirectory.removeSeen($0) }
         relayDirectory.deduplicateSeenRelayURLs()
     }
 

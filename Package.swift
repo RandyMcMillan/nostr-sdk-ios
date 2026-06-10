@@ -11,6 +11,9 @@ let package = Package(
         // and make them visible to other packages.
         // origin https://github.com/nostr-sdk/nostr-sdk-ios
         .library(
+            name: "ContextAwareToolbar",
+            targets: ["ContextAwareToolbar"]),
+        .library(
             name: "GnostrSDK",
             targets: ["GnostrSDK"])
     ],
@@ -26,6 +29,11 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        .target(
+            name: "ContextAwareToolbar",
+            dependencies: ["GnostrSDK"],
+            path: "Sources/ContextAwareToolbar"
+        ),
         .target(
             name: "NostrSDK",
             dependencies: [

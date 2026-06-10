@@ -13,6 +13,7 @@
 		14B00A402E6E7F8E00000001 /* DemoRepositoryHostStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A412E6E7F8E00000001 /* DemoRepositoryHostStore.swift */; };
 		14B00A422E6E7F8E00000001 /* DemoGitSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B00A432E6E7F8E00000001 /* DemoGitSettingsStore.swift */; };
 		8A0000012E6E7F8E00000001 /* ContextAwareHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000022E6E7F8E00000001 /* ContextAwareHeaderView.swift */; };
+		4BB77E902FD49904003742C9 /* ContextAwareToolbar in Frameworks */ = {isa = PBXBuildFile; productRef = 4BB77E912FD49904003742C9 /* ContextAwareToolbar */; };
 		1F73BD012D24432B00C49147 /* EncryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD002D24432B00C49147 /* EncryptMessageDemoView.swift */; };
 		1F73BD032D24491500C49147 /* DecryptMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F73BD022D24491500C49147 /* DecryptMessageDemoView.swift */; };
 		3AA4CD712C06523D0060554E /* LegacyDirectMessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4CD702C06523D0060554E /* LegacyDirectMessageDemoView.swift */; };
@@ -71,6 +72,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4BB77E8F2FD49904003742C9 /* GnostrSDK in Frameworks */,
+				4BB77E902FD49904003742C9 /* ContextAwareToolbar in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +212,7 @@
 			name = NostrSDKDemo;
 			packageProductDependencies = (
 				4BB77E8E2FD49904003742C9 /* GnostrSDK */,
+				4BB77E912FD49904003742C9 /* ContextAwareToolbar */,
 				4B147F6C2FD8738A004EFDD5 /* SwiftGitX */,
 			);
 			productName = NostrSDKDemo;
@@ -613,6 +616,10 @@
 		4BB77E8E2FD49904003742C9 /* GnostrSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = GnostrSDK;
+		};
+		4BB77E912FD49904003742C9 /* ContextAwareToolbar */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ContextAwareToolbar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

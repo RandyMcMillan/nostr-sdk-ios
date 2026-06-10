@@ -6,6 +6,9 @@ let package = Package(
     targets: [
         .target(
             name: "GnostrSDKDemo",
-            dependencies: ["GnostrSDK"])
+            dependencies: [
+                "GnostrSDK",
+                .product(name: "ContextAwareToolbar", package: "GnostrSDK")
+            ])
     ]
 )
