@@ -86,9 +86,9 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
         case .urlDescending:
             return "URL Z-A"
         case .pingAscending:
-            return "Ping Low-High"
+            return "Ping ↑"
         case .pingDescending:
-            return "Ping High-Low"
+            return "Ping ↓"
         }
     }
 
@@ -99,9 +99,9 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
         case .urlDescending:
             return "URL Z-A"
         case .pingAscending:
-            return "Ping Low-High"
+            return "Ping ↑"
         case .pingDescending:
-            return "Ping High-Low"
+            return "Ping ↓"
         }
     }
 
@@ -440,8 +440,8 @@ struct RelaysView: View {
                 ContextAwareSortToggleChip(selection: $relaySortOption,
                                            ascending: .pingAscending,
                                            descending: .pingDescending,
-                                           ascendingTitle: "Low-High",
-                                           descendingTitle: "High-Low")
+                                           ascendingTitle: "Ping ↑",
+                                           descendingTitle: "Ping ↓")
 
                 EditButton()
             }
