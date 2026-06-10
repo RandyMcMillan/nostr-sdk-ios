@@ -1,6 +1,6 @@
 import Foundation
 @testable import GnostrSDK
-@testable import GnostrSDKDemo
+@testable import NostrSDKDemo
 import XCTest
 
 final class NostrSDKDemoSmokeTests: XCTestCase {
