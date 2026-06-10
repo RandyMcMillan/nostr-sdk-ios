@@ -76,23 +76,21 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     func attach(appPrimeStore: DemoAppPrimeStore) {
-        updateSeenRepositories(from: appPrimeStore.repositoryEventByRepoIDAndKind)
-        record(seen: Array(appPrimeStore.seenRepositoryURLs))
-        refreshAvailability(for: seenRepositoryURLs, force: true)
+        ingestSeenRepositoryURLs(appPrimeStore.seenRepositoryURLs, refreshAvailability: true)
+        applyRepositoryEvents(appPrimeStore.repositoryEventByRepoIDAndKind)
         startAvailabilityRefreshLoop()
 
         appPrimeStore.$repositoryEventByRepoIDAndKind
             .receive(on: DispatchQueue.main)
             .sink { [weak self] repositoryEventByRepoIDAndKind in
-                self?.updateSeenRepositories(from: repositoryEventByRepoIDAndKind)
+                self?.applyRepositoryEvents(repositoryEventByRepoIDAndKind)
             }
             .store(in: &cancellables)
 
         appPrimeStore.$seenRepositoryURLs
             .receive(on: DispatchQueue.main)
             .sink { [weak self] repositoryURLs in
-                self?.record(seen: Array(repositoryURLs))
-                self?.refreshAvailability(for: repositoryURLs, force: true)
+                self?.ingestSeenRepositoryURLs(repositoryURLs, refreshAvailability: true)
             }
             .store(in: &cancellables)
     }
@@ -264,7 +262,39 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     private func updateSeenRepositories(from repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
-        let repositoryURLs = repositoryEventByRepoIDAndKind.values
+        applyRepositoryEvents(repositoryEventByRepoIDAndKind)
+    }
+
+    private func applyRepositoryEvents(_ repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
+        Task.detached(priority: .utility) { [weak self] in
+            let repositoryURLs = Self.extractSeenRepositoryURLs(from: repositoryEventByRepoIDAndKind)
+            guard let self else { return }
+            await MainActor.run {
+                self.applySeenRepositoryURLs(repositoryURLs, refreshAvailability: false)
+            }
+        }
+    }
+
+    private func ingestSeenRepositoryURLs(_ repositoryURLs: Set<URL>, refreshAvailability: Bool) {
+        Task.detached(priority: .utility) { [weak self] in
+            guard let self else { return }
+            await MainActor.run {
+                self.applySeenRepositoryURLs(Array(repositoryURLs), refreshAvailability: refreshAvailability)
+            }
+        }
+    }
+
+    private func applySeenRepositoryURLs(_ repositoryURLs: [URL], refreshAvailability: Bool) {
+        record(seen: repositoryURLs)
+        if refreshAvailability {
+            self.refreshAvailability(for: Set(repositoryURLs), force: true)
+        } else {
+            self.refreshAvailability(for: Set(repositoryURLs), force: false)
+        }
+    }
+
+    nonisolated private static func extractSeenRepositoryURLs(from repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) -> [URL] {
+        repositoryEventByRepoIDAndKind.values
             .flatMap { $0.values }
             .flatMap { event in
                 event.tags.compactMap { tag -> URL? in
@@ -272,9 +302,6 @@ final class DemoRepositoryHostStore: ObservableObject {
                     return DemoRepositoryHostStore.normalizedRepositoryCloneURL(from: tag.value)
                 }
             }
-
-        record(seen: repositoryURLs)
-        refreshAvailability(for: Set(repositoryURLs), force: false)
     }
 
     private func refreshAvailability(for repositoryURLs: Set<URL>, force: Bool) {
