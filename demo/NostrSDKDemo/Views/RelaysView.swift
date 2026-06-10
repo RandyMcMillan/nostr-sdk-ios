@@ -76,10 +76,39 @@ final class RelayDirectoryStore: ObservableObject {
 }
 
 extension Relay {
+    var statusColor: Color {
+        switch state {
+        case .connected:
+            return .green
+        case .connecting:
+            return .yellow
+        case .notConnected, .error:
+            return .red
+        }
+    }
+
+    var statusLabel: String {
+        switch state {
+        case .connected:
+            return "Connected"
+        case .connecting:
+            return "Connecting"
+        case .notConnected, .error:
+            return "Disconnected"
+        }
+    }
+
     var statusImage: some View {
         switch state {
-        case .connected: return Image(systemName: "checkmark.circle").foregroundStyle(.green)
-        default:        return Image(systemName: "questionmark.circle").foregroundStyle(.yellow)
+        case .connected:
+            return Image(systemName: "checkmark.circle")
+                .foregroundStyle(statusColor)
+        case .connecting:
+            return Image(systemName: "arrow.triangle.2.circlepath.circle")
+                .foregroundStyle(statusColor)
+        case .notConnected, .error:
+            return Image(systemName: "xmark.circle")
+                .foregroundStyle(statusColor)
         }
     }
 }
@@ -93,7 +122,7 @@ struct RelaysView: View {
         VStack(spacing: 0) {
             ContextAwareHeaderView(
                 title: "Relays",
-                subtitle: "Connected and seen relay URLs.",
+                subtitle: "Connected, connecting, and disconnected relay URLs.",
                 systemImage: "network",
                 bannerHeight: 180
             )
@@ -108,38 +137,9 @@ struct RelaysView: View {
             .padding(.bottom, 8)
 
             List {
-                Section("Connected Relays") {
-                    ForEach(relays, id: \.url) { relay in
-                        HStack(alignment: .center, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(relay.url.absoluteString)
-                                    .font(.subheadline)
-                                    .textSelection(.enabled)
-                                Text(relay.state == .connected ? "Connected" : "Not connected")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-
-                            Spacer(minLength: 12)
-
-                            relay.statusImage
-
-                            Button(role: .destructive) {
-                                disconnect(relay)
-                            } label: {
-                                Label("Disconnect", systemImage: "xmark.circle.fill")
-                            }
-                            .buttonStyle(.borderless)
-                        }
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(Color(.secondarySystemBackground))
-                        )
-                    }
-                    .onDelete(perform: remove)
-                }
+                relaySection(title: "Connected", relays: groupedRelays.connected)
+                relaySection(title: "Connecting", relays: groupedRelays.connecting)
+                relaySection(title: "Disconnected", relays: groupedRelays.disconnected)
 
                 Section("Seen Relays") {
                     if seenRelays.isEmpty {
@@ -184,8 +184,67 @@ struct RelaysView: View {
         }
     }
     
+    private var groupedRelays: (connected: [Relay], connecting: [Relay], disconnected: [Relay]) {
+        let sorted = pool.relays.sorted()
+        return (
+            connected: sorted.filter { $0.state == .connected },
+            connecting: sorted.filter { $0.state == .connecting },
+            disconnected: sorted.filter {
+                switch $0.state {
+                case .notConnected, .error:
+                    return true
+                case .connected, .connecting:
+                    return false
+                }
+            }
+        )
+    }
+
     private var relays: [Relay] {
         pool.relays.sorted()
+    }
+
+    @ViewBuilder
+    private func relaySection(title: String, relays: [Relay]) -> some View {
+        Section(title) {
+            if relays.isEmpty {
+                Text("No \(title.lowercased()) relays.")
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(relays, id: \.url) { relay in
+                    HStack(alignment: .center, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(relay.url.absoluteString)
+                                .font(.subheadline)
+                                .textSelection(.enabled)
+                            Text(relay.statusLabel)
+                                .font(.caption)
+                                .foregroundColor(relay.statusColor)
+                        }
+
+                        Spacer(minLength: 12)
+
+                        relay.statusImage
+
+                        Button(role: .destructive) {
+                            disconnect(relay)
+                        } label: {
+                            Label("Disconnect", systemImage: "xmark.circle.fill")
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                    )
+                }
+                .onDelete { offsets in
+                    remove(relays: relays, at: offsets)
+                }
+            }
+        }
     }
 
     private var seenRelays: [URL] {
@@ -219,7 +278,7 @@ struct RelaysView: View {
         relayDirectory.deduplicateSeenRelayURLs()
     }
     
-    private func remove(at offsets: IndexSet) {
+    private func remove(relays: [Relay], at offsets: IndexSet) {
         offsets.map { relays[$0] }.forEach { disconnect($0) }
     }
 }
