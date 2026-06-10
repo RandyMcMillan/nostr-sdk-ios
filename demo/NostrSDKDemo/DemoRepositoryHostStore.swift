@@ -141,8 +141,8 @@ final class DemoRepositoryHostStore: ObservableObject {
         cloneRepository(from: remoteURL, depth: nil)
     }
 
-    func bootstrapHostedRepositoryIfNeeded() async {
-        await cloneRepository(from: Self.bootstrapRepositoryURL, depth: 1)
+    func bootstrapHostedRepositoryIfNeeded() {
+        cloneRepository(from: Self.bootstrapRepositoryURL, depth: 1)
     }
 
     private func cloneRepository(from remoteURL: URL, depth: Int?) {
@@ -195,21 +195,21 @@ final class DemoRepositoryHostStore: ObservableObject {
                 }
             }
         }
+    }
 
-        private static func cloneRepository(from remoteURL: URL, to localURL: URL, depth: Int) throws {
-            try SwiftGitXRuntime.initialize()
-            defer { _ = try? SwiftGitXRuntime.shutdown() }
+    private static func cloneRepository(from remoteURL: URL, to localURL: URL, depth: Int) throws {
+        try SwiftGitXRuntime.initialize()
+        defer { _ = try? SwiftGitXRuntime.shutdown() }
 
-            var options = git_clone_options()
-            try SwiftGitXError.check(git_clone_options_init(&options, UInt32(GIT_CLONE_OPTIONS_VERSION)), operation: .clone)
-            options.fetch_opts.depth = Int32(depth)
+        var options = git_clone_options()
+        try SwiftGitXError.check(git_clone_options_init(&options, UInt32(GIT_CLONE_OPTIONS_VERSION)), operation: .clone)
+        options.fetch_opts.depth = Int32(depth)
 
-            var repositoryPointer: OpaquePointer?
-            let status = git_clone(&repositoryPointer, remoteURL.absoluteString, localURL.path, &options)
-            try SwiftGitXError.check(status, pointer: repositoryPointer, operation: .clone)
-            if let repositoryPointer {
-                git_repository_free(repositoryPointer)
-            }
+        var repositoryPointer: OpaquePointer?
+        let status = git_clone(&repositoryPointer, remoteURL.absoluteString, localURL.path, &options)
+        try SwiftGitXError.check(status, pointer: repositoryPointer, operation: .clone)
+        if let repositoryPointer {
+            git_repository_free(repositoryPointer)
         }
     }
 
