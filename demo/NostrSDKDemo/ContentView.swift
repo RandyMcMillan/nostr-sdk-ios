@@ -655,6 +655,7 @@ private struct SettingsRemoteImageView: UIViewRepresentable {
             currentURL = url
 
             task?.cancel()
+            // Load remote header imagery off the main actor so the settings screen stays responsive.
             task = Task.detached(priority: .background) { [weak imageView] in
                 do {
                     let (data, _) = try await URLSession.shared.data(from: url)
