@@ -28,7 +28,7 @@ final class NostrSDKDemoSmokeTests: XCTestCase {
     func testNormalizesRepositoryCloneURLs() {
         for form in RepoURLs.expectedForms {
             XCTAssertEqual(
-                DemoRepositoryHostStore.normalizedRepositoryCloneURL(from: form.rawValue),
+                NostrEvent.repositoryCloneURL(from: form.rawValue),
                 form.expected
             )
         }
