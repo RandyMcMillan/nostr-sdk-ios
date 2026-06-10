@@ -76,7 +76,7 @@ struct SomeView: View {
         }
         switch state {
         case .notConnected:
-            return "Not connected"
+            return "Disconnected"
         case .connecting:
             return "Connecting"
         case .connected:
