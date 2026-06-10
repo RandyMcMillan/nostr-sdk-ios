@@ -518,6 +518,7 @@ struct RepoView: View {
             Section("Repository") {
                 LabeledContent("Name") {
                     Text(repository.displayName)
+                        .textSelection(.enabled)
                 }
                 LabeledContent("Remote") {
                     Text(repository.remoteURL.absoluteString)
@@ -527,6 +528,7 @@ struct RepoView: View {
                 LabeledContent("Local") {
                     Text(repository.localURL.path)
                         .multilineTextAlignment(.trailing)
+                        .textSelection(.enabled)
                 }
             }
         }
