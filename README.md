@@ -110,6 +110,12 @@ Nostr SDK can be integrated as an Xcode project target or a Swift package target
 
 [Releases](https://github.com/nostr-sdk/nostr-sdk-ios/releases) follow [semantic versioning](https://semver.org/).
 
+## Responsiveness
+
+- Keep UI-facing work async when it touches cloning, event scans, relay discovery, or repository refresh loops.
+- Move background parsing and I/O off the main actor, then apply results back to SwiftUI state on the main thread.
+- Document new background operations inline so future changes do not accidentally block the GUI.
+
 ### Xcode Project Target
 
 1. Go to `File` -> `Add Package Dependencies`.
