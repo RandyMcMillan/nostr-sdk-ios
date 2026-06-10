@@ -130,7 +130,7 @@ struct RelaysView: View {
                 relaySection(title: "Connecting", relays: groupedRelays.connecting)
                 relaySection(title: "Disconnected", relays: groupedRelays.disconnected)
 
-                Section("Seen Relays") {
+                Section {
                     if seenRelays.isEmpty {
                         Text("No seen relays yet.")
                             .foregroundColor(.secondary)
@@ -167,6 +167,23 @@ struct RelaysView: View {
                                 }
                             }
                         }
+                    }
+                } header: {
+                    HStack {
+                        Text("Seen Relays")
+                        Spacer(minLength: 12)
+
+                        Button("Add All") {
+                            addAllSeenRelays()
+                        }
+                        .buttonStyle(.borderless)
+
+                        Button(role: .destructive) {
+                            removeAllSeenRelays()
+                        } label: {
+                            Text("Remove All")
+                        }
+                        .buttonStyle(.borderless)
                     }
                 }
             }
@@ -249,6 +266,15 @@ struct RelaysView: View {
         }
         pool.add(relay: relay)
         relayDirectory.removeSeen(relayURL)
+        relayDirectory.deduplicateSeenRelayURLs()
+    }
+
+    private func addAllSeenRelays() {
+        seenRelays.forEach { add($0) }
+    }
+
+    private func removeAllSeenRelays() {
+        seenRelays.forEach { relayDirectory.removeSeen($0) }
         relayDirectory.deduplicateSeenRelayURLs()
     }
 
