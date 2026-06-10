@@ -22,6 +22,7 @@ final class DemoAppPrimeStore: ObservableObject {
     func attach(relayPool: RelayPool) {
         guard self.relayPool !== relayPool else { return }
         self.relayPool = relayPool
+        // Prime repository events off the main actor so relay bootstrap does not block the UI.
         Task.detached(priority: .background) { [weak self] in
             await self?.primeRepositoryEvents()
         }
