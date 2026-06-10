@@ -146,6 +146,39 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
     }
 }
 
+struct ContextAwareSortChipBar<Option: CaseIterable & Identifiable & Equatable>: View where Option.AllCases: RandomAccessCollection, Option.AllCases.Element == Option {
+    let title: String
+    @Binding var selection: Option
+    let options: Option.AllCases
+    let label: (Option) -> String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.secondary)
+
+            HStack(spacing: 8) {
+                ForEach(options) { option in
+                    Button {
+                        selection = option
+                    } label: {
+                        Text(label(option))
+                            .font(.caption.weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 999, style: .continuous)
+                                    .fill(selection == option ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemFill))
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+}
+
 final class RelayDirectoryStore: ObservableObject {
     @Published var seenRelayURLs: Set<URL> = []
     private var relayPool: RelayPool?
@@ -337,27 +370,10 @@ struct RelaysView: View {
 
             HStack {
                 Spacer()
-                Text("Sort:")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
-
-                HStack(spacing: 8) {
-                    ForEach(RelaySortOption.allCases) { sortOption in
-                        Button {
-                            relaySortOption = sortOption
-                        } label: {
-                            Text(sortOption.shortTitle)
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 999, style: .continuous)
-                                        .fill(relaySortOption == sortOption ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemFill))
-                                )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+                ContextAwareSortChipBar(title: "Sort:",
+                                        selection: $relaySortOption,
+                                        options: RelaySortOption.allCases,
+                                        label: { $0.shortTitle })
 
                 EditButton()
             }
