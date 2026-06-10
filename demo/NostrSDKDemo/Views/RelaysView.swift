@@ -287,6 +287,9 @@ struct RelaysView: View {
                                 }
                             }
                         }
+                    } else {
+                        Text("Hidden.")
+                            .foregroundColor(.secondary)
                     }
                 } header: {
                     ContextAwareListToolbar(content: {
