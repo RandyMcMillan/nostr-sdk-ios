@@ -298,6 +298,9 @@ struct RelaysView: View {
                 relayInfoLoader.refresh(relays: relays)
                 relayStateRefreshToken += 1
             }
+            .onChange(of: activeNIPFilter) { _ in
+                expandedRelayURLs.removeAll()
+            }
         }
     }
     
@@ -327,6 +330,10 @@ struct RelaysView: View {
             connected.filter { relayInfoLoader.relayInfo(for: $0.url)?.supportedNIPs?.contains(nip) == true }
         } ?? connected
         return connectedRelaySortOption.sort(relays: filtered)
+    }
+
+    private var isNIPDisplayMode: Bool {
+        activeNIPFilter != nil
     }
 
     private func bindRelayStateUpdates() {
@@ -396,10 +403,33 @@ struct RelaysView: View {
     private func relayCard(for relay: Relay, showsReconnectButton: Bool) -> some View {
         // Keep the relay row compact; metadata is expanded inline so the user never loses the current list context.
         let info = relayInfoLoader.relayInfo(for: relay.url)
-        DisclosureGroup(isExpanded: binding(for: relay.url)) {
-        relayMetadataDetails(for: relay)
-            .padding(.top, 10)
-        } label: {
+        Group {
+        if isNIPDisplayMode {
+            relayCardBody(for: relay, info: info, showsReconnectButton: showsReconnectButton)
+        } else {
+            DisclosureGroup(isExpanded: binding(for: relay.url)) {
+                relayMetadataDetails(for: relay)
+                    .padding(.top, 10)
+            } label: {
+                relayCardBody(for: relay, info: info, showsReconnectButton: showsReconnectButton)
+            }
+        }
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color(.secondarySystemBackground))
+        )
+        .onAppear {
+            relayInfoLoader.refresh(relays: [relay])
+        }
+    }
+
+    @ViewBuilder
+    private func relayCardBody(for relay: Relay,
+                               info: RelayInfo?,
+                               showsReconnectButton: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 12) {
                 VStack(alignment: .leading, spacing: 6) {
@@ -444,16 +474,7 @@ struct RelaysView: View {
                 }
             }
         }
-        }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 8)
-        .background(
-        RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(Color(.secondarySystemBackground))
-        )
-        .onAppear {
-            relayInfoLoader.refresh(relays: [relay])
-        }
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
