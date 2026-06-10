@@ -71,6 +71,70 @@ enum ContextAwareSortOrder: String, CaseIterable, Identifiable {
     }
 }
 
+enum RelaySortOption: String, CaseIterable, Identifiable {
+    case urlAscending
+    case urlDescending
+    case pingAscending
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .urlAscending:
+            return "URL A-Z"
+        case .urlDescending:
+            return "URL Z-A"
+        case .pingAscending:
+            return "Ping Fastest"
+        }
+    }
+
+    func sort(relays: [Relay]) -> [Relay] {
+        relays.sorted { lhs, rhs in
+            let leftRank = stateRank(for: lhs)
+            let rightRank = stateRank(for: rhs)
+            if leftRank != rightRank {
+                return leftRank < rightRank
+            }
+
+            switch self {
+            case .urlAscending:
+                return lhs.url.absoluteString < rhs.url.absoluteString
+            case .urlDescending:
+                return lhs.url.absoluteString > rhs.url.absoluteString
+            case .pingAscending:
+                let leftPing = lhs.connectionLatency
+                let rightPing = rhs.connectionLatency
+                switch (leftPing, rightPing) {
+                case let (left?, right?):
+                    if left != right {
+                        return left < right
+                    }
+                case (.some, .none):
+                    return true
+                case (.none, .some):
+                    return false
+                case (.none, .none):
+                    break
+                }
+
+                return lhs.url.absoluteString < rhs.url.absoluteString
+            }
+        }
+    }
+
+    private func stateRank(for relay: Relay) -> Int {
+        switch relay.state {
+        case .connected:
+            return 0
+        case .connecting:
+            return 1
+        case .notConnected, .error:
+            return 2
+        }
+    }
+}
+
 final class RelayDirectoryStore: ObservableObject {
     @Published var seenRelayURLs: Set<URL> = []
     private var relayPool: RelayPool?
@@ -232,6 +296,11 @@ extension Relay {
                 .foregroundStyle(statusColor)
         }
     }
+
+    var pingLabel: String? {
+        guard let connectionLatency else { return nil }
+        return String(format: "%.0f ms", connectionLatency * 1000)
+    }
 }
 
 struct RelaysView: View {
@@ -240,7 +309,7 @@ struct RelaysView: View {
     @EnvironmentObject var relayDirectory: RelayDirectoryStore
     @StateObject private var relayInfoLoader = RelayInfoLoader()
     @State private var expandedRelayURLs: Set<URL> = []
-    @State private var relaySortOrder: ContextAwareSortOrder = .urlAscending
+    @State private var relaySortOption: RelaySortOption = .urlAscending
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     
@@ -257,10 +326,20 @@ struct RelaysView: View {
 
             HStack {
                 Spacer()
-                Button {
-                    relaySortOrder = relaySortOrder.toggled
+                Menu {
+                    ForEach(RelaySortOption.allCases) { sortOption in
+                        Button {
+                            relaySortOption = sortOption
+                        } label: {
+                            if relaySortOption == sortOption {
+                                Label(sortOption.title, systemImage: "checkmark")
+                            } else {
+                                Text(sortOption.title)
+                            }
+                        }
+                    }
                 } label: {
-                    Label("Sort \(relaySortOrder.toggleTitle)", systemImage: "arrow.up.arrow.down")
+                    Label("Sort \(relaySortOption.title)", systemImage: "arrow.up.arrow.down")
                 }
                 .buttonStyle(.borderless)
 
@@ -360,7 +439,7 @@ struct RelaysView: View {
     }
 
     private var relays: [Relay] {
-        relaySortOrder.sort(relays: Array(pool.relays))
+        relaySortOption.sort(relays: Array(pool.relays))
     }
 
     private func bindRelayStateUpdates() {
@@ -392,6 +471,11 @@ struct RelaysView: View {
                                 Text(relay.url.absoluteString)
                                     .font(.subheadline)
                                     .textSelection(.enabled)
+                                if let pingLabel = relay.pingLabel {
+                                    Text("Ping \(pingLabel)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
 
                             Spacer(minLength: 12)
@@ -445,7 +529,7 @@ struct RelaysView: View {
     }
 
     private var seenRelays: [URL] {
-        relaySortOrder.sort(urls: Array(relayDirectory.seenRelayURLs.filter { contains($0) == false }))
+        ContextAwareSortOrder.urlAscending.sort(urls: Array(relayDirectory.seenRelayURLs.filter { contains($0) == false }))
     }
 
     private var connectedRelays: [Relay] {
