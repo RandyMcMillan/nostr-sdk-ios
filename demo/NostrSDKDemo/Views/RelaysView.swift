@@ -187,6 +187,7 @@ struct RelaysView: View {
     @State private var expandedRelayURLs: Set<URL> = []
     @State private var relaySortOption: RelaySortOption = .urlAscending
     @State private var connectedRelaySortOption: RelaySortOption = .pingDescending
+    // Relays can resolve from connecting to connected/notConnected/error at any time, so the list needs a hard refresh token.
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     @State private var isConnectedRelaysExpanded = true
@@ -278,6 +279,8 @@ struct RelaysView: View {
                     })
                 }
             }
+            // Force the filtered sections to rebuild when relay state changes.
+            .id(relayStateRefreshToken)
             .onAppear {
                 bindRelayStateUpdates()
                 relayInfoLoader.refresh(relays: relays)
@@ -315,6 +318,7 @@ struct RelaysView: View {
     }
 
     private func bindRelayStateUpdates() {
+        // Keep the UI responsive if a relay stalls or flips state after an async connect attempt.
         relayStateCancellable = Publishers.MergeMany(
             pool.relays.map { relay in
                 relay.$state.map { _ in () }.eraseToAnyPublisher()
@@ -378,6 +382,7 @@ struct RelaysView: View {
 
     @ViewBuilder
     private func relayCard(for relay: Relay, showsReconnectButton: Bool) -> some View {
+        // Keep the relay row compact; metadata is expanded inline so the user never loses the current list context.
         DisclosureGroup(isExpanded: binding(for: relay.url)) {
             relayMetadataDetails(for: relay)
                 .padding(.top, 10)
@@ -472,6 +477,7 @@ struct RelaysView: View {
 
     @ViewBuilder
     private func seenRelayRow(for relayURL: URL) -> some View {
+        // Seen relays are a persistent registry; these actions only decide whether the relay is active in the pool.
         HStack {
             Text(relayURL.absoluteString)
             Spacer()
@@ -664,7 +670,6 @@ private struct RelayNIPConnectedRelaysView: View {
     let referringRelayLabel: String
     let connectedRelays: [Relay]
     @ObservedObject var relayInfoLoader: RelayInfoLoader
-    @Environment(\.dismiss) private var dismiss
 
     private var relaysSupportingNIP: [Relay] {
         connectedRelays.filter { relay in
@@ -673,45 +678,35 @@ private struct RelayNIPConnectedRelaysView: View {
     }
 
     var body: some View {
-        List {
-            if relaysSupportingNIP.isEmpty {
-                Text("No connected relays support NIP-\(nip).")
-                    .foregroundColor(.secondary)
-            } else {
-                ForEach(relaysSupportingNIP, id: \.url) { relay in
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack(alignment: .center, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(relay.url.absoluteString)
-                                    .font(.subheadline)
-                                    .textSelection(.enabled)
-                                Text("Connected")
-                                    .font(.caption)
-                                    .foregroundColor(.green)
+        VStack(alignment: .leading, spacing: 12) {
+            List {
+                if relaysSupportingNIP.isEmpty {
+                    Text("No connected relays support NIP-\(nip).")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(relaysSupportingNIP, id: \.url) { relay in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .center, spacing: 12) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(relay.url.absoluteString)
+                                        .font(.subheadline)
+                                        .textSelection(.enabled)
+                                    Text("Connected")
+                                        .font(.caption)
+                                        .foregroundColor(.green)
+                                }
+
+                                Spacer(minLength: 12)
+
+                                relay.statusImage
                             }
 
-                            Spacer(minLength: 12)
-
-                            relay.statusImage
+                            if let info = relayInfoLoader.relayInfo(for: relay.url) {
+                                RelayMetadataCompactView(info: info)
+                            }
                         }
-
-                        if let info = relayInfoLoader.relayInfo(for: relay.url) {
-                            RelayMetadataCompactView(info: info)
-                        }
+                        .padding(.vertical, 6)
                     }
-                    .padding(.vertical, 6)
-                }
-            }
-        }
-        .navigationTitle("NIP-\(nip) relays")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Label("Back to \(referringRelayLabel)", systemImage: "chevron.left")
                 }
             }
         }
