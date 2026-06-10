@@ -224,6 +224,13 @@ struct RelaysView: View {
                     isConnectedRelaysExpanded.toggle()
                 }
 
+                ContextAwareActionChipButton(title: "Remove All",
+                                             systemImage: "minus.circle.fill",
+                                             role: .destructive,
+                                             isEnabled: connectedRelays.isEmpty == false) {
+                    removeAllConnectedRelays()
+                }
+
                 EditButton()
             }
 
@@ -442,6 +449,10 @@ struct RelaysView: View {
 
     private func addAllSeenRelays() {
         seenRelays.forEach { add($0) }
+    }
+
+    private func removeAllConnectedRelays() {
+        connectedRelays.forEach { disconnect($0) }
     }
 
     private func disconnect(_ relay: Relay) {
