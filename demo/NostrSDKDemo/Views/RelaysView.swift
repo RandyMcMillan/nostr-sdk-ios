@@ -10,6 +10,49 @@ import GnostrSDK
 import SwiftUI
 import Combine
 
+enum ContextAwareSortOrder: String, CaseIterable, Identifiable {
+    case urlAscending
+    case urlDescending
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .urlAscending:
+            return "URL A-Z"
+        case .urlDescending:
+            return "URL Z-A"
+        }
+    }
+
+    func sort(relays: [Relay]) -> [Relay] {
+        switch self {
+        case .urlAscending:
+            return relays.sorted { $0.url.absoluteString < $1.url.absoluteString }
+        case .urlDescending:
+            return relays.sorted { $0.url.absoluteString > $1.url.absoluteString }
+        }
+    }
+
+    func sort(urls: [URL]) -> [URL] {
+        switch self {
+        case .urlAscending:
+            return urls.sorted { $0.absoluteString < $1.absoluteString }
+        case .urlDescending:
+            return urls.sorted { $0.absoluteString > $1.absoluteString }
+        }
+    }
+
+    func sort(repositories: [DemoRepositoryHostStore.HostedRepository]) -> [DemoRepositoryHostStore.HostedRepository] {
+        switch self {
+        case .urlAscending:
+            return repositories.sorted { $0.remoteURL.absoluteString < $1.remoteURL.absoluteString }
+        case .urlDescending:
+            return repositories.sorted { $0.remoteURL.absoluteString > $1.remoteURL.absoluteString }
+        }
+    }
+}
+
 final class RelayDirectoryStore: ObservableObject {
     @Published var seenRelayURLs: Set<URL> = []
     private var relayPool: RelayPool?
@@ -179,7 +222,7 @@ struct RelaysView: View {
     @EnvironmentObject var relayDirectory: RelayDirectoryStore
     @StateObject private var relayInfoLoader = RelayInfoLoader()
     @State private var expandedRelayURLs: Set<URL> = []
-    @State private var relaySortOrder: RelaySortOrder = .urlAscending
+    @State private var relaySortOrder: ContextAwareSortOrder = .urlAscending
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     
@@ -197,7 +240,7 @@ struct RelaysView: View {
             HStack {
                 Spacer()
                 Menu {
-                    ForEach(RelaySortOrder.allCases) { sortOrder in
+                    ForEach(ContextAwareSortOrder.allCases) { sortOrder in
                         Button {
                             relaySortOrder = sortOrder
                         } label: {
@@ -293,7 +336,7 @@ struct RelaysView: View {
     }
     
     private var groupedRelays: (connected: [Relay], connecting: [Relay], disconnected: [Relay]) {
-        let sorted = sorted(relays: Array(pool.relays))
+        let sorted = relays
         return (
             connected: sorted.filter { $0.state == .connected },
             connecting: sorted.filter { $0.state == .connecting },
@@ -309,7 +352,7 @@ struct RelaysView: View {
     }
 
     private var relays: [Relay] {
-        sorted(relays: Array(pool.relays))
+        relaySortOrder.sort(relays: Array(pool.relays))
     }
 
     private func bindRelayStateUpdates() {
@@ -394,7 +437,7 @@ struct RelaysView: View {
     }
 
     private var seenRelays: [URL] {
-        sorted(relayURLs: Array(relayDirectory.seenRelayURLs.filter { contains($0) == false }))
+        relaySortOrder.sort(urls: Array(relayDirectory.seenRelayURLs.filter { contains($0) == false }))
     }
 
     private var connectedRelays: [Relay] {
@@ -451,40 +494,6 @@ struct RelaysView: View {
                 }
             }
         )
-    }
-
-    private func sorted(relays: [Relay]) -> [Relay] {
-        switch relaySortOrder {
-        case .urlAscending:
-            return relays.sorted { $0.url.absoluteString < $1.url.absoluteString }
-        case .urlDescending:
-            return relays.sorted { $0.url.absoluteString > $1.url.absoluteString }
-        }
-    }
-
-    private func sorted(relayURLs: [URL]) -> [URL] {
-        switch relaySortOrder {
-        case .urlAscending:
-            return relayURLs.sorted { $0.absoluteString < $1.absoluteString }
-        case .urlDescending:
-            return relayURLs.sorted { $0.absoluteString > $1.absoluteString }
-        }
-    }
-}
-
-private enum RelaySortOrder: String, CaseIterable, Identifiable {
-    case urlAscending
-    case urlDescending
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .urlAscending:
-            return "URL A-Z"
-        case .urlDescending:
-            return "URL Z-A"
-        }
     }
 }
 
