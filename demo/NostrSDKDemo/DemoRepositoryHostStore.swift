@@ -120,6 +120,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     func refreshHostedRepositories(in rootURLs: [URL]) {
         repositoryDiscoveryTask?.cancel()
 
+        // Discover hosted repos off the main actor, then merge the results back into published state.
         repositoryDiscoveryTask = Task.detached(priority: .background) { [weak self] in
             let discoveredRepositories = Self.discoverHostedRepositories(in: rootURLs)
             guard let self else { return }
@@ -148,6 +149,7 @@ final class DemoRepositoryHostStore: ObservableObject {
         let rootURL = gitSettingsStore?.appRepositoriesRootURL ?? DemoGitSettingsStore.defaultRepositoriesRootURL
         let localURL = Self.localCloneURL(for: remoteURL, rootURL: rootURL)
 
+        // Clone work stays off the main actor so repo hosting never blocks the GUI.
         Task.detached(priority: .userInitiated) { [weak self] in
             guard let self else { return }
             defer {
@@ -266,6 +268,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     private func applyRepositoryEvents(_ repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
+        // Parse seen-repo URLs off the main actor and only publish normalized results back on the main thread.
         Task.detached(priority: .utility) { [weak self] in
             let repositoryURLs = Self.extractSeenRepositoryURLs(from: repositoryEventByRepoIDAndKind)
             guard let self else { return }
@@ -276,6 +279,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     }
 
     private func ingestSeenRepositoryURLs(_ repositoryURLs: Set<URL>, refreshAvailability: Bool) {
+        // Keep the UI responsive while we normalize and dedupe raw seen-repo URLs.
         Task.detached(priority: .utility) { [weak self] in
             guard let self else { return }
             await MainActor.run {
@@ -328,6 +332,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     private func startAvailabilityRefreshLoop() {
         guard availabilityRefreshTask == nil else { return }
 
+        // Refresh availability in the background so the hosted repos screen stays responsive.
         availabilityRefreshTask = Task.detached(priority: .background) { [weak self] in
             while Task.isCancelled == false {
                 try? await Task.sleep(for: .seconds(60))
