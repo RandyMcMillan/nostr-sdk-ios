@@ -201,8 +201,7 @@ struct RelaysView: View {
             .padding(.horizontal)
             .padding(.top, 8)
 
-            HStack {
-                Spacer()
+            ContextAwareListToolbar {
                 Text("Sort:")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
@@ -219,10 +218,14 @@ struct RelaysView: View {
                                            ascendingTitle: "Ping ↑",
                                            descendingTitle: "Ping ↓")
 
+                ContextAwareActionChipButton(title: "Add All",
+                                             systemImage: "plus.circle.fill",
+                                             isEnabled: seenRelays.isEmpty == false) {
+                    addAllSeenRelays()
+                }
+
                 EditButton()
             }
-            .padding(.horizontal)
-            .padding(.bottom, 8)
 
             List {
                 relaySection(title: "Connected", relays: groupedRelays.connected)
@@ -274,12 +277,6 @@ struct RelaysView: View {
                     HStack {
                         Text("Seen Relays")
                         Spacer(minLength: 12)
-
-                        ContextAwareActionChipButton(title: "Add All",
-                                                     systemImage: "plus.circle.fill",
-                                                     isEnabled: seenRelays.isEmpty == false) {
-                            addAllSeenRelays()
-                        }
 
                         ContextAwareActionChipButton(title: isSeenRelaysExpanded ? "Hide" : "Show",
                                                      systemImage: isSeenRelaysExpanded ? "chevron.up" : "chevron.down") {
