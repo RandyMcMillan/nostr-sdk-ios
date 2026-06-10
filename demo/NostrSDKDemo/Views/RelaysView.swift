@@ -208,22 +208,6 @@ struct RelaysView: View {
             .padding(.top, 8)
 
             ContextAwareListToolbar(content: {
-                Text("Sort:")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
-
-                ContextAwareSortToggleChip(selection: $relaySortOption,
-                                           ascending: .urlAscending,
-                                           descending: .urlDescending,
-                                           ascendingTitle: "A-Z",
-                                           descendingTitle: "Z-A")
-
-                ContextAwareSortToggleChip(selection: $relaySortOption,
-                                           ascending: .pingAscending,
-                                           descending: .pingDescending,
-                                           ascendingTitle: "Ping ↑",
-                                           descendingTitle: "Ping ↓")
-
                 ForEach(activeNIPFilters.sorted(), id: \.self) { nip in
                     Button {
                         activeNIPFilters.remove(nip)
