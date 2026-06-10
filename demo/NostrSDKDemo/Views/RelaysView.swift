@@ -192,9 +192,9 @@ struct RelaysView: View {
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     @State private var isConnectedRelaysExpanded = true
-    @State private var isConnectingRelaysExpanded = true
-    @State private var isDisconnectedRelaysExpanded = true
-    @State private var isSeenRelaysExpanded = true
+    @State private var isConnectingRelaysExpanded = false
+    @State private var isDisconnectedRelaysExpanded = false
+    @State private var isSeenRelaysExpanded = false
     
     var body: some View {
         VStack(spacing: 0) {
