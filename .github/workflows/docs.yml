@@ -27,7 +27,7 @@ jobs:
     - name: Generate Docs
       uses: fwcd/swift-docc-action@v1
       with:
-        target: NostrSDK
+        target: GnostrSDK
         output: ./docs
         transform-for-static-hosting: 'true'
         disable-indexing: 'true'

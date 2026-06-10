@@ -15,7 +15,7 @@ let package = Package(
             targets: ["ContextAwareToolbar"]),
         .library(
             name: "GnostrSDK",
-            targets: ["GnostrSDK"])
+            targets: ["GnostrSDK"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -31,27 +31,22 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "ContextAwareToolbar",
-            dependencies: ["GnostrSDK"],
+            dependencies: [],
             path: "Sources/ContextAwareToolbar"
         ),
         .target(
-            name: "NostrSDK",
+            name: "GnostrSDK",
             dependencies: [
                 .product(name: "secp256k1", package: "secp256k1.swift"),
                 "CryptoSwift",
                 .product(name: "OrderedCollections", package: "swift-collections")
             ],
-            path: "Sources/NostrSDK"
-        ),
-        .target(
-            name: "GnostrSDK",
-            dependencies: ["NostrSDK"],
-            path: "Sources/NostrSDKCompatibility"
+            path: "Sources/GnostrSDK"
         ),
         .testTarget(
             name: "GnostrSDKTests",
-            dependencies: ["NostrSDK"],
-            path: "Tests/NostrSDKTests",
+            dependencies: ["GnostrSDK"],
+            path: "Tests/GnostrSDKTests",
             resources: [.copy("Fixtures")]
         )
     ]

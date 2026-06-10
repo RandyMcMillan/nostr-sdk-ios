@@ -124,13 +124,13 @@ Nostr SDK can be integrated as an Xcode project target or a Swift package target
 4. Select `Up to Next Major Version` starting from the latest release as the dependency rule.
 5. Ensure your project is selected next to `Add to Project`.
 6. Click `Add Package`.
-7. On the package product dialog, add `NostrSDK` to your target and click `Add Package`.
+7. On the package product dialog, add `GnostrSDK` to your target and click `Add Package`.
 
 ### Swift Package Target
 
 In your `Package.swift` file:
-1. Add the NostrSDK package dependency to https://github.com/nostr-sdk/nostr-sdk-ios.git
-2. Add `NostrSDK` as a dependency on the targets that need to use the SDK.
+1. Add the GnostrSDK package dependency to https://github.com/nostr-sdk/nostr-sdk-ios.git
+2. Add `GnostrSDK` as a dependency on the targets that need to use the SDK.
 
 ```swift
 let package = Package(
@@ -142,11 +142,11 @@ let package = Package(
     targets: [
         .target(
             // ...
-            dependencies: ["NostrSDK"]
+            dependencies: ["GnostrSDK"]
         ),
         .testTarget(
             // ...
-            dependencies: ["NostrSDK"]
+            dependencies: ["GnostrSDK"]
         )
     ]
 )
