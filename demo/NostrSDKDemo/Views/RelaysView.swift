@@ -179,6 +179,48 @@ struct ContextAwareSortChipBar<Option: CaseIterable & Identifiable & Equatable>:
     }
 }
 
+struct ContextAwareSortChipButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 999, style: .continuous)
+                        .fill(isSelected ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemFill))
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct ContextAwareSortToggleChip<Selection: Equatable>: View {
+    @Binding var selection: Selection
+    let ascending: Selection
+    let descending: Selection
+    let ascendingTitle: String
+    let descendingTitle: String
+
+    private var currentTitle: String {
+        selection == descending ? descendingTitle : ascendingTitle
+    }
+
+    private var isSelected: Bool {
+        selection == ascending || selection == descending
+    }
+
+    var body: some View {
+        ContextAwareSortChipButton(title: currentTitle, isSelected: isSelected) {
+            selection = selection == ascending ? descending : ascending
+        }
+    }
+}
+
 final class RelayDirectoryStore: ObservableObject {
     @Published var seenRelayURLs: Set<URL> = []
     private var relayPool: RelayPool?
@@ -370,10 +412,20 @@ struct RelaysView: View {
 
             HStack {
                 Spacer()
-                ContextAwareSortChipBar(title: "Sort:",
-                                        selection: $relaySortOption,
-                                        options: RelaySortOption.allCases,
-                                        label: { $0.shortTitle })
+                Text("Sort:")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.secondary)
+
+                ContextAwareSortToggleChip(selection: $relaySortOption,
+                                           ascending: .urlAscending,
+                                           descending: .urlDescending,
+                                           ascendingTitle: "A-Z",
+                                           descendingTitle: "Z-A")
+
+                ContextAwareSortChipButton(title: "Ping",
+                                           isSelected: relaySortOption == .pingAscending) {
+                    relaySortOption = .pingAscending
+                }
 
                 EditButton()
             }
