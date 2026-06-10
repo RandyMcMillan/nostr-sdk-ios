@@ -89,6 +89,17 @@ enum RelaySortOption: String, CaseIterable, Identifiable {
         }
     }
 
+    var shortTitle: String {
+        switch self {
+        case .urlAscending:
+            return "URL A-Z"
+        case .urlDescending:
+            return "URL Z-A"
+        case .pingAscending:
+            return "Ping"
+        }
+    }
+
     func sort(relays: [Relay]) -> [Relay] {
         relays.sorted { lhs, rhs in
             let leftRank = stateRank(for: lhs)
@@ -326,22 +337,27 @@ struct RelaysView: View {
 
             HStack {
                 Spacer()
-                Menu {
+                Text("Sort:")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.secondary)
+
+                HStack(spacing: 8) {
                     ForEach(RelaySortOption.allCases) { sortOption in
                         Button {
                             relaySortOption = sortOption
                         } label: {
-                            if relaySortOption == sortOption {
-                                Label(sortOption.title, systemImage: "checkmark")
-                            } else {
-                                Text(sortOption.title)
-                            }
+                            Text(sortOption.shortTitle)
+                                .font(.caption.weight(.semibold))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 999, style: .continuous)
+                                        .fill(relaySortOption == sortOption ? Color.accentColor.opacity(0.16) : Color(.tertiarySystemFill))
+                                )
                         }
+                        .buttonStyle(.plain)
                     }
-                } label: {
-                    Label("Sort \(relaySortOption.title)", systemImage: "arrow.up.arrow.down")
                 }
-                .buttonStyle(.borderless)
 
                 EditButton()
             }
