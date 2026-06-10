@@ -103,6 +103,12 @@ public final class Relay: ObservableObject, EventVerifying, RelayOperating, Hash
             }
         }
     }
+
+    /// The timestamp when the current connection attempt started.
+    @Published public private(set) var connectionStartedAt: Date?
+
+    /// The measured time between connect() and the most recent connected state.
+    @Published public private(set) var connectionLatency: TimeInterval?
     
     let socket: WebSocket
     private var socketSubscription: AnyCancellable?
@@ -127,15 +133,20 @@ public final class Relay: ObservableObject, EventVerifying, RelayOperating, Hash
             .sink { [weak self] event in
                 switch event {
                 case .connected:
+                    if let connectionStartedAt = self?.connectionStartedAt {
+                        self?.connectionLatency = Date().timeIntervalSince(connectionStartedAt)
+                    }
                     self?.state = .connected
                     self?.logger.info("\(event.description)")
                 case .message(let message):
                     self?.receive(message)
                     self?.logger.info("\(event.description)")
                 case .disconnected:
+                    self?.connectionStartedAt = nil
                     self?.state = .notConnected
                     self?.logger.info("\(event.description)")
                 case .error(let error):
+                    self?.connectionStartedAt = nil
                     self?.state = .error(error)
                     self?.logger.error("\(event.description)")
                 }
@@ -184,6 +195,8 @@ public final class Relay: ObservableObject, EventVerifying, RelayOperating, Hash
             return
         }
 
+        connectionStartedAt = Date()
+        connectionLatency = nil
         state = .connecting
         socket.connect()
     }
