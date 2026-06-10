@@ -32,13 +32,10 @@ final class RelayDirectoryStore: ObservableObject {
     }
 
     func record(seen event: NostrEvent) {
-        var relayURLs: [URL] = []
-        for relayString in event.allValues(forTagName: .webURL) {
-            guard let relayURL = normalizedRelayURL(from: relayString) else {
-                continue
-            }
-            relayURLs.append(relayURL)
-        }
+        let relayURLs = event.tags
+            .filter { $0.name == "relays" || $0.name == "r" }
+            .flatMap { relayValues(from: $0) }
+            .compactMap { normalizedRelayURL(from: $0) }
         seenRelayURLs.formUnion(relayURLs)
         deduplicateSeenRelayURLs()
     }
@@ -58,6 +55,23 @@ final class RelayDirectoryStore: ObservableObject {
             return nil
         }
         return url
+    }
+
+    private func relayValues(from tag: Tag) -> [String] {
+        let rawValues = [tag.value] + tag.otherParameters
+        return rawValues.flatMap { relayValues(fromRawValue: $0) }
+    }
+
+    private func relayValues(fromRawValue rawValue: String) -> [String] {
+        let trimmedValue = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedValue.first == "[",
+              let data = trimmedValue.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: data),
+              let relayStrings = json as? [String] else {
+            return [trimmedValue]
+        }
+
+        return relayStrings
     }
 }
 
