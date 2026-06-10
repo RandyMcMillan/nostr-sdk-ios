@@ -87,17 +87,6 @@ extension Relay {
         }
     }
 
-    var statusLabel: String {
-        switch state {
-        case .connected:
-            return "Connected"
-        case .connecting:
-            return "Connecting"
-        case .notConnected, .error:
-            return "Disconnected"
-        }
-    }
-
     var statusImage: some View {
         switch state {
         case .connected:
@@ -217,9 +206,6 @@ struct RelaysView: View {
                             Text(relay.url.absoluteString)
                                 .font(.subheadline)
                                 .textSelection(.enabled)
-                            Text(relay.statusLabel)
-                                .font(.caption)
-                                .foregroundColor(relay.statusColor)
                         }
 
                         Spacer(minLength: 12)
