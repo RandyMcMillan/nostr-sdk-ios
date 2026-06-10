@@ -25,6 +25,24 @@ enum ContextAwareSortOrder: String, CaseIterable, Identifiable {
         }
     }
 
+    var toggled: Self {
+        switch self {
+        case .urlAscending:
+            return .urlDescending
+        case .urlDescending:
+            return .urlAscending
+        }
+    }
+
+    var toggleTitle: String {
+        switch self {
+        case .urlAscending:
+            return "A-Z"
+        case .urlDescending:
+            return "Z-A"
+        }
+    }
+
     func sort(relays: [Relay]) -> [Relay] {
         switch self {
         case .urlAscending:
@@ -239,20 +257,10 @@ struct RelaysView: View {
 
             HStack {
                 Spacer()
-                Menu {
-                    ForEach(ContextAwareSortOrder.allCases) { sortOrder in
-                        Button {
-                            relaySortOrder = sortOrder
-                        } label: {
-                            if relaySortOrder == sortOrder {
-                                Label(sortOrder.title, systemImage: "checkmark")
-                            } else {
-                                Text(sortOrder.title)
-                            }
-                        }
-                    }
+                Button {
+                    relaySortOrder = relaySortOrder.toggled
                 } label: {
-                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                    Label("Sort \(relaySortOrder.toggleTitle)", systemImage: "arrow.up.arrow.down")
                 }
                 .buttonStyle(.borderless)
 
