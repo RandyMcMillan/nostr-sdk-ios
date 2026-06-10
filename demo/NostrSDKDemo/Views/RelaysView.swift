@@ -581,6 +581,7 @@ private struct RelayMetadataDetailView: View {
                         ForEach(supportedNIPs, id: \.self) { nip in
                             NavigationLink {
                                 RelayNIPConnectedRelaysView(nip: nip,
+                                                            referringRelayLabel: relay.url.absoluteString,
                                                             connectedRelays: connectedRelays,
                                                             relayInfoLoader: relayInfoLoader)
                             } label: {
@@ -658,8 +659,10 @@ private struct RelayMetadataDetailView: View {
 
 private struct RelayNIPConnectedRelaysView: View {
     let nip: Int
+    let referringRelayLabel: String
     let connectedRelays: [Relay]
     @ObservedObject var relayInfoLoader: RelayInfoLoader
+    @Environment(\.dismiss) private var dismiss
 
     private var relaysSupportingNIP: [Relay] {
         connectedRelays.filter { relay in
@@ -700,6 +703,16 @@ private struct RelayNIPConnectedRelaysView: View {
         }
         .navigationTitle("NIP-\(nip) relays")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Back to \(referringRelayLabel)", systemImage: "chevron.left")
+                }
+            }
+        }
     }
 }
 
