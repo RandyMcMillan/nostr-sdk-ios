@@ -70,6 +70,46 @@ public struct ContextAwareSortChipButton: View {
     }
 }
 
+public struct ContextAwareActionChipButton: View {
+    private let title: String
+    private let systemImage: String
+    private let role: ButtonRole?
+    private let isEnabled: Bool
+    private let action: () -> Void
+
+    public init(title: String,
+                systemImage: String,
+                role: ButtonRole? = nil,
+                isEnabled: Bool = true,
+                action: @escaping () -> Void) {
+        self.title = title
+        self.systemImage = systemImage
+        self.role = role
+        self.isEnabled = isEnabled
+        self.action = action
+    }
+
+    public var body: some View {
+        Button(role: role, action: action) {
+            Label {
+                Text(title)
+                    .font(.caption.weight(.semibold))
+            } icon: {
+                Image(systemName: systemImage)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .foregroundStyle(role == .destructive ? Color.red : Color.primary)
+            .background(
+                RoundedRectangle(cornerRadius: 999, style: .continuous)
+                    .fill(isEnabled ? Color(.tertiarySystemFill) : Color(.tertiarySystemFill).opacity(0.5))
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isEnabled == false)
+    }
+}
+
 public struct ContextAwareSortToggleChip<Selection: Equatable>: View {
     @Binding private var selection: Selection
     private let ascending: Selection
