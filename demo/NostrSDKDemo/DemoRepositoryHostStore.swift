@@ -159,6 +159,8 @@ final class DemoRepositoryHostStore: ObservableObject {
             }
 
             do {
+                try FileManager.default.createDirectory(at: rootURL, withIntermediateDirectories: true)
+
                 if FileManager.default.fileExists(atPath: localURL.path) {
                     _ = try Repository.open(at: localURL)
                     await self.record(remoteURL: remoteURL, localURL: localURL)
@@ -169,7 +171,7 @@ final class DemoRepositoryHostStore: ObservableObject {
                 }
 
                 if let depth {
-                    try Self.cloneRepository(from: remoteURL, to: localURL, depth: depth)
+                    try await Self.cloneRepository(from: remoteURL, to: localURL, depth: depth)
                 } else {
                     let repository = try await Repository.clone(from: remoteURL, to: localURL)
                     let workingDirectory = try repository.workingDirectory
@@ -202,15 +204,22 @@ final class DemoRepositoryHostStore: ObservableObject {
         defer { _ = try? SwiftGitXRuntime.shutdown() }
 
         var options = git_clone_options()
-        try SwiftGitXError.check(git_clone_options_init(&options, UInt32(GIT_CLONE_OPTIONS_VERSION)), operation: .clone)
+        let optionsStatus = git_clone_options_init(&options, UInt32(GIT_CLONE_OPTIONS_VERSION))
+        guard optionsStatus >= 0 else {
+            throw NSError(domain: "NostrSDKDemo.Clone", code: Int(optionsStatus), userInfo: [
+                NSLocalizedDescriptionKey: "Failed to initialize libgit2 clone options."
+            ])
+        }
         options.fetch_opts.depth = Int32(depth)
 
         var repositoryPointer: OpaquePointer?
         let status = git_clone(&repositoryPointer, remoteURL.absoluteString, localURL.path, &options)
-        try SwiftGitXError.check(status, pointer: repositoryPointer, operation: .clone)
-        if let repositoryPointer {
-            git_repository_free(repositoryPointer)
+        guard status >= 0, let repositoryPointer else {
+            throw NSError(domain: "NostrSDKDemo.Clone", code: Int(status), userInfo: [
+                NSLocalizedDescriptionKey: "Failed to clone repository."
+            ])
         }
+        git_repository_free(repositoryPointer)
     }
 
     private func record(remoteURL: URL, localURL: URL) async {
