@@ -32,6 +32,9 @@ struct NostrSDKDemoApp: App {
                 .environmentObject(appPrimeStore)
                 .environmentObject(repositoryHostStore)
         }
+        #if os(macOS)
+        .windowResizability(.contentMinSize)
+        #endif
     }
 }
 
