@@ -466,11 +466,13 @@ struct RelaysView: View {
                                     Button(role: .destructive) {
                                         disconnect(relayURL)
                                     } label: {
-                                        Text("Remove")
+                                        Label("Remove", systemImage: "minus.circle.fill")
                                     }
                                 } else {
-                                    Button("Add") {
+                                    Button {
                                         add(relayURL)
+                                    } label: {
+                                        Label("Add", systemImage: "plus.circle.fill")
                                     }
                                 }
                             }
@@ -585,7 +587,7 @@ struct RelaysView: View {
                             Button(role: .destructive) {
                                 disconnect(relay)
                             } label: {
-                                Label("Disconnect", systemImage: "xmark.circle.fill")
+                                Label("Remove", systemImage: "minus.circle.fill")
                             }
                             .buttonStyle(.borderless)
                         }
