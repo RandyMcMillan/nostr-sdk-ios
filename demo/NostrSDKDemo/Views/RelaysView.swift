@@ -179,6 +179,7 @@ struct RelaysView: View {
     @EnvironmentObject var relayDirectory: RelayDirectoryStore
     @StateObject private var relayInfoLoader = RelayInfoLoader()
     @State private var expandedRelayURLs: Set<URL> = []
+    @State private var relaySortOrder: RelaySortOrder = .urlAscending
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
     
@@ -195,6 +196,23 @@ struct RelaysView: View {
 
             HStack {
                 Spacer()
+                Menu {
+                    ForEach(RelaySortOrder.allCases) { sortOrder in
+                        Button {
+                            relaySortOrder = sortOrder
+                        } label: {
+                            if relaySortOrder == sortOrder {
+                                Label(sortOrder.title, systemImage: "checkmark")
+                            } else {
+                                Text(sortOrder.title)
+                            }
+                        }
+                    }
+                } label: {
+                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                }
+                .buttonStyle(.borderless)
+
                 EditButton()
             }
             .padding(.horizontal)
@@ -275,7 +293,7 @@ struct RelaysView: View {
     }
     
     private var groupedRelays: (connected: [Relay], connecting: [Relay], disconnected: [Relay]) {
-        let sorted = pool.relays.sorted()
+        let sorted = sorted(relays: Array(pool.relays))
         return (
             connected: sorted.filter { $0.state == .connected },
             connecting: sorted.filter { $0.state == .connecting },
@@ -291,7 +309,7 @@ struct RelaysView: View {
     }
 
     private var relays: [Relay] {
-        pool.relays.sorted()
+        sorted(relays: Array(pool.relays))
     }
 
     private func bindRelayStateUpdates() {
@@ -376,9 +394,7 @@ struct RelaysView: View {
     }
 
     private var seenRelays: [URL] {
-        relayDirectory.seenRelayURLs
-            .filter { contains($0) == false }
-            .sorted { $0.absoluteString < $1.absoluteString }
+        sorted(relayURLs: Array(relayDirectory.seenRelayURLs.filter { contains($0) == false }))
     }
 
     private var connectedRelays: [Relay] {
@@ -435,6 +451,40 @@ struct RelaysView: View {
                 }
             }
         )
+    }
+
+    private func sorted(relays: [Relay]) -> [Relay] {
+        switch relaySortOrder {
+        case .urlAscending:
+            return relays.sorted { $0.url.absoluteString < $1.url.absoluteString }
+        case .urlDescending:
+            return relays.sorted { $0.url.absoluteString > $1.url.absoluteString }
+        }
+    }
+
+    private func sorted(relayURLs: [URL]) -> [URL] {
+        switch relaySortOrder {
+        case .urlAscending:
+            return relayURLs.sorted { $0.absoluteString < $1.absoluteString }
+        case .urlDescending:
+            return relayURLs.sorted { $0.absoluteString > $1.absoluteString }
+        }
+    }
+}
+
+private enum RelaySortOrder: String, CaseIterable, Identifiable {
+    case urlAscending
+    case urlDescending
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .urlAscending:
+            return "URL A-Z"
+        case .urlDescending:
+            return "URL Z-A"
+        }
     }
 }
 
