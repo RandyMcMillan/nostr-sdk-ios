@@ -187,6 +187,7 @@ struct RelaysView: View {
     @State private var expandedRelayURLs: Set<URL> = []
     @State private var relaySortOption: RelaySortOption = .urlAscending
     @State private var connectedRelaySortOption: RelaySortOption = .pingDescending
+    @State private var activeNIPFilter: Int?
     // Relays can resolve from connecting to connected/notConnected/error at any time, so the list needs a hard refresh token.
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
@@ -222,6 +223,13 @@ struct RelaysView: View {
                                            descending: .pingDescending,
                                            ascendingTitle: "Ping ↑",
                                            descendingTitle: "Ping ↓")
+
+                if let activeNIPFilter {
+                    ContextAwareActionChipButton(title: "NIP-\(activeNIPFilter)",
+                                                 systemImage: "xmark.circle") {
+                        self.activeNIPFilter = nil
+                    }
+                }
             }, trailing: {
                 ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
                                              systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
@@ -314,7 +322,11 @@ struct RelaysView: View {
     }
 
     private var connectedRelaysSorted: [Relay] {
-        connectedRelaySortOption.sort(relays: Array(pool.relays.filter { $0.state == .connected }))
+        let connected = Array(pool.relays.filter { $0.state == .connected })
+        let filtered = activeNIPFilter.map { nip in
+            connected.filter { relayInfoLoader.relayInfo(for: $0.url)?.supportedNIPs?.contains(nip) == true }
+        } ?? connected
+        return connectedRelaySortOption.sort(relays: filtered)
     }
 
     private func bindRelayStateUpdates() {
@@ -440,7 +452,9 @@ struct RelaysView: View {
                 RelayMetadataDetailView(info: info,
                                         relayLabel: relay.url.absoluteString,
                                         connectedRelays: connectedRelays,
-                                        relayInfoLoader: relayInfoLoader)
+                                        relayInfoLoader: relayInfoLoader) { nip in
+                    activeNIPFilter = nip
+                }
             } else {
                 Text("No relay metadata available.")
                     .font(.caption)
@@ -559,6 +573,7 @@ private struct RelayMetadataDetailView: View {
     let relayLabel: String
     let connectedRelays: [Relay]
     @ObservedObject var relayInfoLoader: RelayInfoLoader
+    let onNIPSelected: (Int) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -587,11 +602,8 @@ private struct RelayMetadataDetailView: View {
 
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 88), alignment: .leading)], alignment: .leading, spacing: 8) {
                         ForEach(supportedNIPs, id: \.self) { nip in
-                            NavigationLink {
-                                RelayNIPConnectedRelaysView(nip: nip,
-                                                            referringRelayLabel: relayLabel,
-                                                            connectedRelays: connectedRelays,
-                                                            relayInfoLoader: relayInfoLoader)
+                            Button {
+                                onNIPSelected(nip)
                             } label: {
                                 Text("NIP-\(nip)")
                                     .font(.caption.weight(.semibold))
@@ -667,9 +679,9 @@ private struct RelayMetadataDetailView: View {
 
 private struct RelayNIPConnectedRelaysView: View {
     let nip: Int
-    let referringRelayLabel: String
     let connectedRelays: [Relay]
     @ObservedObject var relayInfoLoader: RelayInfoLoader
+    let onBack: () -> Void
 
     private var relaysSupportingNIP: [Relay] {
         connectedRelays.filter { relay in
@@ -679,6 +691,18 @@ private struct RelayNIPConnectedRelaysView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            ContextAwareListToolbar(content: {
+                Text("NIP-\(nip)")
+                    .font(.caption.weight(.semibold))
+            }, trailing: {
+                Button {
+                    onBack()
+                } label: {
+                    Label("Clear", systemImage: "xmark.circle")
+                }
+                .buttonStyle(.plain)
+            }, horizontalPadding: 0)
+
             List {
                 if relaysSupportingNIP.isEmpty {
                     Text("No connected relays support NIP-\(nip).")
