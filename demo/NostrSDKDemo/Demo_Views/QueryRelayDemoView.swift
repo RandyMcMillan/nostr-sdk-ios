@@ -45,6 +45,7 @@ private struct TinyWebImageView: UIViewRepresentable {
             }
 
             task?.cancel()
+            // Load preview images in the background and only publish the final bitmap on the main actor.
             task = Task.detached(priority: .background) { [weak imageView] in
                 do {
                     let (data, _) = try await URLSession.shared.data(from: url)
@@ -79,6 +80,7 @@ private final class RemoteImagePrefetcher {
         guard let url else { return }
         guard RemoteImageLoader.cache.object(forKey: url as NSURL) == nil else { return }
 
+        // Prefetch images off the main actor so event cards can render without waiting on network I/O.
         Task.detached(priority: .background) {
             print("[QueryRelayDemo] image prefetch attempt url=\(url.absoluteString)")
             do {
