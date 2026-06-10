@@ -65,11 +65,6 @@ final class DemoAppPrimeStore: ObservableObject {
     }
 
     private func recordSeenRepositories(from event: NostrEvent) {
-        let repositoryURLs = event.tags.compactMap { tag -> URL? in
-            guard tag.name == "clone" else { return nil }
-            return DemoRepositoryHostStore.normalizedRepositoryCloneURL(from: tag.value)
-        }
-
-        seenRepositoryURLs.formUnion(repositoryURLs)
+        seenRepositoryURLs.formUnion(event.repositoryCloneURLs)
     }
 }

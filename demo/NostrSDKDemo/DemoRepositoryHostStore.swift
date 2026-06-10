@@ -247,26 +247,6 @@ final class DemoRepositoryHostStore: ObservableObject {
         return trimmed.isEmpty ? "repository" : trimmed
     }
 
-    nonisolated static func normalizedRepositoryCloneURL(from value: String) -> URL? {
-        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        if let url = URL(string: trimmedValue), url.scheme != nil {
-            return url
-        }
-
-        guard trimmedValue.contains("@"), trimmedValue.contains(":"), trimmedValue.contains("://") == false else {
-            return nil
-        }
-
-        let components = trimmedValue.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
-        guard components.count == 2 else { return nil }
-        return URL(string: "ssh://\(components[0])/\(components[1])")
-    }
-
-    private func updateSeenRepositories(from repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
-        applyRepositoryEvents(repositoryEventByRepoIDAndKind)
-    }
-
     private func applyRepositoryEvents(_ repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) {
         // Parse seen-repo URLs off the main actor and only publish normalized results back on the main thread.
         Task.detached(priority: .utility) { [weak self] in
@@ -300,12 +280,7 @@ final class DemoRepositoryHostStore: ObservableObject {
     nonisolated private static func extractSeenRepositoryURLs(from repositoryEventByRepoIDAndKind: [String: [Int: NostrEvent]]) -> [URL] {
         repositoryEventByRepoIDAndKind.values
             .flatMap { $0.values }
-            .flatMap { event in
-                event.tags.compactMap { tag -> URL? in
-                    guard tag.name == "clone" else { return nil }
-                    return DemoRepositoryHostStore.normalizedRepositoryCloneURL(from: tag.value)
-                }
-            }
+            .flatMap { $0.repositoryCloneURLs }
     }
 
     private func refreshAvailability(for repositoryURLs: Set<URL>, force: Bool) {
