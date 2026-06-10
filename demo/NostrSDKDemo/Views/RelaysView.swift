@@ -204,7 +204,7 @@ struct RelaysView: View {
             .padding(.horizontal)
             .padding(.top, 8)
 
-            ContextAwareListToolbar {
+            ContextAwareListToolbar(content: {
                 Text("Sort:")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
@@ -220,14 +220,14 @@ struct RelaysView: View {
                                            descending: .pingDescending,
                                            ascendingTitle: "Ping ↑",
                                            descendingTitle: "Ping ↓")
-            } trailing: {
+            }, trailing: {
                 ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
                                              systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
                     isConnectedRelaysExpanded.toggle()
                 }
 
                 EditButton()
-            }
+            }, horizontalPadding: 16)
 
             List {
                 relaySection(title: "Connected",
@@ -289,9 +289,9 @@ struct RelaysView: View {
                         }
                     }
                 } header: {
-                    ContextAwareListToolbar {
+                    ContextAwareListToolbar(content: {
                         Text("Seen Relays")
-                    } trailing: {
+                    }, trailing: {
                         ContextAwareActionChipButton(title: isSeenRelaysExpanded ? "Hide" : "Show",
                                                      systemImage: isSeenRelaysExpanded ? "chevron.up" : "chevron.down") {
                             isSeenRelaysExpanded.toggle()
@@ -302,7 +302,7 @@ struct RelaysView: View {
                                                      isEnabled: seenRelays.isEmpty == false) {
                             addAllSeenRelays()
                         }
-                    }
+                    })
                 }
             }
             .onAppear {

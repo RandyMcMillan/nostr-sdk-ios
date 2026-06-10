@@ -399,7 +399,7 @@ struct HostedRepositoriesView: View {
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-            ContextAwareListToolbar {
+            ContextAwareListToolbar(horizontalPadding: 16) {
                 Text("Sort:")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
