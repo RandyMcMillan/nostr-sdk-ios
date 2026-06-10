@@ -98,37 +98,6 @@ private final class RemoteImagePrefetcher {
     }
 }
 
-private func eventIndex(for events: [NostrEvent]) -> [String: NostrEvent] {
-    events.reduce(into: [:]) { result, event in
-        result[event.id] = event
-    }
-}
-
-private func eventCoordinateIndex(for events: [NostrEvent]) -> [String: NostrEvent] {
-    events.reduce(into: [:]) { result, event in
-        guard let replaceableEvent = event as? ReplaceableEvent,
-              let coordinates = replaceableEvent.replaceableEventCoordinates(relayURL: nil) else {
-            return
-        }
-
-        result[coordinates.tag.value] = event
-    }
-}
-
-private func repoEventIndex(for events: [NostrEvent]) -> [String: [Int: NostrEvent]] {
-    events.reduce(into: [:]) { result, event in
-        guard let repoID = event.tags.first(where: { $0.name == "d" })?.value else {
-            return
-        }
-
-        var eventsByKind = result[repoID] ?? [:]
-        if eventsByKind[event.kind.rawValue]?.createdAt ?? 0 <= event.createdAt {
-            eventsByKind[event.kind.rawValue] = event
-            result[repoID] = eventsByKind
-        }
-    }
-}
-
 private func normalizedCloneURL(from value: String) -> URL? {
     if let url = URL(string: value), url.scheme != nil {
         return url
@@ -992,6 +961,10 @@ private struct MaintainerProfileView: View {
 
     @StateObject private var metadataLoader = PubkeyMetadataLoader()
     @State private var events: [NostrEvent] = []
+    @State private var eventIDs: Set<String> = []
+    @State private var eventsByID: [String: NostrEvent] = [:]
+    @State private var eventsByCoordinate: [String: NostrEvent] = [:]
+    @State private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
     @State private var eventsCancellable: AnyCancellable?
     @State private var subscriptionId: String?
     @State private var trackedPubkey: String?
@@ -1136,18 +1109,6 @@ private struct MaintainerProfileView: View {
         }
     }
 
-    private var eventsByID: [String: NostrEvent] {
-        eventIndex(for: events)
-    }
-
-    private var eventsByCoordinate: [String: NostrEvent] {
-        eventCoordinateIndex(for: events)
-    }
-
-    private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] {
-        repoEventIndex(for: events)
-    }
-
     @ViewBuilder
     private func maintainerEventRow(for event: NostrEvent) -> some View {
         NavigationLink(destination: RepositoryAnnouncementCardView(event: event,
@@ -1162,7 +1123,7 @@ private struct MaintainerProfileView: View {
 
     private func refresh() {
         guard let normalizedPubkey = normalizedHexPubkey(from: pubkey) else {
-            events = []
+            resetQueryState()
             metadataLoader.update(publicKeyInput: pubkey, isValid: false)
             return
         }
@@ -1172,7 +1133,7 @@ private struct MaintainerProfileView: View {
 
         if trackedPubkey != normalizedPubkey {
             trackedPubkey = normalizedPubkey
-            events = []
+            resetQueryState()
             subscribe(pubkey: normalizedPubkey)
         }
     }
@@ -1193,8 +1154,9 @@ private struct MaintainerProfileView: View {
             .sink { relayEvent in
                 guard relayEvent.subscriptionId == subscriptionId else { return }
                 let event = relayEvent.event
-                if events.contains(where: { $0.id == event.id }) == false {
+                if eventIDs.insert(event.id).inserted {
                     events.insert(event, at: 0)
+                    cacheQueryEvent(event)
                 }
             }
     }
@@ -1204,6 +1166,34 @@ private struct MaintainerProfileView: View {
             return PublicKey(npub: value)?.hex
         }
         return PublicKey(hex: value)?.hex
+    }
+
+    private func resetQueryState() {
+        events = []
+        eventIDs.removeAll()
+        eventsByID.removeAll()
+        eventsByCoordinate.removeAll()
+        repoEventByRepoIDAndKind.removeAll()
+    }
+
+    private func cacheQueryEvent(_ event: NostrEvent) {
+        eventsByID[event.id] = event
+
+        if let replaceableEvent = event as? ReplaceableEvent,
+           let coordinates = replaceableEvent.replaceableEventCoordinates(relayURL: nil) {
+            eventsByCoordinate[coordinates.tag.value] = event
+        }
+
+        guard let repoID = repoID(for: event) else { return }
+        var eventsByKind = repoEventByRepoIDAndKind[repoID] ?? [:]
+        if eventsByKind[event.kind.rawValue]?.createdAt ?? 0 <= event.createdAt {
+            eventsByKind[event.kind.rawValue] = event
+            repoEventByRepoIDAndKind[repoID] = eventsByKind
+        }
+    }
+
+    private func repoID(for event: NostrEvent) -> String? {
+        event.tags.first(where: { $0.name == "d" })?.value
     }
 
 }
@@ -1324,6 +1314,10 @@ struct QueryRelayDemoView: View {
     @State private var selectedSeenAuthorPubkey: String = ""
     @State private var selectedAuthorSource: AuthorSource = .selfPubkey
     @State private var events: [NostrEvent] = []
+    @State private var eventIDs: Set<String> = []
+    @State private var eventPubkeys: Set<String> = []
+    @State private var eventsByID: [String: NostrEvent] = [:]
+    @State private var eventsByCoordinate: [String: NostrEvent] = [:]
     @State private var metadataByPubkey: [String: MetadataEvent] = [:]
     @State private var eventsCancellable: AnyCancellable?
     @State private var errorString: String?
@@ -1359,7 +1353,7 @@ struct QueryRelayDemoView: View {
                             Button("Select self") {
                                 selectedFollowedAuthorPubkey = ""
                                 selectedAuthorSource = .selfPubkey
-                                events = []
+                                resetQueryState()
                                 updateSubscription()
                                 updateMetadataSubscription()
                             }
@@ -1368,7 +1362,7 @@ struct QueryRelayDemoView: View {
                                     selectedFollowedAuthorPubkey = pubkey
                                     selectedSeenAuthorPubkey = ""
                                     selectedAuthorSource = .followed
-                                    events = []
+                                    resetQueryState()
                                     updateSubscription()
                                     updateMetadataSubscription()
                                 }
@@ -1397,7 +1391,7 @@ struct QueryRelayDemoView: View {
                             Button("Select self") {
                                 selectedSeenAuthorPubkey = ""
                                 selectedAuthorSource = .selfPubkey
-                                events = []
+                                resetQueryState()
                                 updateSubscription()
                                 updateMetadataSubscription()
                             }
@@ -1406,7 +1400,7 @@ struct QueryRelayDemoView: View {
                                     selectedSeenAuthorPubkey = pubkey
                                     selectedFollowedAuthorPubkey = ""
                                     selectedAuthorSource = .seen
-                                    events = []
+                                    resetQueryState()
                                     updateSubscription()
                                     updateMetadataSubscription()
                                 }
@@ -1499,7 +1493,7 @@ struct QueryRelayDemoView: View {
             updateMetadataSubscription()
         }
         .onChange(of: selectedKind) { _ in
-            events = []
+            resetQueryState()
             updateSubscription()
             updateMetadataSubscription()
         }
@@ -1654,6 +1648,24 @@ struct QueryRelayDemoView: View {
         event.tags.first(where: { $0.name == "d" })?.value
     }
 
+    private func resetQueryState() {
+        events = []
+        eventIDs.removeAll()
+        eventPubkeys.removeAll()
+        eventsByID.removeAll()
+        eventsByCoordinate.removeAll()
+    }
+
+    private func cacheQueryEvent(_ event: NostrEvent) {
+        eventPubkeys.insert(event.pubkey)
+        eventsByID[event.id] = event
+
+        if let replaceableEvent = event as? ReplaceableEvent,
+           let coordinates = replaceableEvent.replaceableEventCoordinates(relayURL: nil) {
+            eventsByCoordinate[coordinates.tag.value] = event
+        }
+    }
+
     private func updateSubscription() {
         if let subscriptionId {
             relayPool.closeSubscription(with: subscriptionId)
@@ -1688,8 +1700,9 @@ struct QueryRelayDemoView: View {
                 }
 
                 recordSeenEvent(event)
-                if events.contains(where: { $0.id == event.id }) == false {
+                if eventIDs.insert(event.id).inserted {
                     events.insert(event, at: 0)
+                    cacheQueryEvent(event)
                 }
                 updateMetadataSubscription()
             }
@@ -1715,7 +1728,7 @@ struct QueryRelayDemoView: View {
     }
 
     private func updateMetadataSubscription() {
-        var pubkeys = Set(events.map(\.pubkey))
+        var pubkeys = eventPubkeys
         if currentAuthorPubkey.isEmpty == false {
             pubkeys.insert(currentAuthorPubkey)
         }
@@ -1736,14 +1749,6 @@ struct QueryRelayDemoView: View {
         }
 
         metadataSubscriptionId = relayPool.subscribe(with: filter)
-    }
-
-    private var eventsByID: [String: NostrEvent] {
-        eventIndex(for: events)
-    }
-
-    private var eventsByCoordinate: [String: NostrEvent] {
-        eventCoordinateIndex(for: events)
     }
 
     @ViewBuilder
