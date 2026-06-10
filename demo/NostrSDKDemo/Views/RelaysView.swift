@@ -229,10 +229,6 @@ struct RelaysView: View {
                     .buttonStyle(.plain)
                 }
             }, trailing: {
-                ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
-                                             systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
-                    isConnectedRelaysExpanded.toggle()
-                }
             }, horizontalPadding: 16)
 
             List {
@@ -460,7 +456,7 @@ struct RelaysView: View {
                 }
             }
 
-            if isNIPDisplayMode, let supportedNIPs = info?.supportedNIPs, supportedNIPs.isEmpty == false {
+            if isNIPDisplayMode, let supportedNIPs = info?.supportedNIPs?.sorted(), supportedNIPs.isEmpty == false {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         ForEach(supportedNIPs, id: \.self) { nip in
@@ -638,7 +634,7 @@ private struct RelayMetadataDetailView: View {
             } else if let alternativeContact = info.alternativeContact, alternativeContact.isEmpty == false {
                 detailRow(title: "Contact", value: alternativeContact)
             }
-            if let supportedNIPs = info.supportedNIPs, supportedNIPs.isEmpty == false {
+            if let supportedNIPs = info.supportedNIPs?.sorted(), supportedNIPs.isEmpty == false {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Supported NIPs")
                         .font(.caption2.weight(.semibold))
