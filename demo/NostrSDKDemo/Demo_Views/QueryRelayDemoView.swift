@@ -965,6 +965,7 @@ private struct MaintainerProfileView: View {
     @State private var eventsByID: [String: NostrEvent] = [:]
     @State private var eventsByCoordinate: [String: NostrEvent] = [:]
     @State private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
+    private let subscriptionWorkQueue = DispatchQueue(label: "NostrSDKDemo.QueryRelayDemo.subscriptionWork", qos: .userInitiated)
     @State private var eventsCancellable: AnyCancellable?
     @State private var subscriptionId: String?
     @State private var trackedPubkey: String?
@@ -1327,6 +1328,7 @@ struct QueryRelayDemoView: View {
     @State private var trackedMetadataPubkeys: Set<String> = []
     @State private var seenAuthorEventIDsByPubkey: [String: [Int: Set<String>]] = [:]
     @State private var repoEventByRepoIDAndKind: [String: [Int: NostrEvent]] = [:]
+    private let subscriptionWorkQueue = DispatchQueue(label: "NostrSDKDemo.QueryRelayDemo.subscriptionWork", qos: .userInitiated)
 
     private let kindOptions = [
         30617: "Repository announcements",
@@ -1667,16 +1669,16 @@ struct QueryRelayDemoView: View {
     }
 
     private func updateSubscription() {
-        if let subscriptionId {
-            relayPool.closeSubscription(with: subscriptionId)
-        }
+        let filter = currentFilter
+        let previousSubscriptionId = subscriptionId
+        let activeSubscriptionId = UUID().uuidString
 
-        subscriptionId = relayPool.subscribe(with: currentFilter)
+        subscriptionId = activeSubscriptionId
 
         eventsCancellable = relayPool.events
             .receive(on: DispatchQueue.main)
             .sink { relayEvent in
-                guard relayEvent.subscriptionId == subscriptionId || relayEvent.subscriptionId == seenPrimeSubscriptionId else {
+                guard relayEvent.subscriptionId == activeSubscriptionId || relayEvent.subscriptionId == seenPrimeSubscriptionId else {
                     return
                 }
 
@@ -1706,19 +1708,37 @@ struct QueryRelayDemoView: View {
                 }
                 updateMetadataSubscription()
             }
+        subscriptionWorkQueue.async { [relayPool] in
+            if let previousSubscriptionId {
+                relayPool.closeSubscription(with: previousSubscriptionId)
+            }
+
+            relayPool.subscribe(with: filter, subscriptionId: activeSubscriptionId)
+        }
     }
 
     private func primeSeenAuthors() {
-        if let seenPrimeSubscriptionId {
-            relayPool.closeSubscription(with: seenPrimeSubscriptionId)
-        }
-
         guard let filter = Filter(kinds: Array(kindOptions.keys.sorted())) else {
+            if let seenPrimeSubscriptionId {
+                subscriptionWorkQueue.async { [relayPool] in
+                    relayPool.closeSubscription(with: seenPrimeSubscriptionId)
+                }
+            }
             seenPrimeSubscriptionId = nil
             return
         }
 
-        seenPrimeSubscriptionId = relayPool.subscribe(with: filter)
+        let previousSubscriptionId = seenPrimeSubscriptionId
+        let activeSubscriptionId = UUID().uuidString
+        seenPrimeSubscriptionId = activeSubscriptionId
+
+        subscriptionWorkQueue.async { [relayPool] in
+            if let previousSubscriptionId {
+                relayPool.closeSubscription(with: previousSubscriptionId)
+            }
+
+            relayPool.subscribe(with: filter, subscriptionId: activeSubscriptionId)
+        }
     }
 
     private func refreshKindCounts() {
@@ -1739,16 +1759,28 @@ struct QueryRelayDemoView: View {
 
         trackedMetadataPubkeys = pubkeys
 
-        if let metadataSubscriptionId {
-            relayPool.closeSubscription(with: metadataSubscriptionId)
-        }
+        let previousSubscriptionId = metadataSubscriptionId
 
         guard pubkeys.isEmpty == false, let filter = Filter(authors: Array(pubkeys), kinds: [EventKind.metadata.rawValue]) else {
             metadataSubscriptionId = nil
+            if let previousSubscriptionId {
+                subscriptionWorkQueue.async { [relayPool] in
+                    relayPool.closeSubscription(with: previousSubscriptionId)
+                }
+            }
             return
         }
 
-        metadataSubscriptionId = relayPool.subscribe(with: filter)
+        let activeSubscriptionId = UUID().uuidString
+        metadataSubscriptionId = activeSubscriptionId
+
+        subscriptionWorkQueue.async { [relayPool] in
+            if let previousSubscriptionId {
+                relayPool.closeSubscription(with: previousSubscriptionId)
+            }
+
+            relayPool.subscribe(with: filter, subscriptionId: activeSubscriptionId)
+        }
     }
 
     @ViewBuilder
