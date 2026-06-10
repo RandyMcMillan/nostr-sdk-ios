@@ -186,6 +186,16 @@ public class NostrEvent: Codable, Equatable, Hashable, AlternativeSummaryTagInte
     public func allValues(forTagName tag: TagName) -> [String] {
         tags.filter { $0.name == tag.rawValue }.map { $0.value }
     }
+
+    /// All values for tags with the provided raw name.
+    ///
+    /// Use this when the tag family is being treated as a relationship list rather
+    /// than display text and the raw tag name is not part of ``TagName``.
+    /// - Parameter tagName: The raw tag name to filter.
+    /// - Returns: The values associated with the tags of the provided raw name.
+    public func allValuesForRawTagName(_ tagName: String) -> [String] {
+        tags.filter { $0.name == tagName }.flatMap { [$0.value] + $0.otherParameters }
+    }
 }
 
 extension NostrEvent: MetadataCoding, RelayURLValidating {
@@ -228,6 +238,32 @@ extension NostrEvent: MetadataCoding, RelayURLValidating {
         }
 
         return try encodedIdentifier(with: metadata, identifierType: .event)
+    }
+
+    /// Repository clone URLs referenced by this event.
+    ///
+    /// Repository events can carry multiple `clone` tag values, and each tag may
+    /// contain multiple URL candidates. The helper normalizes scp-style SSH remotes
+    /// into standard `ssh://` URLs and filters out anything that is not a clone URL.
+    public var repositoryCloneURLs: [URL] {
+        allValuesForRawTagName("clone").compactMap(Self.repositoryCloneURL(from:))
+    }
+
+    /// Normalizes a repository clone URL, including scp-style SSH remotes.
+    public static func repositoryCloneURL(from value: String) -> URL? {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let url = URL(string: trimmedValue), url.scheme != nil {
+            return url
+        }
+
+        guard trimmedValue.contains("@"), trimmedValue.contains(":"), trimmedValue.contains("://") == false else {
+            return nil
+        }
+
+        let components = trimmedValue.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard components.count == 2 else { return nil }
+        return URL(string: "ssh://\(components[0])/\(components[1])")
     }
 
     /// Gets a shareable human-interactable event identifier for this event.
