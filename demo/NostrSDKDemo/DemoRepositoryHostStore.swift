@@ -389,6 +389,7 @@ struct HostedRepositoriesView: View {
     @EnvironmentObject private var repositoryHostStore: DemoRepositoryHostStore
     @Environment(\.editMode) private var editMode
     @State private var selectedHostedRepositoryURLs: Set<URL> = []
+    @State private var hostedRepositorySortOrder: ContextAwareSortOrder = .urlAscending
 
     var body: some View {
         VStack(spacing: 0) {
@@ -398,6 +399,23 @@ struct HostedRepositoriesView: View {
                 .padding(.top, 8)
 
             HStack {
+                Menu {
+                    ForEach(ContextAwareSortOrder.allCases) { sortOrder in
+                        Button {
+                            hostedRepositorySortOrder = sortOrder
+                        } label: {
+                            if hostedRepositorySortOrder == sortOrder {
+                                Label(sortOrder.title, systemImage: "checkmark")
+                            } else {
+                                Text(sortOrder.title)
+                            }
+                        }
+                    }
+                } label: {
+                    Label("Sort", systemImage: "arrow.up.arrow.down")
+                }
+                .buttonStyle(.borderless)
+
                 EditButton()
 
                 if isEditing && selectedHostedRepositoryURLs.isEmpty == false {
@@ -425,7 +443,7 @@ struct HostedRepositoriesView: View {
                     Text("No hosted repositories yet.")
                         .foregroundColor(.secondary)
                 } else {
-                    ForEach(repositoryHostStore.repositories) { repository in
+                    ForEach(hostedRepositories) { repository in
                         NavigationLink(destination: RepoView(repository: repository)) {
                             Text(repository.displayName)
                                 .font(.headline)
@@ -473,9 +491,12 @@ struct HostedRepositoriesView: View {
     }
 
     private var seenRepositories: [URL] {
-        repositoryHostStore.seenRepositoryURLs
+        hostedRepositorySortOrder.sort(urls: Array(repositoryHostStore.seenRepositoryURLs))
             .filter { hasHostedRepository($0) == false }
-            .sorted { $0.absoluteString < $1.absoluteString }
+    }
+
+    private var hostedRepositories: [DemoRepositoryHostStore.HostedRepository] {
+        hostedRepositorySortOrder.sort(repositories: repositoryHostStore.repositories)
     }
 
     private var availableSeenRepositories: [URL] {
@@ -496,7 +517,6 @@ struct HostedRepositoriesView: View {
     }
 
     private func removeHostedRepositories(at offsets: IndexSet) {
-        let hostedRepositories = repositoryHostStore.repositories.sorted { $0.remoteURL.absoluteString < $1.remoteURL.absoluteString }
         offsets
             .map { hostedRepositories[$0] }
             .forEach { repositoryHostStore.removeHostedRepository($0.remoteURL) }
