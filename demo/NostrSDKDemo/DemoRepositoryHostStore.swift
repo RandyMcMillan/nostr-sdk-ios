@@ -399,8 +399,7 @@ struct HostedRepositoriesView: View {
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-            HStack {
-                Spacer()
+            ContextAwareListToolbar {
                 Text("Sort:")
                     .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
@@ -420,10 +419,7 @@ struct HostedRepositoriesView: View {
                         Text("Delete Selected")
                     }
                 }
-
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
 
             List(selection: $selectedHostedRepositoryURLs) {
                 if let lastErrorMessage = repositoryHostStore.lastErrorMessage {

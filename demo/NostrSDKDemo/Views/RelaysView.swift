@@ -188,6 +188,7 @@ struct RelaysView: View {
     @State private var relaySortOption: RelaySortOption = .urlAscending
     @State private var relayStateRefreshToken = 0
     @State private var relayStateCancellable: AnyCancellable?
+    @State private var isConnectedRelaysExpanded = true
     @State private var isSeenRelaysExpanded = true
     
     var body: some View {
@@ -217,18 +218,19 @@ struct RelaysView: View {
                                            descending: .pingDescending,
                                            ascendingTitle: "Ping ↑",
                                            descendingTitle: "Ping ↓")
-
-                ContextAwareActionChipButton(title: "Add All",
-                                             systemImage: "plus.circle.fill",
-                                             isEnabled: seenRelays.isEmpty == false) {
-                    addAllSeenRelays()
+            } trailing: {
+                ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
+                                             systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
+                    isConnectedRelaysExpanded.toggle()
                 }
 
                 EditButton()
             }
 
             List {
-                relaySection(title: "Connected", relays: groupedRelays.connected)
+                relaySection(title: "Connected",
+                             relays: groupedRelays.connected,
+                             isExpanded: isConnectedRelaysExpanded)
                 relaySection(title: "Connecting", relays: groupedRelays.connecting)
                 relaySection(title: "Disconnected", relays: groupedRelays.disconnected, showsReconnectButton: true)
 
@@ -274,13 +276,18 @@ struct RelaysView: View {
                         }
                     }
                 } header: {
-                    HStack {
+                    ContextAwareListToolbar {
                         Text("Seen Relays")
-                        Spacer(minLength: 12)
-
+                    } trailing: {
                         ContextAwareActionChipButton(title: isSeenRelaysExpanded ? "Hide" : "Show",
                                                      systemImage: isSeenRelaysExpanded ? "chevron.up" : "chevron.down") {
                             isSeenRelaysExpanded.toggle()
+                        }
+
+                        ContextAwareActionChipButton(title: "Add All",
+                                                     systemImage: "plus.circle.fill",
+                                                     isEnabled: seenRelays.isEmpty == false) {
+                            addAllSeenRelays()
                         }
                     }
                 }
@@ -330,9 +337,12 @@ struct RelaysView: View {
     }
 
     @ViewBuilder
-    private func relaySection(title: String, relays: [Relay], showsReconnectButton: Bool = false) -> some View {
+    private func relaySection(title: String, relays: [Relay], isExpanded: Bool = true, showsReconnectButton: Bool = false) -> some View {
         Section(title) {
-            if relays.isEmpty {
+            if isExpanded == false {
+                Text("Hidden.")
+                    .foregroundColor(.secondary)
+            } else if relays.isEmpty {
                 Text("No \(title.lowercased()) relays.")
                     .foregroundColor(.secondary)
             } else {

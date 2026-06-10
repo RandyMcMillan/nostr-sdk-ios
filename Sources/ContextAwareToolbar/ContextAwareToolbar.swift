@@ -110,20 +110,30 @@ public struct ContextAwareActionChipButton: View {
     }
 }
 
-public struct ContextAwareListToolbar<Content: View>: View {
+public struct ContextAwareListToolbar<Content: View, Trailing: View>: View {
     private let content: Content
+    private let trailing: Trailing
 
-    public init(@ViewBuilder content: () -> Content) {
+    public init(@ViewBuilder content: () -> Content,
+                @ViewBuilder trailing: () -> Trailing) {
         self.content = content()
+        self.trailing = trailing()
     }
 
     public var body: some View {
         HStack {
             Spacer()
             content
+            trailing
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
+    }
+}
+
+public extension ContextAwareListToolbar where Trailing == EmptyView {
+    init(@ViewBuilder content: () -> Content) {
+        self.init(content: content, trailing: { EmptyView() })
     }
 }
 
