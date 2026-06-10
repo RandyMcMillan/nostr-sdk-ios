@@ -358,7 +358,7 @@ struct RelaysView: View {
 
                             Spacer(minLength: 12)
 
-                            relay.statusImage
+                            relay.statusImage.hidden()
 
                             if showsReconnectButton {
                                 ContextAwareActionChipButton(title: "Reconnect",
