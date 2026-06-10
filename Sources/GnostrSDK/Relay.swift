@@ -142,10 +142,12 @@ public final class Relay: ObservableObject, EventVerifying, RelayOperating, Hash
                     self?.receive(message)
                     self?.logger.info("\(event.description)")
                 case .disconnected:
+                    // Slow or unreliable relays must leave .connecting immediately so the UI never waits on a stalled socket.
                     self?.connectionStartedAt = nil
                     self?.state = .notConnected
                     self?.logger.info("\(event.description)")
                 case .error(let error):
+                    // Treat socket failure as terminal for this attempt; the UI can retry without keeping the relay "connecting".
                     self?.connectionStartedAt = nil
                     self?.state = .error(error)
                     self?.logger.error("\(event.description)")
