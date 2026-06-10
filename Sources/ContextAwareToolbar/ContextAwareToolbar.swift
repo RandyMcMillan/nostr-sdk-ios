@@ -113,27 +113,31 @@ public struct ContextAwareActionChipButton: View {
 public struct ContextAwareListToolbar<Content: View, Trailing: View>: View {
     private let content: Content
     private let trailing: Trailing
+    private let horizontalPadding: CGFloat
 
     public init(@ViewBuilder content: () -> Content,
-                @ViewBuilder trailing: () -> Trailing) {
+                @ViewBuilder trailing: () -> Trailing,
+                horizontalPadding: CGFloat = 0) {
         self.content = content()
         self.trailing = trailing()
+        self.horizontalPadding = horizontalPadding
     }
 
     public var body: some View {
         HStack {
-            Spacer()
             content
+            Spacer(minLength: 12)
             trailing
         }
-        .padding(.horizontal)
+        .padding(.horizontal, horizontalPadding)
         .padding(.vertical, 8)
     }
 }
 
 public extension ContextAwareListToolbar where Trailing == EmptyView {
-    init(@ViewBuilder content: () -> Content) {
-        self.init(content: content, trailing: { EmptyView() })
+    init(horizontalPadding: CGFloat = 0,
+         @ViewBuilder content: () -> Content) {
+        self.init(content: content, trailing: { EmptyView() }, horizontalPadding: horizontalPadding)
     }
 }
 
