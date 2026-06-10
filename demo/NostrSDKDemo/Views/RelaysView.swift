@@ -224,20 +224,74 @@ struct RelaysView: View {
                     isConnectedRelaysExpanded.toggle()
                 }
 
-                ContextAwareActionChipButton(title: "Remove All",
-                                             systemImage: "minus.circle.fill",
-                                             role: .destructive,
-                                             isEnabled: connectedRelays.isEmpty == false) {
-                    removeAllConnectedRelays()
-                }
-
                 EditButton()
             }
 
             List {
-                relaySection(title: "Connected",
-                             relays: groupedRelays.connected,
-                             isExpanded: isConnectedRelaysExpanded)
+                Section {
+                    if isConnectedRelaysExpanded {
+                        if connectedRelays.isEmpty {
+                            Text("No connected relays yet.")
+                                .foregroundColor(.secondary)
+                        } else {
+                            ForEach(groupedRelays.connected, id: \.url) { relay in
+                                DisclosureGroup(isExpanded: binding(for: relay.url)) {
+                                    relayMetadataDetails(for: relay)
+                                        .padding(.top, 10)
+                                } label: {
+                                    HStack(alignment: .center, spacing: 12) {
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            Text(relay.url.absoluteString)
+                                                .font(.subheadline)
+                                                .textSelection(.enabled)
+                                            if let pingLabel = relay.pingLabel {
+                                                Text("Ping \(pingLabel)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                        }
+
+                                        Spacer(minLength: 12)
+
+                                        relay.statusImage.hidden()
+
+                                        ContextAwareActionChipButton(title: "Remove",
+                                                                     systemImage: "minus.circle.fill",
+                                                                     role: .destructive) {
+                                            disconnect(relay)
+                                        }
+                                    }
+                                }
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(Color(.secondarySystemBackground))
+                                )
+                                .onAppear {
+                                    relayInfoLoader.refresh(relays: [relay])
+                                }
+                            }
+                        }
+                    }
+                } header: {
+                    ContextAwareListToolbar {
+                        Text("Connected")
+                    } trailing: {
+                        ContextAwareActionChipButton(title: isConnectedRelaysExpanded ? "Hide" : "Show",
+                                                     systemImage: isConnectedRelaysExpanded ? "chevron.up" : "chevron.down") {
+                            isConnectedRelaysExpanded.toggle()
+                        }
+
+                        ContextAwareActionChipButton(title: "Remove All",
+                                                     systemImage: "minus.circle.fill",
+                                                     role: .destructive,
+                                                     isEnabled: connectedRelays.isEmpty == false) {
+                            removeAllConnectedRelays()
+                        }
+                    }
+                }
+
                 relaySection(title: "Connecting", relays: groupedRelays.connecting)
                 relaySection(title: "Disconnected", relays: groupedRelays.disconnected, showsReconnectButton: true)
 
